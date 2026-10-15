@@ -224,18 +224,6 @@ export function Navbar({ phone, phoneHref, currentPath }: NavbarProps) {
                             {overview.label} <ArrowRight size={16} aria-hidden="true" />
                           </a>
                         </div>
-                        {category === "cisteni" && (
-                          <aside className="rd-panel-cta" aria-label="Ukázka čištění zdarma">
-                            <strong>Ukázka čištění zdarma</strong>
-                            <p>Na malé ploše ukážeme výsledek čištění přímo na vašem objektu.</p>
-                            <a className="rd-btn rd-btn-primary" href={sample.href} onClick={closeMenus}>
-                              {sample.label}
-                            </a>
-                            <a className="rd-panel-cta-phone" href={phoneHref}>
-                              {phone}
-                            </a>
-                          </aside>
-                        )}
                       </div>
                     </div>
                   )}

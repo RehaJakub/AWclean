@@ -128,36 +128,6 @@ export function HomeResults() {
   );
 }
 
-export function HomeReach() {
-  return (
-    <section className="home-reach" aria-labelledby="dosah-title">
-      <div className="rd-wrap home-reach-head">
-        <div>
-          <p className="home-reach-kicker" id="dosah-title">
-            Působíme po celé ČR a SR · Telefonní linka NON-STOP
-          </p>
-          <a className="home-reach-phone" href="tel:+420773196097">
-            <span>+420</span> 773 196 097
-          </a>
-        </div>
-        <a className="home-reach-link" href="/kontakt/#kontakt">
-          Napsat poptávku <ArrowRight size={18} aria-hidden="true" />
-        </a>
-      </div>
-      <div className="home-reach-photo">
-        <ResponsiveImage
-          src="/images/vozy/dve-dodavky-awclean-spolecny-bocni-pohled.webp"
-          alt="Dvě firemní dodávky AWCLEAN s modrobílými polepy, boční pohled."
-          sizes="100vw"
-          loading="lazy"
-          width="2048"
-          height="1152"
-        />
-      </div>
-    </section>
-  );
-}
-
 export function HomeSample() {
   return (
     <section className="home-sample" aria-labelledby="ukazka-title">
@@ -173,7 +143,7 @@ export function HomeSample() {
             Ukázky provádíme po celé ČR zdarma.
           </p>
           <div className="rd-cta-actions">
-            <a className="rd-btn rd-btn-light" href="/kontakt/?vzorek=1#kontakt">
+            <a className="rd-btn rd-btn-light" href="#kontakt">
               {sampleLabel} <ArrowRight size={18} aria-hidden="true" />
             </a>
             <a className="rd-cta-phone" href="tel:+420773196097">
