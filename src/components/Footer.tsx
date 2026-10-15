@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { ResponsiveImage } from "./ResponsiveImage";
-import { ArrowUp, Phone, Facebook, Youtube } from "lucide-react";
+import { ArrowUp, MessageSquareText, Facebook, Youtube } from "lucide-react";
 import { ConsentManager } from "./ConsentManager";
 import { privacyUrl } from "../data/contacts";
 import { servicesByCategory } from "../data/services";
@@ -39,7 +40,23 @@ const footerColumns: { title: string; links: FooterLink[] }[] = [
     ],
   },
 ];
-export function Footer() {
+interface FooterProps {
+  currentPath: string;
+}
+/** Stránky, na kterých je kontaktní formulář přímo pod obsahem. */
+const pagesWithForm = ["/", "/kontakt/"];
+export function Footer({ currentPath }: FooterProps) {
+  const formHref = pagesWithForm.includes(currentPath) ? "#kontakt" : "/kontakt/#kontakt";
+  const [formVisible, setFormVisible] = useState(false);
+  useEffect(() => {
+    const form = document.getElementById("kontakt");
+    if (!form || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(([entry]) =>
+      setFormVisible(entry?.isIntersecting ?? false),
+    );
+    observer.observe(form);
+    return () => observer.disconnect();
+  }, []);
   return (
     <footer className="rd-footer">
       <div className="rd-wrap">
@@ -98,8 +115,13 @@ export function Footer() {
           </a>
         </div>
       </div>
-      <a className="mobile-call" href="tel:+420773196097">
-        <Phone size={18} /> Zavolat <span>+420 773 196 097</span>
+      <a
+        className={`mobile-call rd-inquiry-float${formVisible ? " is-hidden" : ""}`}
+        href={formHref}
+        aria-hidden={formVisible || undefined}
+        tabIndex={formVisible ? -1 : undefined}
+      >
+        <MessageSquareText size={19} aria-hidden="true" /> Nezávazná poptávka
       </a>
     </footer>
   );

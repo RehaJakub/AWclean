@@ -1,4 +1,5 @@
 import { Hero } from "../components/Hero";
+import { ContactForm } from "../components/ContactForm";
 import {
   HomeReach,
   HomeReferences,
@@ -15,6 +16,7 @@ export function HomePage() {
       <HomeReach />
       <HomeSample />
       <HomeReferences />
+      <ContactForm endpoint={import.meta.env.VITE_CONTACT_ENDPOINT} />
     </div>
   );
 }
