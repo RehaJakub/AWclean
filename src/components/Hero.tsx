@@ -1,9 +1,15 @@
 import type { CSSProperties } from "react";
 import { ResponsiveImage } from "./ResponsiveImage";
-import { ArrowDown, ArrowRight, Pause, Play } from "lucide-react";
+import { ArrowRight, Pause, Play } from "lucide-react";
 import { sampleLabel } from "../data/offers";
 import { heroSlides } from "../data/heroSlides";
 import { useCarousel } from "../hooks/useCarousel";
+
+const tabLabels: Record<string, string> = {
+  fasady: "Fasády",
+  strechy: "Střechy",
+  dlazby: "Dlažby",
+};
 
 export function Hero() {
   const carousel = useCarousel(heroSlides.length, 5000);
@@ -12,7 +18,7 @@ export function Hero() {
   return (
     <section
       ref={carousel.ref}
-      className={`cinema-hero${carousel.rotating ? " is-playing" : ""}`}
+      className={`rd-hero${carousel.rotating ? " is-playing" : ""}`}
       aria-label="Služby AWCLEAN"
       aria-roledescription="prezentace"
       onFocusCapture={() => carousel.setFocused(true)}
@@ -21,11 +27,11 @@ export function Hero() {
           carousel.setFocused(false);
       }}
     >
-      <div className="cinema-images">
+      <div className="rd-hero-images">
         {heroSlides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`cinema-image${index === carousel.index ? " is-active" : ""}`}
+            className={`rd-hero-image${index === carousel.index ? " is-active" : ""}`}
             aria-hidden={index !== carousel.index}
           >
             <ResponsiveImage
@@ -43,48 +49,60 @@ export function Hero() {
           </div>
         ))}
       </div>
-      <div className="cinema-shade" aria-hidden="true" />
-      <div className="cinema-content container">
-        <p className="cinema-kicker">
-          <span /> Čistota až do posledního metru
-        </p>
-        <div className="cinema-story">
-          <h1 key={active.id}>{active.heading} <span>{active.accent}</span></h1>
-          <p className="hero-service-scope">Čištění fasád, střech, dlažeb a průmyslových objektů.</p>
+      <div className="rd-hero-shade" aria-hidden="true" />
+      <div className="rd-hero-content rd-wrap">
+        <div className="rd-hero-copy">
+          <h1 key={active.id}>
+            {active.heading} <span>{active.accent}</span>
+          </h1>
           <p>
             {active.description} Působíme po celé ČR a SR.
           </p>
+          <p className="rd-hero-scope">
+            Fasády · Střechy · Dlažby · Průmysl. Od roku 2001.
+          </p>
         </div>
-        <div className="cinema-actions">
-          <a
-            className="button button-primary"
-            href="/kontakt/?vzorek=1#kontakt"
-          >
-            {sampleLabel}
-            <ArrowRight size={19} />
-          </a>
-          <a className="button button-outline cinema-outline" href="#pred-a-po">
-            Prohlédnout výsledky
-          </a>
+        <div className="rd-hero-side">
+          <div className="rd-hero-actions">
+            <a className="rd-btn rd-btn-primary" href="/kontakt/?vzorek=1#kontakt">
+              {sampleLabel} <ArrowRight size={18} aria-hidden="true" />
+            </a>
+            <a className="rd-btn rd-btn-ghost" href="#pred-a-po">
+              Prohlédnout výsledky
+            </a>
+          </div>
+          <div className="rd-hero-controls">
+            <div className="rd-hero-tabs" role="group" aria-label="Vybrat snímek">
+              {heroSlides.map((slide, index) => (
+                <button
+                  key={slide.id}
+                  type="button"
+                  aria-pressed={index === carousel.index}
+                  onClick={() => {
+                    carousel.setIndex(index);
+                    carousel.setPaused(true);
+                  }}
+                >
+                  {tabLabels[slide.id] ?? slide.label}
+                </button>
+              ))}
+            </div>
+            {!carousel.reducedMotion && (
+              <button
+                type="button"
+                className="rd-hero-pause"
+                onClick={() => carousel.setPaused(!carousel.paused)}
+                aria-label={
+                  carousel.paused
+                    ? "Spustit automatické střídání snímků"
+                    : "Pozastavit automatické střídání snímků"
+                }
+              >
+                {carousel.paused ? <Play size={16} /> : <Pause size={16} />}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-      <div className="cinema-bottom container">
-        <a href="#pred-a-po" className="cinema-discover">
-          <ArrowDown size={17} /> VÝSLEDKY PŘED A PO
-        </a>
-        {!carousel.reducedMotion && (
-          <button
-            className="cinema-pause"
-            onClick={() => carousel.setPaused(!carousel.paused)}
-            aria-label={
-              carousel.paused
-                ? "Spustit automatické střídání snímků"
-                : "Pozastavit automatické střídání snímků"
-            }
-          >
-            {carousel.paused ? <Play size={16} /> : <Pause size={16} />}
-          </button>
-        )}
       </div>
       <p
         className="sr-only"

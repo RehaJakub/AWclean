@@ -123,7 +123,7 @@ export default function App({
       <main id="main">{content}</main>
       <Footer />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
-      <Suspense fallback={null}>{clientReady && <MascotWidget />}</Suspense>
+      <Suspense fallback={null}>{clientReady && route.kind !== "advice" && <MascotWidget />}</Suspense>
     </>
   );
 }

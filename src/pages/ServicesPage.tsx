@@ -1,13 +1,12 @@
 import { ResponsiveImage } from "../components/ResponsiveImage";
 import { useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import {
   services,
   serviceCategoryLabels,
   type ServiceCategory,
 } from "../data/services";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
-import { PageIntro } from "../components/layout/PageIntro";
 import { ServiceCTA } from "../components/services/ServiceCTA";
 interface ServicesPageProps {
   otherOnly?: boolean;
@@ -31,65 +30,57 @@ export function ServicesPage({ otherOnly = false }: ServicesPageProps) {
   return (
     <>
       <Breadcrumbs
-        items={[{ label: otherOnly ? "Ostatní služby" : "Všechny služby" }]}
+        items={[{ label: otherOnly ? "Ostatní služby" : "Přehled služeb" }]}
       />
-      <PageIntro
-        eyebrow="KOMPLETNÍ PÉČE OD AWCLEAN"
-        title={
-          otherOnly
-            ? "I na detaily máme řešení."
-            : "Každý povrch. Správná péče."
-        }
-        description={
-          otherOnly
-            ? "Impregnace fasád a střech, nano impregnace a odstraňování dopravního značení. Vyberte si službu a prohlédněte si podrobnosti."
-            : "Od čištění fasády přes obnovu střechy po speciální práce ve výškách. Vyberte si službu a prohlédněte si postup i skutečné realizace."
-        }
-      />
-      <section className="catalog-section container">
+      <section className="rd-page rd-wrap" aria-labelledby="page-title">
+        <header className="rd-page-head">
+          <h1 id="page-title">{otherOnly ? "Ostatní služby" : "Přehled služeb"}</h1>
+          <p>
+            {otherOnly
+              ? "Impregnace fasád a střech, nano impregnace a odstraňování dopravního značení. Vyberte si službu a prohlédněte si podrobnosti."
+              : "Od čištění fasády přes obnovu střechy po speciální práce ve výškách. Vyberte si službu a prohlédněte si postup i skutečné realizace."}
+          </p>
+        </header>
         {!otherOnly && (
-          <div
-            className="filter-bar"
-            role="group"
-            aria-label="Filtrovat služby"
-          >
-            {filters
-              .filter((item) => !otherOnly || item.value === "all")
-              .map((item) => (
-                <button
-                  key={item.value}
-                  aria-pressed={filter === item.value}
-                  onClick={() => setFilter(item.value)}
-                >
-                  {item.label}
-                </button>
-              ))}
+          <div className="rd-chips" role="group" aria-label="Filtrovat služby">
+            {filters.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                aria-pressed={filter === item.value}
+                onClick={() => setFilter(item.value)}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
         )}
-        <p className="result-count" role="status">
+        <p className="sr-only" role="status">
           Zobrazené služby: {visible.length}
         </p>
-        <div className="catalog-grid">
+        <div className="rd-card-grid">
           {visible.map((page) => (
-            <a href={page.href} key={page.href} className="catalog-card">
+            <a href={page.href} key={page.href} className="catalog-card rd-photo-card is-tall">
               <ResponsiveImage
                 src={page.image}
-                alt={page.imageAlt}
+                alt=""
+                sizes="(max-width: 760px) 100vw, 33vw"
                 loading="lazy"
                 width="750"
                 height="560"
               />
-              <div>
-                <span className="small-label">
+              <span className="rd-photo-card-body">
+                <span className="rd-photo-card-kicker">
                   {serviceCategoryLabels[page.category]}
                 </span>
-                <h2>
-                  {page.title}
-                  <ArrowUpRight size={22} />
-                </h2>
-                <p>{page.description}</p>
-                <span className="text-link">Prohlédnout službu</span>
-              </div>
+                <span className="rd-photo-card-title">
+                  {page.title.replace(" (airless)", "")}
+                </span>
+                <span className="rd-photo-card-text">{page.description}</span>
+              </span>
+              <span className="rd-photo-card-arrow" aria-hidden="true">
+                <ArrowRight size={18} />
+              </span>
             </a>
           ))}
         </div>

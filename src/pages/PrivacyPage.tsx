@@ -1,16 +1,17 @@
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
-import { PageIntro } from "../components/layout/PageIntro";
 import { privacySections } from "../data/privacy";
 export function PrivacyPage() {
   return (
     <>
       <Breadcrumbs items={[{ label: "Ochrana osobních údajů a cookies" }]} />
-      <PageIntro
-        eyebrow="VAŠE SOUKROMÍ"
-        title="Ochrana osobních údajů a cookies"
-        description="Přehled informací o zpracování kontaktních údajů, vašich právech a používání cookies na tomto webu."
-      />
-      <article className="reading-page container">
+      <article className="rd-wrap privacy-page">
+        <header>
+          <h1>Ochrana osobních údajů a cookies</h1>
+          <p className="svc-lead">
+            Přehled informací o zpracování kontaktních údajů, vašich právech a
+            používání cookies na tomto webu.
+          </p>
+        </header>
         {privacySections.map((section, index) => (
           <section key={section.title}>
             <h2>
@@ -28,7 +29,7 @@ export function PrivacyPage() {
             )}
           </section>
         ))}
-        <a className="text-link" href="mailto:info@awclean.cz">
+        <a className="rd-link" href="mailto:info@awclean.cz">
           Kontaktovat správce: info@awclean.cz
         </a>
       </article>
