@@ -1,0 +1,62 @@
+[
+  {
+    "original": "04c13c3a-0737-4530-a924-5efe8fb7be8c.JPG",
+    "file": "dodavka-awclean-bocni-pohled-detail.jpg",
+    "alt": "Boční detail dodávky s velkým nápisem Čištění fasád a střech.",
+    "sha256": "77b7c25f30c3de9427ebd024b15f664e5c577966611cd930451ab35c78dc5fed"
+  },
+  {
+    "original": "0c255266-9799-4e0c-8977-53eb04204f7f.JPG",
+    "file": "dodavka-awclean-bocni-pohled-na-vysku.jpg",
+    "alt": "Boční pohled na dodávku; snímek na výšku s oblohou a okolím.",
+    "sha256": "7c1d5100d422f11b3ad961e7d3073f9428a15cbb80fa548095600b0c58fb6a3e"
+  },
+  {
+    "original": "1a9840a9-4507-4607-999a-626df6af5ac8.JPG",
+    "file": "dodavka-awclean-bocni-pohled-z-odstupu.jpg",
+    "alt": "Dodávka z boku zachycená z většího odstupu, na výšku.",
+    "sha256": "73790a3154c6551957cc21f38511e59c9061491ae858479eb4bcde86666f17b2"
+  },
+  {
+    "original": "26a065a4-3b0c-4137-a93c-a23b3fb701b4.JPG",
+    "file": "dve-dodavky-awclean-celni-pohled-na-vysku.jpg",
+    "alt": "Dvojice firemních dodávek zepředu, snímek na výšku.",
+    "sha256": "c0303e7f0db2226d49c14b24c8c563caa7d821ae425967dcce94464bb88539ce"
+  },
+  {
+    "original": "46433cdc-5b27-4f0e-be6a-b86d13a683bb.JPG",
+    "file": "dve-dodavky-awclean-zadni-pohled-na-vysku.jpg",
+    "alt": "Dvojice dodávek zezadu, na výšku; na dveřích jsou polepy a kontakty.",
+    "sha256": "80ef7e3639baa4746c99a24494b8c6d9e8374c64ee4011e0a277035e401cbd72"
+  },
+  {
+    "original": "4ff42f88-ae11-4e4f-9fb8-6077a750e3e3.JPG",
+    "file": "dve-dodavky-awclean-zadni-pohled-detail.jpg",
+    "alt": "Detail zadních dveří obou dodávek s logy a kontakty.",
+    "sha256": "5017e27a7c69c37394c0852fccd268ed5860dfb169fcbf1f86366c601f9decf1"
+  },
+  {
+    "original": "60a129e7-1718-4828-844f-ef86de276039.JPG",
+    "file": "dve-dodavky-awclean-spolecny-bocni-pohled.jpg",
+    "alt": "Společný pohled na dvě firemní dodávky z boku a šikmo zepředu.",
+    "sha256": "bf381f87f1b57a9cf44aaf8c24e7ba5170bd5400f44199b3aa7a0249e1fc42ad"
+  },
+  {
+    "original": "8af4811d-b811-46f0-9839-a195346aba84.JPG",
+    "file": "dodavka-awclean-levy-bok.jpg",
+    "alt": "Celý levý bok dodávky s firemním polepem, snímek na šířku.",
+    "sha256": "998a01786977ec199cbd5b9ae070b55065e5d2b4e11187be9dc9b18fb66b0d61"
+  },
+  {
+    "original": "8c87aa89-0a90-4ec8-aa7c-c8646688b73b.JPG",
+    "file": "dve-dodavky-awclean-celni-pohled.jpg",
+    "alt": "Dvě dodávky zaparkované vedle sebe, čelní pohled na šířku.",
+    "sha256": "9239bb26e865089e9fb391c272ca4938668d2cc67f35715ec31c38c5bda630eb"
+  },
+  {
+    "original": "db968b9e-fdae-4f93-9a30-9af1e73b372b.JPG",
+    "file": "dodavka-awclean-pravy-bok.jpg",
+    "alt": "Pravý bok dodávky s firemním polepem před domem.",
+    "sha256": "9ea6aaafa2740f61879f16ba6400f5c5a18e32d2c109753ab204d5a3c8121173"
+  }
+]
