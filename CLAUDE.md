@@ -1,6 +1,6 @@
 # AWCLEAN – kontext projektu
 
-Ověřeno čtením zdrojů 15. 10. 2026. Tento soubor je stručný pracovní přehled;
+Ověřeno čtením zdrojů 15. 10. 2026, aktualizováno po redesignu 16. 10. 2026. Tento soubor je stručný pracovní přehled;
 aktuální kód má přednost před historickými poznámkami v README/UPGRADE-NOTES.
 Pravidla práce jsou v `AGENTS.md`.
 
@@ -30,13 +30,15 @@ Ověřeno s Node 24.18.1; README uvádí Node 22.18+.
 - `src/data/services.ts`: odvozené menu, kategorie, katalog a footer.
   Kategorie cisteni/natery/ostatni mají 8/1/3 služeb. Nátěry mají dva odkazy na kotvy.
 - `src/data/`: fotografie, srcset manifest, realizace, kontakty, SEO, FAQ,
-  průvodce, skupiny zákazníků a CTA. Obsah je lokální TypeScript, nikoli databáze.
-- `src/components/`: prezentační sekce, galerie, před/po, formulář, navigace,
-  souhlas a DR Fasáda; `layout/` drobečky/úvody, `services/` společné CTA.
-- `src/hooks/`: viditelnost, animace, carousel, omezení pohybu, čítače,
-  aktualizace let zkušeností a chování maskota.
-- CSS se načítá v pořadí styles → home → refinements → conversion → upgrade;
-  MascotWidget má vlastní lazy CSS. Tokeny jsou v tailwind.config.ts.
+  průvodce, skupiny zákazníků, CTA a `serviceVisuals.ts` (fotky bloků služeb,
+  náhledy menu, výběr FAQ ke službě). Obsah je lokální TypeScript, nikoli databáze.
+- `src/components/`: Navbar (mega menu), Footer, Hero (před/po), Gallery,
+  ContactForm, ConsentManager, MascotWidget + ServiceGuide (DR Fasáda);
+  `home/HomeSections.tsx` sekce homepage, `layout/` drobečky, `services/` CTA banner.
+- `src/hooks/`: useInView (Section) a useWidgetVisibility (maskot).
+- CSS se načítá v pořadí styles → home → refinements → conversion → upgrade
+  → redesign; `redesign.css` je aktuální vzhled (třídy `rd-*`, `svc-*`, `home-*`)
+  a přebíjí starší vrstvy. MascotWidget má vlastní lazy CSS.
 - `public/images/`: originály projects, optimalizované realizace,
   fasady-nove, vozy, press, responsive, logo a favicony.
 - `public/mascot/dr-fasada.png`: hotový maskot; neobnovovat jej generováním.
@@ -65,12 +67,23 @@ Původní nátěry, graffiti, historické fasády a ochrana údajů mají aliasy
 
 ## Chování
 
-Home: Hero → TrustBar → BeforeAfterSlider → ServiceGrid (včetně AudienceNavigator)
-→ About → WhyUs → Process → Press → ContactForm.
-Hero střídá 3 snímky po **5000 ms**; zastaví se mimo viewport, při fokusu,
-skryté kartě, ruční pauze a reduced motion. Není zde video.
-Reference mají 25 položek, filtry `?typ=...`, lightbox a vyhledávání firem.
-Před/po má 3 porovnání, pointer/klávesnici a alternativu dvou snímků.
+Vzhled vychází z návrhu Claude Design (16. 10. 2026, větev
+`feature/redesign-claude-design`). Z návrhu se přebírá vzhled a výběr skutečných
+fotek; texty zůstávají ze stávajících dat ověřených proti awclean.cz.
+
+Home: Hero → Co vyčistíme (8 služeb + 4 další) → Rozdíl je vidět (3 realizace)
+→ Ukázka čištění zdarma (DR Fasáda) → Reference (+ Dům a Byt) → ContactForm
+s fotkou dodávek. Hero je posuvné porovnání cihlové fasády před/po (myš, dotyk,
+šipky přes skrytý range input). Slideshow ani video na homepage nejsou.
+„Rozdíl je vidět“ používá jen fotky z dat dané realizace (projects.ts).
+Plovoucí tlačítko vlevo dole „Nezávazná poptávka“ vede na `#kontakt`
+(homepage/kontakt) nebo `/kontakt/#kontakt`; skryje se, když je formulář vidět.
+Navigace: mega menu Čištění (8 služeb s náhledy), menší nabídky Nátěry
+a Ostatní služby, na desktopu hover i klik/klávesnice, mobilní menu s rozbalením.
+Šablona služby: úvod s fotkou → bloky s fotkami → Realizace (4 + rozbalení,
+lightbox) → Časté otázky → CTA banner → Související služby.
+Reference mají 3 karty detailů, 25 fotek, filtry `?typ=...`, lightbox a vyhledávání firem.
+Čisté fasády: původní článek + vyhledávání v FAQ DR Fasády; plovoucí maskot se tam nezobrazuje.
 
 DR Fasáda je pevný průvodce, ne AI: objekt → povrch → problém → služba.
 FAQ má 9 odpovědí, kategorie a vyhledávání bez diakritiky. Maskot je vpravo,
@@ -78,7 +91,7 @@ FAQ má 9 odpovědí, kategorie a vyhledávání bez diakritiky. Maskot je vprav
 `awclean-mascot-v1`. Dialog má Escape, návrat fokusu a focus trap.
 Preference souhlasu se ukládají do localStorage `awclean-consent-v1` na 180 dní.
 Žádná analytika ani reklamní skripty nejsou připojené; přepínače je nespouštějí.
-Počet zkušeností je aktuální rok minus 2001, aktualizovaný hookem i bez nového buildu.
+Primární modrá tlačítek je #0a74b0 (návrhová #0b8fd6 nesplňuje kontrast AA).
 
 ## Formulář a integrace
 
@@ -115,16 +128,17 @@ SEO doména je pevně https://www.awclean.cz (canonical, OG, Twitter, sitemap, J
 Konfigurace konkrétního hostingu ani CI/CD workflow v repozitáři nejsou.
 GitHub remote: https://github.com/RehaJakub/AWclean.git.
 
-## Stav auditu 15. 10. 2026
+## Stav ověření 16. 10. 2026 (po redesignu)
 
 - `tsc --noEmit`: bez chyb.
 - Aktuální src: 53 testů v 5 souborech prošlo příkazem
   `npm test -- --no-cache --configLoader runner --exclude 'backups/**'`.
 - Bez explicitního vyloučení se lokálně spouštějí i testy odmítnuté kopie
   v backups (106 testů/10 souborů). Doporučení: omezit test discovery na src.
-- `npm run check:build`: existující sestavení všech 23 adres prošlo.
-  Nový build nebyl při tomto auditu spuštěn, aby se nepřepsal dist.
-- Nebyl proveden nový úplný audit prohlížečů, WCAG, výkonu ani bezpečnosti závislostí.
+- `npm run build` a `npm run check:build`: všech 23 adres prošlo.
+  verify-build kontroluje na homepage existenci `#pred-a-po` a `#sluzby`.
+- Stránky vyfoceny v Brave (1440 a 390 px) skriptem taste skillu; nebyl proveden
+  úplný audit prohlížečů, WCAG, výkonu ani bezpečnosti závislostí.
 - V prohledaných aplikačních zdrojích nebyly nalezeny běžné signatury tajných klíčů.
   Nejde o záruku bezpečnosti ani audit externího serveru.
 
@@ -138,10 +152,11 @@ originály ve vyšším rozlišení. Viz CONTENT-NOTES.md.
 Další dluh: historické README obsahuje zastaralé údaje (2,5 s, 18 fotek,
 47 testů, wave varianta); index.html obsahuje starých 24+ let, produkční metadata
 se při buildu přepisují. Footer a období referencí používají přímo Date,
-takže při hydrataci starého buildu v novém roce hrozí nesoulad (na rozdíl od hooku let).
-Více vrstev CSS (~6169 řádků včetně maskota), nepoužívané Stats, References,
-SampleBanner a useParallax. Public má ~198 MiB včetně historických assetů;
-nejde o objem stažený při jedné návštěvě. Hlavní existující JS má ~465 kB bez komprese.
+takže při hydrataci starého buildu v novém roce hrozí nesoulad.
+CSS má ~7270 řádků v 7 souborech; starší vrstvy obsahují pravidla pro smazané
+komponenty (cinema-hero, trust, process, stats…), která čekají na vyčištění.
+`audiences.ts` používá už jen guide.test.ts. Public má ~198 MiB včetně
+historických assetů. Hlavní JS má ~453 kB bez komprese.
 
 ## Konvence a práce s Gitem
 
@@ -151,5 +166,7 @@ Slovenský správce údajů (IČO 50823272, Topoľčany) je výslovná volba už
 česká kontaktní adresa je Chotětov. Bez zadání neměnit.
 main je schválený stav; výchozí commit 9a0a330, tag stable-before-taste-2026-10-15.
 Změny do feature/* nebo fix/*, kontrolovat git status, commitovat jen vlastní změny.
-Nezavádět nový design bez zadání. Nevytvářet další ZIP/TAR zálohy,
+Nezavádět nový design bez zadání. Taste skill (`.claude/skills/`, design-taste-frontend
+a redesign-existing-projects) je hodnotitel, ne zákon: stock fotky a vymyšlená videa
+jsou zakázané. Nevytvářet další ZIP/TAR zálohy,
 nemazat historické backups, nepoužívat reset --hard/clean/force push bez výslovného pokynu.
