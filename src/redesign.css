@@ -1093,3 +1093,41 @@
 .mascot-mode button[aria-pressed="true"],
 .mascot-categories button[aria-pressed="true"] { background: var(--rd-navy); border-color: var(--rd-navy); color: #fff; }
 .mascot-contact .button-primary { background: var(--rd-blue); border-color: var(--rd-blue); }
+
+/* ===== Kontaktní formulář (homepage i kontakt) ===== */
+.contact-section { padding-block: clamp(72px, 9vw, 128px) 0; background: none; scroll-margin-top: var(--header-height); }
+.contact-section .contact-layout { width: 100%; max-width: 1440px; padding-inline: var(--rd-gutter); }
+.contact-section .contact-copy h2 { color: var(--rd-ink); font-size: clamp(40px, 4.4vw, 64px); font-weight: 800; line-height: 1; letter-spacing: -0.04em; }
+.contact-section .contact-copy h2 span { color: var(--rd-blue); text-decoration: none; }
+.contact-section .contact-form,
+.home-page .contact-form { border: 0; border-radius: 24px; background: var(--rd-surface); box-shadow: none; }
+.contact-section .contact-form input,
+.contact-section .contact-form textarea { background: #fff; }
+.rd-contact-page .contact-section { padding-block: 40px 0; }
+
+/* Plovoucí tlačítko poptávky vlevo dole */
+.mobile-call.rd-inquiry-float {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  position: fixed;
+  left: 20px;
+  right: auto;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 45;
+  width: auto;
+  min-height: 56px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--rd-blue);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: 0 12px 30px rgba(10, 116, 176, 0.35);
+}
+.mobile-call.rd-inquiry-float:hover { background: var(--rd-navy); color: #fff; }
+@media (max-width: 760px) {
+  .mobile-call.rd-inquiry-float { left: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); min-height: 50px; padding: 0 18px; font-size: 16px; }
+}
+.mobile-call.rd-inquiry-float { transition: opacity 0.25s, transform 0.25s, background-color 0.2s; }
+.mobile-call.rd-inquiry-float.is-hidden { opacity: 0; transform: translateY(16px); pointer-events: none; }

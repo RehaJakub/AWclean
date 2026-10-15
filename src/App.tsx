@@ -121,7 +121,7 @@ export default function App({
         phoneHref="tel:+420773196097"
       />
       <main id="main">{content}</main>
-      <Footer />
+      <Footer currentPath={route.path} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <Suspense fallback={null}>{clientReady && route.kind !== "advice" && <MascotWidget />}</Suspense>
     </>
