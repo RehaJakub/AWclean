@@ -80,7 +80,7 @@ describe("Kompletní lokální web", () => {
         servicesByCategory[category].map((service) => service.href),
       );
     const otherHtml = pageHtml("/ostatni-sluzby/");
-    expect(otherHtml.match(/class="catalog-card"/g)).toHaveLength(3);
+    expect(otherHtml.match(/class="catalog-card[ "]/g)).toHaveLength(3);
   });
   it("sloučí nátěry, odstraní mytí oken a skryje profesní členství", () => {
     expect(resolveRoute("/ostatni-sluzby/myti-oken/").kind).toBe("notFound");

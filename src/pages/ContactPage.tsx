@@ -1,20 +1,22 @@
 import { MapPin, Clock, Mail } from "lucide-react";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
-import { PageIntro } from "../components/layout/PageIntro";
 import { ContactForm } from "../components/ContactForm";
+import { ResponsiveImage } from "../components/ResponsiveImage";
 export function ContactPage() {
   return (
-    <>
+    <div className="rd-contact-page">
       <Breadcrumbs items={[{ label: "Kontakt" }]} />
-      <PageIntro
-        eyebrow="POJĎME SE DOMLUVIT"
-        title="Kontakt a nezávazná poptávka"
-        description="Zavolejte nám nebo zanechte zprávu. Ukázku čištění fasád, střech a dlažeb nabízíme zdarma po celé České republice."
-      />
+      <header className="rd-wrap rd-contact-head">
+        <h1>Kontakt</h1>
+        <p>
+          Zavolejte nám nebo zanechte zprávu. Ukázku čištění fasád, střech a
+          dlažeb nabízíme zdarma po celé České republice.
+        </p>
+      </header>
       <ContactForm endpoint={import.meta.env.VITE_CONTACT_ENDPOINT} />
-      <section className="contact-details container">
+      <section className="rd-wrap rd-contact-details" aria-label="Kontaktní údaje">
         <div>
-          <MapPin size={25} />
+          <MapPin size={24} aria-hidden="true" />
           <h2>Kde nás najdete</h2>
           <address>
             <strong>AWCLEAN s.r.o.</strong>
@@ -25,7 +27,7 @@ export function ContactPage() {
           </address>
         </div>
         <div>
-          <Clock size={25} />
+          <Clock size={24} aria-hidden="true" />
           <h2>Kdy se ozvat</h2>
           <p>
             Provozní doba: Po–Ne 8:00–17:00.
@@ -34,7 +36,7 @@ export function ContactPage() {
           </p>
         </div>
         <div>
-          <Mail size={25} />
+          <Mail size={24} aria-hidden="true" />
           <h2>Působíme v ČR a SR</h2>
           <p>
             <a href="mailto:info@awclean.cz">info@awclean.cz</a>
@@ -43,6 +45,18 @@ export function ContactPage() {
           </p>
         </div>
       </section>
-    </>
+      <div className="rd-wrap">
+        <div className="rd-contact-photo">
+          <ResponsiveImage
+            src="/images/vozy/dve-dodavky-awclean-spolecny-bocni-pohled.webp"
+            alt="Dvě firemní dodávky AWCLEAN s modrobílými polepy, boční pohled."
+            sizes="100vw"
+            loading="lazy"
+            width="2048"
+            height="1152"
+          />
+        </div>
+      </div>
+    </div>
   );
 }

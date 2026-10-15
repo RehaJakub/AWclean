@@ -230,15 +230,6 @@ export function ContactForm({ endpoint = "" }: ContactFormProps) {
           </span>
         </form>
       </div>
-      <svg
-        className="contact-wave"
-        viewBox="0 0 1440 80"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <path fill="currentColor" d="M0 45 C360 100 960 -15 1440 45 V80 H0Z" />
-      </svg>
     </Section>
   );
 }

@@ -55,6 +55,7 @@ export function useCarousel(length: number, delay = 2500) {
     rotating,
     paused,
     reducedMotion,
+    setIndex,
     setPaused,
     setFocused,
   };

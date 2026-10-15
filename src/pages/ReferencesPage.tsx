@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
+import { ResponsiveImage } from "../components/ResponsiveImage";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
-import { PageIntro } from "../components/layout/PageIntro";
 import { Gallery } from "../components/Gallery";
 import { ServiceCTA } from "../components/services/ServiceCTA";
 import { referenceClients } from "../data/clients";
+import { projects } from "../data/projects";
 import {
   referenceFilters,
   referenceWorks,
@@ -19,7 +20,6 @@ const normalize = (value: string): string =>
 export function ReferencesPage() {
   const referencePeriod = `2001–${new Date().getFullYear()}`;
   const [category, setCategory] = useState<ReferenceFilter>("all");
-  const [moreFilters, setMoreFilters] = useState(false);
   useEffect(() => {
     const readCategory = (): void => {
       const value = new URLSearchParams(window.location.search).get("typ");
@@ -46,55 +46,48 @@ export function ReferencesPage() {
   return (
     <div className="references-page">
       <Breadcrumbs items={[{ label: "Reference" }]} />
-      <PageIntro
-        eyebrow="SKUTEČNÁ PRÁCE. VIDITELNÝ VÝSLEDEK."
-        title="Výsledky naší práce"
-        description="Skutečné realizace AWCLEAN. Vyberte si typ práce a prohlédněte si fotografie čištění a ošetření povrchů."
-      />
-      <section
-        className="reference-catalog container"
-        aria-label="Realizace podle typu práce"
-      >
-        <div
-          className="reference-filter-buttons filter-bar"
-          role="group"
-          aria-label="Filtrovat realizace"
-        >
-          {referenceFilters.slice(0, 5).map((filter) => (
+      <section className="rd-page rd-wrap reference-catalog" aria-labelledby="page-title">
+        <header className="rd-page-head is-split">
+          <h1 id="page-title">Reference</h1>
+          <p>
+            Skutečné realizace AWCLEAN. Vyberte si typ práce a prohlédněte si
+            fotografie čištění a ošetření povrchů.
+          </p>
+        </header>
+        <div className="reference-details">
+          {projects.map((project) => (
+            <a key={project.path} href={project.path} className="rd-photo-card is-tall">
+              <ResponsiveImage
+                src={project.image}
+                alt=""
+                sizes="(max-width: 760px) 100vw, 33vw"
+                loading="lazy"
+                width="750"
+                height="560"
+              />
+              <span className="rd-photo-card-body">
+                <span className="rd-photo-card-kicker">Detail realizace</span>
+                <span className="rd-photo-card-title">{project.title}</span>
+              </span>
+              <span className="rd-photo-card-arrow" aria-hidden="true">
+                <ArrowRight size={18} />
+              </span>
+            </a>
+          ))}
+        </div>
+        <h2 className="reference-gallery-title">Fotografie realizací</h2>
+        <div className="rd-chips" role="group" aria-label="Filtrovat realizace">
+          {referenceFilters.map((filter) => (
             <button
               key={filter.value}
+              type="button"
               aria-pressed={category === filter.value}
               onClick={() => chooseCategory(filter.value)}
             >
               {filter.label}
             </button>
           ))}
-          <button type="button" aria-expanded={moreFilters} aria-controls="more-reference-filters" onClick={() => setMoreFilters(!moreFilters)}>
-            {referenceFilters.slice(5).find((filter) => filter.value === category)?.label ?? "Další"} <ChevronDown size={16} aria-hidden="true" />
-          </button>
-          <div id="more-reference-filters" className="more-reference-filters" hidden={!moreFilters}>
-            {referenceFilters.slice(5).map((filter) => <button key={filter.value} type="button" aria-pressed={category === filter.value} onClick={() => chooseCategory(filter.value)}>{filter.label}</button>)}
-          </div>
         </div>
-        <label className="reference-filter-mobile">
-          Typ realizace
-          <select
-            className="gallery-select"
-            value={category}
-            onChange={(event) => {
-              const value = referenceFilters.find(
-                (filter) => filter.value === event.target.value,
-              )?.value;
-              if (value) chooseCategory(value);
-            }}
-          >
-            {referenceFilters.map((filter) => (
-              <option key={filter.value} value={filter.value}>
-                {filter.label}
-              </option>
-            ))}
-          </select>
-        </label>
         <p className="result-count" role="status">
           Ukázky realizací: {visible.length}
         </p>
@@ -102,11 +95,8 @@ export function ReferencesPage() {
           key={category}
           images={visible}
           label="Realizace AWCLEAN"
-          initialCount={6}
+          initialCount={12}
         />
-        <a className="text-link gallery-all-link" href="/#pred-a-po">
-          Porovnat fotografie před a po čištění
-        </a>
       </section>
       <section className="client-section">
         <details className="container client-details">

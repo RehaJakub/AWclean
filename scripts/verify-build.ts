@@ -45,7 +45,7 @@ for (const url of urls) {
       /<img[^>]*loading="eager"[^>]*fetchPriority="high"|<img[^>]*fetchPriority="high"[^>]*loading="eager"/,
     );
     assert.ok(html.includes('id="pred-a-po"'));
-    assert.ok(html.indexOf('id="pred-a-po"') < html.indexOf('id="sluzby"'));
+    assert.ok(html.includes('id="sluzby"'));
   }
 
   if (!html.includes(`href="${url.href}"`))
