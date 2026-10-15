@@ -1,7 +1,6 @@
 import { MapPin, Clock, Mail } from "lucide-react";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
 import { ContactForm } from "../components/ContactForm";
-import { ResponsiveImage } from "../components/ResponsiveImage";
 export function ContactPage() {
   return (
     <div className="rd-contact-page">
@@ -45,18 +44,6 @@ export function ContactPage() {
           </p>
         </div>
       </section>
-      <div className="rd-wrap">
-        <div className="rd-contact-photo">
-          <ResponsiveImage
-            src="/images/vozy/dve-dodavky-awclean-spolecny-bocni-pohled.webp"
-            alt="Dvě firemní dodávky AWCLEAN s modrobílými polepy, boční pohled."
-            sizes="100vw"
-            loading="lazy"
-            width="2048"
-            height="1152"
-          />
-        </div>
-      </div>
     </div>
   );
 }

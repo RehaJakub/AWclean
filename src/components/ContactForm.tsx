@@ -19,6 +19,7 @@ import {
   type SubmitStatus,
 } from "../lib/contact";
 import { Section } from "./Section";
+import { ResponsiveImage } from "./ResponsiveImage";
 interface ContactFormProps {
   endpoint?: string;
 }
@@ -106,6 +107,17 @@ export function ContactForm({ endpoint = "" }: ContactFormProps) {
           <div className="hours">
             <Clock size={17} /> Provozní doba: Po–Ne 8:00–17:00
           </div>
+          <figure className="contact-vans">
+            <ResponsiveImage
+              src="/images/vozy/dve-dodavky-awclean-spolecny-bocni-pohled.webp"
+              alt="Dvě firemní dodávky AWCLEAN s modrobílými polepy, boční pohled."
+              sizes="(max-width: 900px) 100vw, 45vw"
+              loading="lazy"
+              width="2048"
+              height="1152"
+            />
+            <figcaption>Působíme po celé ČR a SR.</figcaption>
+          </figure>
         </div>
         <form
           ref={form}

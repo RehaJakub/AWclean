@@ -1,116 +1,85 @@
-import type { CSSProperties } from "react";
+import { useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { ResponsiveImage } from "./ResponsiveImage";
-import { ArrowRight, Pause, Play } from "lucide-react";
+import { ArrowRight, ChevronsLeftRight } from "lucide-react";
 import { sampleLabel } from "../data/offers";
-import { heroSlides } from "../data/heroSlides";
-import { useCarousel } from "../hooks/useCarousel";
 
-const tabLabels: Record<string, string> = {
-  fasady: "Fasády",
-  strechy: "Střechy",
-  dlazby: "Dlažby",
+const before = {
+  src: "/images/realizace/cihlova-fasada-pred-cistenim.webp",
+  alt: "Tmavé usazeniny na cihlové fasádě před čištěním.",
+};
+const after = {
+  src: "/images/realizace/cihlova-fasada-po-cisteni.webp",
+  alt: "Oranžové cihlové zdivo po vyčištění.",
 };
 
+/** Úvodní porovnání před/po podle návrhu: tažení myší či prstem, šipky na klávesnici. */
 export function Hero() {
-  const carousel = useCarousel(heroSlides.length, 5000);
-  const active = heroSlides[carousel.index];
-
+  const [split, setSplit] = useState(50);
+  const section = useRef<HTMLElement>(null);
+  const dragging = useRef(false);
+  const moveTo = (clientX: number): void => {
+    const box = section.current?.getBoundingClientRect();
+    if (!box) return;
+    setSplit(Math.min(96, Math.max(4, ((clientX - box.left) / box.width) * 100)));
+  };
+  const start = (event: PointerEvent<HTMLElement>): void => {
+    if (event.target instanceof Element && event.target.closest("a, button, input")) return;
+    dragging.current = true;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    moveTo(event.clientX);
+  };
   return (
     <section
-      ref={carousel.ref}
-      className={`rd-hero${carousel.rotating ? " is-playing" : ""}`}
-      aria-label="Služby AWCLEAN"
-      aria-roledescription="prezentace"
-      onFocusCapture={() => carousel.setFocused(true)}
-      onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget))
-          carousel.setFocused(false);
+      ref={section}
+      className="rd-hero"
+      aria-label="Porovnání cihlové fasády před čištěním a po něm"
+      style={{ "--split": `${split}%` } as CSSProperties}
+      onPointerDown={start}
+      onPointerMove={(event) => {
+        if (dragging.current) moveTo(event.clientX);
       }}
+      onPointerUp={() => (dragging.current = false)}
+      onPointerCancel={() => (dragging.current = false)}
     >
-      <div className="rd-hero-images">
-        {heroSlides.map((slide, index) => (
-          <div
-            key={slide.id}
-            className={`rd-hero-image${index === carousel.index ? " is-active" : ""}`}
-            aria-hidden={index !== carousel.index}
-          >
-            <ResponsiveImage
-              src={slide.image}
-              alt={slide.alt}
-              width="1440"
-              height="1920"
-              style={{
-                objectPosition: slide.position,
-                "--hero-mobile-position": slide.mobilePosition ?? "62% 25%",
-              } as CSSProperties}
-              fetchPriority={index === 0 ? "high" : "low"}
-              decoding="async"
-            />
-          </div>
-        ))}
+      <div className="rd-hero-image">
+        <ResponsiveImage src={before.src} alt={before.alt} sizes="100vw" fetchPriority="high" width="1600" height="1200" />
+      </div>
+      <div className="rd-hero-image rd-hero-after">
+        <ResponsiveImage src={after.src} alt={after.alt} sizes="100vw" fetchPriority="high" width="1600" height="1200" />
       </div>
       <div className="rd-hero-shade" aria-hidden="true" />
+      <div className="rd-hero-divider" aria-hidden="true">
+        <span className="rd-badge">Před</span>
+        <span className="rd-badge is-after">Po</span>
+        <span className="rd-hero-handle">
+          <ChevronsLeftRight size={24} />
+        </span>
+      </div>
+      <input
+        className="rd-hero-range"
+        type="range"
+        min="4"
+        max="96"
+        value={Math.round(split)}
+        onChange={(event) => setSplit(Number(event.target.value))}
+        aria-label="Posunout hranici mezi fotografií před a po čištění"
+      />
       <div className="rd-hero-content rd-wrap">
         <div className="rd-hero-copy">
-          <h1 key={active.id}>
-            {active.heading} <span>{active.accent}</span>
+          <h1>
+            Čistota až do <span>posledního metru.</span>
           </h1>
-          <p>
-            {active.description} Působíme po celé ČR a SR.
-          </p>
-          <p className="rd-hero-scope">
-            Fasády · Střechy · Dlažby · Průmysl. Od roku 2001.
-          </p>
+          <p>Fasády · Střechy · Dlažby · Průmysl. Od roku 2001.</p>
         </div>
-        <div className="rd-hero-side">
-          <div className="rd-hero-actions">
-            <a className="rd-btn rd-btn-primary" href="/kontakt/?vzorek=1#kontakt">
-              {sampleLabel} <ArrowRight size={18} aria-hidden="true" />
-            </a>
-            <a className="rd-btn rd-btn-ghost" href="#pred-a-po">
-              Prohlédnout výsledky
-            </a>
-          </div>
-          <div className="rd-hero-controls">
-            <div className="rd-hero-tabs" role="group" aria-label="Vybrat snímek">
-              {heroSlides.map((slide, index) => (
-                <button
-                  key={slide.id}
-                  type="button"
-                  aria-pressed={index === carousel.index}
-                  onClick={() => {
-                    carousel.setIndex(index);
-                    carousel.setPaused(true);
-                  }}
-                >
-                  {tabLabels[slide.id] ?? slide.label}
-                </button>
-              ))}
-            </div>
-            {!carousel.reducedMotion && (
-              <button
-                type="button"
-                className="rd-hero-pause"
-                onClick={() => carousel.setPaused(!carousel.paused)}
-                aria-label={
-                  carousel.paused
-                    ? "Spustit automatické střídání snímků"
-                    : "Pozastavit automatické střídání snímků"
-                }
-              >
-                {carousel.paused ? <Play size={16} /> : <Pause size={16} />}
-              </button>
-            )}
-          </div>
+        <div className="rd-hero-actions">
+          <a className="rd-btn rd-btn-primary" href="#kontakt">
+            {sampleLabel} <ArrowRight size={18} aria-hidden="true" />
+          </a>
+          <a className="rd-btn rd-btn-ghost" href="#pred-a-po">
+            Výsledky
+          </a>
         </div>
       </div>
-      <p
-        className="sr-only"
-        aria-live={carousel.paused ? "polite" : "off"}
-        aria-atomic="true"
-      >
-        Snímek {carousel.index + 1} z {heroSlides.length}: {active.label}
-      </p>
     </section>
   );
 }
