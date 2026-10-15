@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+._*
+
+# Local archives and generated source exports are not version history.
+/backups/
+/awclean-redesign.zip
+/SOURCE.md
+
+# Local tooling, caches and credentials.
+/.codex/
+/.agents/
+/.aws/
+/.taste-skill/
+coverage/
+*.log
+*.tsbuildinfo
