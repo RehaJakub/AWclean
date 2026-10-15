@@ -6,30 +6,37 @@ interface ServiceCTAProps {
 export function ServiceCTA({ servicePath }: ServiceCTAProps) {
   const action = inquiryAction(servicePath);
   return (
-    <section className="service-cta">
-      <div className="container">
-        <div>
-          <p className="eyebrow">DOMLUVME KONKRÉTNÍ ŘEŠENÍ</p>
-          <h2>
+    <section className="rd-cta rd-wrap" aria-labelledby="rd-cta-title">
+      <div className="rd-cta-card">
+        <div className="rd-cta-copy">
+          <h2 id="rd-cta-title">
             {action.freeSample
-              ? "Nejdřív ukázka. Potom rozhodnutí."
-              : "Nechte si připravit nezávaznou nabídku."}
+              ? "Ukázka čištění zdarma."
+              : "Nezávazná nabídka pro váš objekt."}
           </h2>
           <p>
             {action.freeSample
               ? "Na malé ploše ukážeme výsledek čištění a připravíme cenovou nabídku. Ukázky provádíme po celé ČR zdarma."
               : "Napište nám, co potřebujete ošetřit. Posoudíme povrch a navrhneme postup i rozsah prací."}
           </p>
+          <div className="rd-cta-actions">
+            <a className="rd-btn rd-btn-light" href={action.href}>
+              {action.label} <ArrowRight size={18} aria-hidden="true" />
+            </a>
+            <a className="rd-cta-phone" href="tel:+420773196097">
+              <Phone size={18} aria-hidden="true" /> +420 773 196 097
+            </a>
+          </div>
         </div>
-        <div>
-          <a className="button button-light" href={action.href}>
-            {action.label}
-            <ArrowRight size={19} />
-          </a>
-          <a className="cta-phone" href="tel:+420773196097">
-            <Phone size={17} /> +420 773 196 097
-          </a>
-        </div>
+        <img
+          className="rd-cta-mascot"
+          src="/mascot/dr-fasada.png"
+          alt=""
+          width="655"
+          height="800"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
     </section>
   );

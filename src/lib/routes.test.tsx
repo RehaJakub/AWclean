@@ -11,9 +11,8 @@ import { servicePages } from "../data/pages";
 import {
   services,
   servicesByCategory,
-  serviceCategoryLabels,
+  serviceNavigation,
 } from "../data/services";
-import { ServiceDropdown } from "../components/ServiceDropdown";
 import { projects } from "../data/projects";
 import { normalizePath, resolveRoute, routes, routeAliases } from "./routes";
 afterEach(() => vi.unstubAllGlobals());
@@ -76,26 +75,10 @@ describe("Kompletní lokální web", () => {
         expect(route.page.shortTitle).toBe(service.title);
       }
     }
-    for (const category of ["cisteni", "ostatni"] as const) {
-      const html = renderToStaticMarkup(
-        <ServiceDropdown
-          category={category}
-          label={serviceCategoryLabels[category]}
-          services={servicesByCategory[category]}
-          currentPath="/"
-          open
-          onOpen={() => undefined}
-          onClose={() => undefined}
-          onNavigate={() => undefined}
-        />,
-      );
-      const hrefs = [...html.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map(
-        (match) => match[1],
-      );
-      expect(hrefs).toEqual(
+    for (const category of ["cisteni", "ostatni"] as const)
+      expect(serviceNavigation[category].map((link) => link.href)).toEqual(
         servicesByCategory[category].map((service) => service.href),
       );
-    }
     const otherHtml = pageHtml("/ostatni-sluzby/");
     expect(otherHtml.match(/class="catalog-card"/g)).toHaveLength(3);
   });
@@ -156,7 +139,7 @@ describe("Kompletní lokální web", () => {
           expect(html, href).toContain(`id="${url.hash.slice(1)}"`);
       }
       for (const match of html.matchAll(/<img\b[^>]*src="([^"]*)"/g)) {
-        expect(match[1]).toMatch(/^\/images\//);
+        expect(match[1]).toMatch(/^\/(images|mascot)\//);
         expect(existsSync(resolve("public", `.${match[1]}`)), match[1]).toBe(
           true,
         );

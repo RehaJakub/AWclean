@@ -1,7 +1,10 @@
 import { ResponsiveImage } from "../components/ResponsiveImage";
-import { ArrowUpRight, Check, ArrowRight } from "lucide-react";
+import { ArrowRight, Check, Phone, Plus } from "lucide-react";
 import { inquiryAction } from "../data/offers";
 import { serviceCategoryLabels } from "../data/services";
+import { faqItems } from "../data/faq";
+import { photoDetails } from "../data/photos";
+import { serviceBlockImages, serviceFaqIds } from "../data/serviceVisuals";
 import type { ServicePageData } from "../data/pages/types";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
 import { Gallery } from "../components/Gallery";
@@ -10,147 +13,165 @@ interface ServicePageProps {
   page: ServicePageData;
   related: ServicePageData[];
 }
+const categoryCrumbs = {
+  cisteni: { label: serviceCategoryLabels.cisteni, href: "/sluzby/" },
+  ostatni: { label: serviceCategoryLabels.ostatni, href: "/ostatni-sluzby/" },
+  natery: null,
+};
+function blockImageAlt(page: ServicePageData, src: string): string {
+  return (
+    page.gallery.find((image) => image.src === src)?.alt ??
+    photoDetails[src]?.alt ??
+    `${page.shortTitle} – ukázka práce AWCLEAN`
+  );
+}
 export function ServicePage({ page, related }: ServicePageProps) {
   const action = inquiryAction(page.path);
+  const category = categoryCrumbs[page.category];
+  const blockImages = serviceBlockImages[page.path] ?? [];
+  const faq = serviceFaqIds(page.path)
+    .map((id) => faqItems.find((item) => item.id === id))
+    .filter((item) => item !== undefined);
   return (
     <>
       <Breadcrumbs
-        items={[
-          { label: "Služby", href: "/sluzby/" },
-          { label: page.shortTitle },
-        ]}
+        items={[...(category ? [category] : []), { label: page.shortTitle }]}
       />
-      <header className="service-hero container">
-        <div className="service-hero-copy">
-          <p className="eyebrow">
-            AWCLEAN / {serviceCategoryLabels[page.category]}
-          </p>
+      <header className="svc-hero rd-wrap">
+        <div className="svc-hero-copy">
+          <p className="svc-kicker">{serviceCategoryLabels[page.category]}</p>
           <h1>{page.title}</h1>
-          <p>{page.intro}</p>
-          <a className="button button-primary" href={action.href}>
-            {action.label} <ArrowUpRight size={19} />
-          </a>
-          <a
-            className="text-link service-results-link"
-            href={page.gallery.length ? "#realizace" : "/reference/"}
-          >
-            Prohlédnout výsledky
-          </a>
-          <ul className="service-highlights">
+          <p className="svc-lead">{page.intro}</p>
+          <div className="svc-actions">
+            <a className="rd-btn rd-btn-primary" href={action.href}>
+              {action.label} <ArrowRight size={18} aria-hidden="true" />
+            </a>
+            <a className="rd-btn rd-btn-outline" href="tel:+420773196097">
+              <Phone size={17} aria-hidden="true" /> +420 773 196 097
+            </a>
+          </div>
+          <ul className="svc-highlights">
             {page.highlights.map((text) => (
               <li key={text}>
-                <Check size={16} />
+                <Check size={16} aria-hidden="true" />
                 {text}
               </li>
             ))}
           </ul>
         </div>
-        <div className="service-hero-photo">
+        <div className="svc-hero-photo">
           <ResponsiveImage
             src={page.heroImage}
             alt={page.imageAlt ?? page.title + " – AWCLEAN"}
+            sizes="(max-width: 980px) 100vw, 50vw"
             width="900"
             height="750"
             fetchPriority="high"
           />
-          <span>{page.imageAlt?.startsWith("Ilustrační") ? "ILUSTRAČNÍ FOTOGRAFIE POVRCHU" : "ODBORNÁ PÉČE OD ROKU 2001"}</span>
+          {page.imageAlt?.startsWith("Ilustrační") && (
+            <span className="svc-photo-note">Ilustrační fotografie</span>
+          )}
         </div>
       </header>
-      <div className="service-body container">
-        <aside className="service-sidebar">
-          <span className="small-label">NA TÉTO STRÁNCE</span>
-          <nav aria-label="Obsah služby">
-            {page.sections.map((section, index) => (
-              <a
-                key={section.title}
-                href={`#${section.id ?? `cast-${index + 1}`}`}
-              >
-                <span>0{index + 1}</span>
-                {section.title}
-              </a>
-            ))}
-            {page.gallery.length > 0 && (
-              <a href="#realizace">
-                <span>↗</span>Fotografie realizací
-              </a>
-            )}
-          </nav>
-          <a href="/kontakt/" className="sidebar-help">
-            Nevíte, který postup zvolit?
-            <strong>
-              Poradíme vám <ArrowUpRight size={17} />
-            </strong>
-          </a>
-        </aside>
-        <div className="service-article">
-          {page.sections.map((section, index) => (
+      <div className="svc-blocks rd-wrap">
+        {page.sections.map((section, index) => {
+          const image = blockImages[index];
+          return (
             <section
-              className="article-section"
+              className={`svc-block${image ? "" : " is-text"}${index % 2 ? " is-flipped" : ""}`}
               id={section.id ?? `cast-${index + 1}`}
               key={section.title}
             >
-              <span className="eyebrow">
-                0{index + 1} / {page.shortTitle}
-              </span>
-              <h2>{section.title}</h2>
-              {section.paragraphs.map((text, i) => (
-                <p key={i}>{text}</p>
-              ))}
-              {section.bullets && (
-                <ul>
-                  {section.bullets.map((text) => (
-                    <li key={text}>
-                      <Check size={17} />
-                      <span>{text}</span>
-                    </li>
-                  ))}
-                </ul>
+              {image && (
+                <div className="svc-block-photo">
+                  <ResponsiveImage
+                    src={image}
+                    alt={blockImageAlt(page, image)}
+                    sizes="(max-width: 980px) 100vw, 50vw"
+                    loading="lazy"
+                    width="750"
+                    height="560"
+                  />
+                </div>
               )}
+              <div className="svc-block-copy">
+                <span className="svc-num" aria-hidden="true">
+                  0{index + 1}
+                </span>
+                <h2>{section.title}</h2>
+                {section.paragraphs.map((text, i) => (
+                  <p key={i}>{text}</p>
+                ))}
+                {section.bullets && (
+                  <ul>
+                    {section.bullets.map((text) => (
+                      <li key={text}>
+                        <Check size={17} aria-hidden="true" />
+                        <span>{text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </section>
-          ))}
-        </div>
+          );
+        })}
       </div>
       {page.gallery.length > 0 && (
-        <section className="service-gallery-section container" id="realizace">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">SKUTEČNÉ REALIZACE AWCLEAN</p>
-              <h2>
-                Prohlédněte si <span>naši práci.</span>
-              </h2>
+        <section className="svc-gallery" id="realizace" aria-labelledby="realizace-title">
+          <div className="rd-wrap">
+            <div className="svc-section-head">
+              <h2 id="realizace-title">Realizace</h2>
+              <a className="rd-link" href="/reference/">
+                Všechny reference <ArrowRight size={16} aria-hidden="true" />
+              </a>
             </div>
-            <p className="heading-aside">
-              Fotografie otevřete kliknutím.
-              <br />
-              Další ukázky najdete v referencích.
-            </p>
+            <Gallery images={page.gallery} initialCount={4} />
           </div>
-          <Gallery images={page.gallery} />
-          <a className="text-link gallery-all-link" href="/reference/">
-            Všechny reference <ArrowRight size={16} />
-          </a>
+        </section>
+      )}
+      {faq.length > 0 && (
+        <section className="svc-faq rd-wrap" aria-labelledby="faq-title">
+          <div className="svc-faq-head">
+            <h2 id="faq-title">Časté otázky</h2>
+            <a className="rd-link" href="/ciste-fasady/">
+              Další odpovědi od DR Fasády <ArrowRight size={16} aria-hidden="true" />
+            </a>
+          </div>
+          <div className="svc-faq-list">
+            {faq.map((item) => (
+              <details key={item.id}>
+                <summary>
+                  <span>{item.question}</span>
+                  <Plus size={18} aria-hidden="true" />
+                </summary>
+                <p>{item.answer}</p>
+              </details>
+            ))}
+          </div>
         </section>
       )}
       <ServiceCTA servicePath={page.path} />
       {related.length > 0 && (
-        <section className="related-section container">
-          <p className="eyebrow">KOMPLETNÍ PÉČE O VÁŠ OBJEKT</p>
-          <h2>Související služby</h2>
-          <div className="related-grid">
+        <section className="svc-related rd-wrap" aria-labelledby="related-title">
+          <h2 id="related-title">Související služby</h2>
+          <div className="svc-related-grid">
             {related.map((item) => (
-              <a key={item.path} href={item.path}>
+              <a key={item.path} href={item.path} className="rd-photo-card">
                 <ResponsiveImage
                   src={item.heroImage}
-                  alt={item.imageAlt ?? item.shortTitle}
+                  alt=""
+                  sizes="(max-width: 760px) 100vw, 25vw"
                   loading="lazy"
                   width="500"
                   height="300"
                 />
-                <h3>
-                  {item.shortTitle}
-                  <ArrowUpRight size={20} />
-                </h3>
-                <p>{item.intro}</p>
+                <span className="rd-photo-card-title">
+                  {item.shortTitle.replace(" (airless)", "")}
+                </span>
+                <span className="rd-photo-card-arrow" aria-hidden="true">
+                  <ArrowRight size={18} />
+                </span>
               </a>
             ))}
           </div>

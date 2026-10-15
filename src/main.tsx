@@ -8,6 +8,7 @@ import "./home.css";
 import "./refinements.css";
 import "./conversion.css";
 import "./upgrade.css";
+import "./redesign.css";
 const root = document.getElementById("root");
 if (!root) throw new Error("Chybí kořenový element aplikace.");
 const redirect = routeAliases[normalizePath(window.location.pathname)];
