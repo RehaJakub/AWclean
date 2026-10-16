@@ -72,8 +72,8 @@ Vzhled vychází z návrhu Claude Design (16. 10. 2026, větev
 fotek; texty zůstávají ze stávajících dat ověřených proti awclean.cz.
 
 Home: Hero → Co vyčistíme (8 služeb + 4 další) → Rozdíl je vidět (3 realizace)
-→ Ukázka čištění zdarma (DR Fasáda) → Reference (+ Dům a Byt) → ContactForm
-s fotkou dodávek. Hero je posuvné porovnání cihlové fasády před/po (myš, dotyk,
+→ O nás (fotka dodávek, fakta z awclean.cz) → Ukázka čištění zdarma (DR Fasáda)
+→ Reference (+ Dům a Byt) → ContactForm. Fotka dodávek je i u formuláře na Kontaktu. Hero je posuvné porovnání cihlové fasády před/po (myš, dotyk,
 šipky přes skrytý range input). Slideshow ani video na homepage nejsou.
 „Rozdíl je vidět“ používá jen fotky z dat dané realizace (projects.ts).
 Plovoucí tlačítko vlevo dole „Nezávazná poptávka“ vede na `#kontakt`
@@ -82,7 +82,9 @@ Navigace: mega menu Čištění (8 služeb s náhledy), menší nabídky Nátěr
 a Ostatní služby, na desktopu hover i klik/klávesnice, mobilní menu s rozbalením.
 Šablona služby: úvod s fotkou → bloky s fotkami → Realizace (4 + rozbalení,
 lightbox) → Časté otázky → CTA banner → Související služby.
-Reference mají 3 karty detailů, 25 fotek, filtry `?typ=...`, lightbox a vyhledávání firem.
+Reference mají 3 karty detailů, 156 fotek (25 původních + 131 z galerií služeb
+v `referenceExtras.ts`, bez tmavých/duplicitních záběrů), filtry `?typ=...`, lightbox a vyhledávání firem.
+Ochrana údajů má obsah vlevo (sticky) a text vpravo.
 Čisté fasády: původní článek + vyhledávání v FAQ DR Fasády; plovoucí maskot se tam nezobrazuje.
 
 DR Fasáda je pevný průvodce, ne AI: objekt → povrch → problém → služba.

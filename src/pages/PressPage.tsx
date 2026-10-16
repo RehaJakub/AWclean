@@ -15,8 +15,7 @@ export function PressPage() {
           <p className="svc-kicker">Psali o nás</p>
           <h1>Reportáž v časopise Dům a Byt</h1>
           <p className="svc-lead">
-            Prohlédněte si odbornou reportáž AWCLEAN o čištění fasád a střech.
-            Jednotlivé stránky otevřete kliknutím a přečtete si celý článek.
+            Odborná reportáž AWCLEAN o čištění fasád a střech.
           </p>
           <div className="svc-actions">
             <a className="rd-btn rd-btn-dark" href="/cisteni-fasad/">

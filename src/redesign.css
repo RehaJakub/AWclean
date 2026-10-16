@@ -1102,3 +1102,119 @@
 .contact-vans { margin: 24px 0 0; }
 .contact-vans img { width: 100%; height: clamp(200px, 18vw, 280px); border-radius: var(--rd-radius); object-fit: cover; object-position: center 62%; }
 .contact-vans figcaption { margin-top: 10px; color: var(--rd-muted); font-size: 15px; }
+
+/* ===== Typografie: starší vrstvy dávaly h1/h2 pevný proklad -6px / -2,8px,
+   u menších nadpisů se písmena slévala. Proklad teď roste s velikostí písma. ===== */
+h1,
+h2,
+h3 { letter-spacing: -0.02em; line-height: 1.15; }
+p { line-height: 1.6; }
+.rd-hero h1,
+.svc-hero h1,
+.rd-page-head h1,
+.privacy-page h1,
+.rd-contact-head h1,
+.press-hero h1,
+.advice-hero h1,
+.project-hero h1 { line-height: 1.02; letter-spacing: -0.035em; }
+
+/* ===== Homepage – O nás ===== */
+.home-about {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 4vw, 64px);
+  padding-block: clamp(48px, 6vw, 80px);
+}
+.home-about-photo { overflow: hidden; border-radius: 24px; background: #e7eef5; }
+.home-about-photo img { display: block; width: 100%; height: clamp(260px, 32vw, 460px); object-fit: cover; object-position: center 62%; }
+.home-about-copy { display: flex; flex-direction: column; gap: 16px; }
+.home-about-copy h2 { margin: 0; color: var(--rd-ink); font-size: clamp(28px, 3vw, 42px); font-weight: 800; letter-spacing: -0.035em; }
+.home-about-copy > p:not(.svc-kicker) { margin: 0; color: var(--rd-text); font-size: 17px; }
+.home-about-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 8px 0 0; }
+.home-about-facts div { padding: 16px 18px; border-radius: 16px; background: var(--rd-surface); }
+.home-about-facts dt { color: var(--rd-navy); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.home-about-facts dd { margin: 4px 0 0; color: var(--rd-text); font-size: 14px; line-height: 1.4; }
+@media (max-width: 900px) {
+  .home-about { grid-template-columns: minmax(0, 1fr); }
+  .home-about-photo img { height: 240px; }
+}
+
+/* ===== Ochrana osobních údajů: obsah vlevo, text vpravo ===== */
+.privacy-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 820px);
+  justify-content: center;
+  align-items: start;
+  gap: clamp(32px, 5vw, 72px);
+  padding-block: clamp(32px, 4vw, 56px) 0;
+}
+.privacy-toc {
+  position: sticky;
+  top: calc(var(--header-height) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px;
+  border-radius: var(--rd-radius);
+  background: var(--rd-surface);
+}
+.privacy-toc a { padding: 8px 10px; border-radius: 10px; color: var(--rd-ink); font-size: 15px; line-height: 1.35; }
+.privacy-toc a:hover { background: #fff; color: var(--rd-blue); }
+.privacy-layout .privacy-page { max-width: none; gap: 24px; padding-block: 0; }
+.privacy-page section { gap: 12px; padding-top: 20px; scroll-margin-top: calc(var(--header-height) + 24px); }
+.privacy-page h2 { font-size: 21px; line-height: 1.3; letter-spacing: -0.01em; }
+.privacy-page section p,
+.privacy-page section li { color: var(--rd-text); font-size: 17px; line-height: 1.7; }
+.privacy-page ul { display: grid; gap: 6px; }
+@media (max-width: 980px) {
+  .privacy-layout { grid-template-columns: minmax(0, 1fr); }
+  .privacy-toc { position: static; }
+}
+
+/* ===== Méně textu a zbytečných mezer ===== */
+.references-page .gallery-figure figcaption p,
+.references-page .gallery-figure figcaption a { display: none; }
+.references-page .gallery-figure figcaption strong { font-size: 15px; font-weight: 600; }
+.rd-contact-page .contact-copy > p:first-of-type { display: none; }
+.rd-contact-head { padding-bottom: 0; }
+.rd-contact-page .contact-section { padding-top: 24px; }
+.rd-photo-card.is-tall { height: clamp(220px, 20vw, 260px); }
+.home-results-grid { gap: 16px; }
+.home-result { gap: 10px; }
+.svc-hero { gap: clamp(24px, 4vw, 56px); }
+@media (max-width: 760px) {
+  .home-services,
+  .home-results,
+  .home-references,
+  .home-about,
+  .svc-gallery,
+  .svc-faq,
+  .svc-related,
+  .contact-section { padding-block: 40px; }
+  .home-references,
+  .svc-related { padding-bottom: 0; }
+  .svc-hero { padding-block: 24px 40px; }
+  .svc-blocks { gap: 36px; padding-bottom: 40px; }
+  .svc-block { gap: 16px; }
+  .svc-block-photo { height: 220px; }
+  .svc-block-copy p { font-size: 17px; }
+  .svc-hero-photo { height: 240px; }
+  .rd-page { gap: 20px; padding-top: 24px; }
+  .rd-cta { margin-top: 32px; }
+  .rd-footer { margin-top: 40px; }
+  .rd-footer > .rd-wrap { gap: 28px; padding-top: 40px; }
+  .home-results-grid { gap: 28px; }
+  .home-result-photos { height: 240px; }
+  .project-detail { gap: 24px; }
+  .advice-article blockquote { padding: 20px; font-size: 18px; }
+  .press-hero { padding-block: 24px 40px; }
+  .press-cover { width: min(100%, 300px); }
+  .rd-chips { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(var(--rd-gutter) * -1); padding-inline: var(--rd-gutter); scrollbar-width: none; }
+  .rd-chips button { flex: none; }
+  .mobile-call.rd-inquiry-float { min-height: 46px; padding: 0 16px; font-size: 15px; }
+}
+@media (max-width: 900px) {
+  .home-reference-photo:first-child { grid-column: auto; grid-row: auto; }
+  .home-references-grid { grid-auto-rows: 180px; }
+}

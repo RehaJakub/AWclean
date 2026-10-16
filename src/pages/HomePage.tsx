@@ -1,6 +1,7 @@
 import { Hero } from "../components/Hero";
 import { ContactForm } from "../components/ContactForm";
 import {
+  HomeAbout,
   HomeReferences,
   HomeResults,
   HomeSample,
@@ -12,6 +13,7 @@ export function HomePage() {
       <Hero />
       <HomeServices />
       <HomeResults />
+      <HomeAbout />
       <HomeSample />
       <HomeReferences />
       <ContactForm endpoint={import.meta.env.VITE_CONTACT_ENDPOINT} />

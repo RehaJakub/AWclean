@@ -4,7 +4,15 @@ export function PrivacyPage() {
   return (
     <>
       <Breadcrumbs items={[{ label: "Ochrana osobních údajů a cookies" }]} />
-      <article className="rd-wrap privacy-page">
+      <div className="rd-wrap privacy-layout">
+      <nav className="privacy-toc" aria-label="Obsah stránky">
+        {privacySections.map((section, index) => (
+          <a key={section.title} href={`#oddil-${index + 1}`}>
+            {index + 1}. {section.title}
+          </a>
+        ))}
+      </nav>
+      <article className="privacy-page">
         <header>
           <h1>Ochrana osobních údajů a cookies</h1>
           <p className="svc-lead">
@@ -13,7 +21,7 @@ export function PrivacyPage() {
           </p>
         </header>
         {privacySections.map((section, index) => (
-          <section key={section.title}>
+          <section key={section.title} id={`oddil-${index + 1}`}>
             <h2>
               {index + 1}. {section.title}
             </h2>
@@ -33,6 +41,7 @@ export function PrivacyPage() {
           Kontaktovat správce: info@awclean.cz
         </a>
       </article>
+      </div>
     </>
   );
 }

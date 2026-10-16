@@ -49,10 +49,7 @@ export function ReferencesPage() {
       <section className="rd-page rd-wrap reference-catalog" aria-labelledby="page-title">
         <header className="rd-page-head is-split">
           <h1 id="page-title">Reference</h1>
-          <p>
-            Skutečné realizace AWCLEAN. Vyberte si typ práce a prohlédněte si
-            fotografie čištění a ošetření povrchů.
-          </p>
+          <p>Skutečné fotografie z naší práce.</p>
         </header>
         <div className="reference-details">
           {projects.map((project) => (

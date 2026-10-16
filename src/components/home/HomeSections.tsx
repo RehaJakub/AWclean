@@ -118,11 +118,51 @@ export function HomeResults() {
                   {project.title}
                   <ArrowRight size={20} aria-hidden="true" />
                 </span>
-                <span className="home-result-text">{project.outcome}</span>
               </a>
             );
           })}
         </div>
+      </div>
+    </section>
+  );
+}
+
+export function HomeAbout() {
+  const facts = [
+    { value: "2,5 mil. m²", label: "vyčištěných ploch v ČR a SR" },
+    { value: "Od roku 2001", label: "čištění fasád a střech" },
+    { value: "Bez lešení", label: "z plošin a lezeckou technikou" },
+    { value: "5 / 10 / 20 let", label: "záruka u fasád a střech dle výběru" },
+  ];
+  return (
+    <section className="home-about rd-wrap" id="o-nas" aria-labelledby="o-nas-title">
+      <div className="home-about-photo">
+        <ResponsiveImage
+          src="/images/vozy/dve-dodavky-awclean-spolecny-bocni-pohled.webp"
+          alt="Dvě firemní dodávky AWCLEAN s modrobílými polepy, boční pohled."
+          sizes="(max-width: 900px) 100vw, 55vw"
+          loading="lazy"
+          width="2048"
+          height="1152"
+        />
+      </div>
+      <div className="home-about-copy">
+        <p className="svc-kicker">O nás</p>
+        <h2 id="o-nas-title">Čištění fasád od profesionálů již od roku 2001.</h2>
+        <p>
+          Specializujeme se na čisticí práce v průmyslových, veřejných
+          i zdravotnických zařízeních a pečujeme o rodinné i bytové domy.
+          Používáme kvalitní technologie a šetrnou chemii ohleduplnou
+          k životnímu prostředí.
+        </p>
+        <dl className="home-about-facts">
+          {facts.map((fact) => (
+            <div key={fact.value}>
+              <dt>{fact.value}</dt>
+              <dd>{fact.label}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   );
@@ -138,10 +178,7 @@ export function HomeSample() {
             <br />
             zdarma.
           </h2>
-          <p>
-            Na malé ploše ukážeme výsledek čištění fasády, střechy nebo dlažby.
-            Ukázky provádíme po celé ČR zdarma.
-          </p>
+          <p>Fasády, střechy a dlažby po celé ČR.</p>
           <div className="rd-cta-actions">
             <a className="rd-btn rd-btn-light" href="#kontakt">
               {sampleLabel} <ArrowRight size={18} aria-hidden="true" />
@@ -172,7 +209,7 @@ export function HomeReferences() {
       <div className="svc-section-head">
         <h2 id="reference-title">Reference</h2>
         <a className="rd-link" href="/reference/">
-          Všech {referenceWorks.length} realizací <ArrowRight size={16} aria-hidden="true" />
+          Všech {referenceWorks.length} fotografií <ArrowRight size={16} aria-hidden="true" />
         </a>
       </div>
       <div className="home-references-grid">
