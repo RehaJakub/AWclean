@@ -37,8 +37,8 @@ export function ServicesPage({ otherOnly = false }: ServicesPageProps) {
           <h1 id="page-title">{otherOnly ? "Ostatní služby" : "Přehled služeb"}</h1>
           <p>
             {otherOnly
-              ? "Impregnace fasád a střech, nano impregnace a odstraňování dopravního značení. Vyberte si službu a prohlédněte si podrobnosti."
-              : "Od čištění fasády přes obnovu střechy po speciální práce ve výškách. Vyberte si službu a prohlédněte si postup i skutečné realizace."}
+              ? "Impregnace, nano impregnace a odstraňování dopravního značení."
+              : "Čištění, nátěry a ochrana povrchů po celé ČR a SR."}
           </p>
         </header>
         {!otherOnly && (
@@ -76,7 +76,6 @@ export function ServicesPage({ otherOnly = false }: ServicesPageProps) {
                 <span className="rd-photo-card-title">
                   {page.title.replace(" (airless)", "")}
                 </span>
-                <span className="rd-photo-card-text">{page.description}</span>
               </span>
               <span className="rd-photo-card-arrow" aria-hidden="true">
                 <ArrowRight size={18} />

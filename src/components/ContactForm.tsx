@@ -22,8 +22,10 @@ import { Section } from "./Section";
 import { ResponsiveImage } from "./ResponsiveImage";
 interface ContactFormProps {
   endpoint?: string;
+  /** Fotka firemních dodávek pod kontakty (stránka Kontakt). */
+  showVans?: boolean;
 }
-export function ContactForm({ endpoint = "" }: ContactFormProps) {
+export function ContactForm({ endpoint = "", showVans = false }: ContactFormProps) {
   const [values, setValues] = useState<ContactValues>(initialValues);
   const [errors, setErrors] = useState<ContactErrors>({});
   const [status, setStatus] = useState<SubmitStatus>("idle");
@@ -107,7 +109,7 @@ export function ContactForm({ endpoint = "" }: ContactFormProps) {
           <div className="hours">
             <Clock size={17} /> Provozní doba: Po–Ne 8:00–17:00
           </div>
-          <figure className="contact-vans">
+          {showVans && <figure className="contact-vans">
             <ResponsiveImage
               src="/images/vozy/dve-dodavky-awclean-spolecny-bocni-pohled.webp"
               alt="Dvě firemní dodávky AWCLEAN s modrobílými polepy, boční pohled."
@@ -117,7 +119,7 @@ export function ContactForm({ endpoint = "" }: ContactFormProps) {
               height="1152"
             />
             <figcaption>Působíme po celé ČR a SR.</figcaption>
-          </figure>
+          </figure>}
         </div>
         <form
           ref={form}

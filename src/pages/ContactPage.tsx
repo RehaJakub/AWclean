@@ -12,7 +12,7 @@ export function ContactPage() {
           dlažeb nabízíme zdarma po celé České republice.
         </p>
       </header>
-      <ContactForm endpoint={import.meta.env.VITE_CONTACT_ENDPOINT} />
+      <ContactForm endpoint={import.meta.env.VITE_CONTACT_ENDPOINT} showVans />
       <section className="rd-wrap rd-contact-details" aria-label="Kontaktní údaje">
         <div>
           <MapPin size={24} aria-hidden="true" />

@@ -16,8 +16,8 @@ export function ServiceCTA({ servicePath }: ServiceCTAProps) {
           </h2>
           <p>
             {action.freeSample
-              ? "Na malé ploše ukážeme výsledek čištění a připravíme cenovou nabídku. Ukázky provádíme po celé ČR zdarma."
-              : "Napište nám, co potřebujete ošetřit. Posoudíme povrch a navrhneme postup i rozsah prací."}
+              ? "Výsledek uvidíte na malé ploše předem. Po celé ČR zdarma."
+              : "Posoudíme povrch a navrhneme postup."}
           </p>
           <div className="rd-cta-actions">
             <a className="rd-btn rd-btn-light" href={action.href}>

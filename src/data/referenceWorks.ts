@@ -1,5 +1,6 @@
 import type { GalleryImage } from "./pages/types";
 import { facadePhotos } from "./facadePhotos";
+import { referenceExtras } from "./referenceExtras";
 export const referenceFilters = [
   { value: "all", label: "Vše" },
   { value: "fasady", label: "Fasády" },
@@ -148,6 +149,7 @@ export const referenceWorks: ReferenceWork[] = [
     caption: "Strojní čištění dlažby",
     description: "Odstranění nečistot horkou vodou.",
   },
+  ...referenceExtras,
 ];
 
 // Úvod galerie ukazuje šíři práce. Pořadí uvnitř kategorií zůstává původní.
