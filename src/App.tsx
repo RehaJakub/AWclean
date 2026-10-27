@@ -15,6 +15,7 @@ import { CleanFacadesPage } from "./pages/CleanFacadesPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { servicePages } from "./data/pages";
 import { resolveRoute } from "./lib/routes";
+import { scrollToForm, useFormScroll } from "./hooks/useFormScroll";
 interface AppProps {
   pathname?: string;
 }
@@ -24,10 +25,15 @@ export default function App({
   const route = resolveRoute(pathname);
   const [clientReady, setClientReady] = useState(false);
   useEffect(() => setClientReady(true), []);
+  useFormScroll();
   useEffect(() => {
     // The target does not exist until React has mounted on a direct page visit.
     if (!window.location.hash) return;
     const frame = window.requestAnimationFrame(() => {
+      if (window.location.hash === "#kontakt") {
+        scrollToForm("kontakt");
+        return;
+      }
       try {
         document
           .getElementById(decodeURIComponent(window.location.hash.slice(1)))
