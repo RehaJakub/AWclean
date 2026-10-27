@@ -71,9 +71,11 @@ export function Footer({ currentPath }: FooterProps) {
                 alt="AWCLEAN"
               />
             </a>
-            <a className="rd-footer-phone" href="tel:+420773196097">
-              +420 773 196 097
-            </a>
+            {currentPath !== "/" && (
+              <a className="rd-footer-phone" href="tel:+420773196097">
+                +420 773 196 097
+              </a>
+            )}
             <p>
               Telefonní linka NON-STOP
               <br />

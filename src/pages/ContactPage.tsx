@@ -5,14 +5,19 @@ export function ContactPage() {
   return (
     <div className="rd-contact-page">
       <Breadcrumbs items={[{ label: "Kontakt" }]} />
-      <header className="rd-wrap rd-contact-head">
-        <h1>Kontakt</h1>
-        <p>
-          Zavolejte nám nebo zanechte zprávu. Ukázku čištění fasád, střech a
-          dlažeb nabízíme zdarma po celé České republice.
-        </p>
-      </header>
-      <ContactForm endpoint={import.meta.env.VITE_CONTACT_ENDPOINT} showVans />
+      <ContactForm
+        endpoint={import.meta.env.VITE_CONTACT_ENDPOINT}
+        showVans
+        lead={
+          <div className="rd-contact-head">
+            <h1>Kontakt</h1>
+            <p>
+              Zavolejte nám nebo zanechte zprávu. Ukázku čištění fasád, střech a
+              dlažeb nabízíme zdarma po celé České republice.
+            </p>
+          </div>
+        }
+      />
       <section className="rd-wrap rd-contact-details" aria-label="Kontaktní údaje">
         <div>
           <MapPin size={24} aria-hidden="true" />
