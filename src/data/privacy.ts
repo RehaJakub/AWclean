@@ -55,7 +55,7 @@ export const privacySections: ContentSection[] = [
       "Tato verze webu nepoužívá analytické ani reklamní cookies a neobsahuje Google Analytics, reklamní pixely, newsletter ani uživatelské účty. Údaje rozepsané ve formuláři se neukládají do cookies ani do místního úložiště prohlížeče.",
       "Fotografie a písma se načítají ze stejného webu. Po kliknutí na Facebook nebo YouTube přecházíte do externí služby, která se řídí vlastními pravidly ochrany soukromí.",
       "Volbu kategorií spravujete přes tlačítko Spravovat souhlas v patičce. Nastavení a datum uložení uchováváme po dobu 180 dní v místním úložišti prohlížeče pod klíčem awclean-consent-v1. Tyto údaje nikomu neodesíláme. Povolení volitelných kategorií v této verzi webu nespouští sledování.",
-      "Pomocník DR Fasáda si pro aktuální relaci panelu prohlížeče pamatuje, zda jste jej otevřeli nebo zmenšili. V sessionStorage ukládá pouze tento stav pod klíčem awclean-mascot-v1. Hledané výrazy ani otázky se neukládají a tyto údaje nikomu neodesíláme.",
+      "Pomocník DR Fasáda se zobrazí při každém načtení stránky a nic si neukládá. Hledané výrazy ani otázky se neukládají ani neodesílají.",
       "Cookies a místní data webu můžete spravovat a odstraňovat v nastavení svého prohlížeče.",
     ],
   },

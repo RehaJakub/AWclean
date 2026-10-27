@@ -89,8 +89,8 @@ Ochrana údajů má obsah vlevo (sticky) a text vpravo.
 
 DR Fasáda je pevný průvodce, ne AI: objekt → povrch → problém → služba.
 FAQ má 9 odpovědí, kategorie a vyhledávání bez diakritiky. Maskot je vpravo,
-šipkou se zasouvá a vrací; stav seen/hidden ukládá sessionStorage
-`awclean-mascot-v1`. Dialog má Escape, návrat fokusu a focus trap.
+šipkou se zasouvá a vrací, ale při každém načtení stránky je vždy vidět
+(nic se neukládá, bez automatického schování při scrollu). Dialog má Escape, návrat fokusu a focus trap.
 Preference souhlasu se ukládají do localStorage `awclean-consent-v1` na 180 dní.
 Žádná analytika ani reklamní skripty nejsou připojené; přepínače je nespouštějí.
 Primární modrá tlačítek je #0a74b0 (návrhová #0b8fd6 nesplňuje kontrast AA).

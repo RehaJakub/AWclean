@@ -6,18 +6,10 @@ import { ServiceGuide } from "./ServiceGuide";
 import "./MascotWidget.css";
 
 const mascotImage = "/mascot/dr-fasada.png";
-const sessionKey = "awclean-mascot-v1";
-function sessionState(): string | null {
-  try { return sessionStorage.getItem(sessionKey); } catch { return null; }
-}
-function remember(value: "seen" | "hidden"): void {
-  try { sessionStorage.setItem(sessionKey, value); } catch { /* Optional storage. */ }
-}
-
 export default function MascotWidget() {
   const { obscured, formFocused } = useWidgetVisibility("mascot-faq");
-  const [hidden, setHidden] = useState(() => sessionState() === "hidden");
-  const [arrived, setArrived] = useState(() => sessionState() !== null);
+  const [hidden, setHidden] = useState(false);
+  const [arrived, setArrived] = useState(false);
   const [bubble, setBubble] = useState(false);
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<FaqCategory>("vse");
@@ -34,7 +26,17 @@ export default function MascotWidget() {
   const invitationDismissed = useRef(false);
   const previousOverflow = useRef("");
   const results = filterFaq(category, query);
-  const tucked = hidden || formFocused;
+  const [overForm, setOverForm] = useState(false);
+  const [pulledOut, setPulledOut] = useState(false);
+  const tucked = hidden || formFocused || (overForm && !pulledOut);
+
+  useEffect(() => {
+    const form = document.querySelector("form.contact-form");
+    if (!form || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(([entry]) => setOverForm(entry.isIntersecting), { threshold: 0.05 });
+    observer.observe(form);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (open || !returnFocus.current) return;
@@ -44,20 +46,7 @@ export default function MascotWidget() {
   }, [open, tucked]);
 
   useEffect(() => {
-    const quietWhileReading = (): void => {
-      if (window.scrollY <= 200 || invitationDismissed.current) return;
-      setArrived(true);
-      setHidden(true);
-      setBubble(false);
-      remember("hidden");
-    };
-    quietWhileReading();
-    window.addEventListener("scroll", quietWhileReading, { passive: true });
-    return () => window.removeEventListener("scroll", quietWhileReading);
-  }, []);
-
-  useEffect(() => {
-    if (hidden || sessionState() === "seen") return;
+    if (hidden) return;
     const enter = window.setTimeout(() => {
       setArrived(true);
       if (!invitationDismissed.current) setBubble(true);
@@ -80,7 +69,6 @@ export default function MascotWidget() {
     returnFocus.current = true;
     setOpen(false);
     setBubble(false);
-    remember(hidden ? "hidden" : "seen");
   };
   const show = (): void => {
     invitationDismissed.current = true;
@@ -90,7 +78,6 @@ export default function MascotWidget() {
     closeButton.current?.focus();
   };
   const restore = (): void => {
-    remember("seen");
     setHidden(false);
     setArrived(true);
     invitationDismissed.current = true;
@@ -119,9 +106,9 @@ export default function MascotWidget() {
     <>
       <aside className={`mascot-launcher${arrived ? " is-arrived" : ""}${tucked ? " is-tucked" : ""}${open || obscured ? " is-open" : ""}${bubble ? " is-waving" : ""}`} aria-label="Pomocník DR Fasáda" inert={!arrived || open || obscured}>
         {!tucked && !obscured && <button type="button" className="mascot-bubble" onClick={show} aria-haspopup="dialog" aria-expanded={open} aria-controls="mascot-faq"><strong>DR Fasáda</strong><span>vám poradí</span></button>}
-        <button ref={edgeToggle} className="mascot-hide" type="button" aria-label={tucked ? "Vysunout maskota z pravého okraje" : "Zasunout maskota doprava"} title={tucked ? "Vysunout" : "Zasunout doprava"} onClick={() => { if (tucked) restore(); else { remember("hidden"); setBubble(false); setHidden(true); } }}>{tucked ? <ChevronLeft size={21} aria-hidden="true" /> : <ChevronRight size={21} aria-hidden="true" />}</button>
+        <button ref={edgeToggle} className="mascot-hide" type="button" aria-label={tucked ? "Vysunout maskota z pravého okraje" : "Zasunout maskota doprava"} title={tucked ? "Vysunout" : "Zasunout doprava"} onClick={() => { if (hidden) restore(); else if (tucked) setPulledOut(true); else { setBubble(false); setHidden(true); } }}>{tucked ? <ChevronLeft size={21} aria-hidden="true" /> : <ChevronRight size={21} aria-hidden="true" />}</button>
         <div className="mascot-viewport">
-          <button ref={trigger} type="button" className={`mascot-trigger${imageFailed ? " mascot-fallback" : ""}`} aria-label={tucked ? "Vysunout DR Fasádu" : "Otevřít otázky a odpovědi s DR Fasádou"} aria-haspopup={tucked ? undefined : "dialog"} aria-expanded={tucked ? undefined : open} aria-controls={tucked ? undefined : "mascot-faq"} onClick={tucked ? restore : show}>
+          <button ref={trigger} type="button" className={`mascot-trigger${imageFailed ? " mascot-fallback" : ""}`} aria-label={tucked ? "Vysunout DR Fasádu" : "Otevřít otázky a odpovědi s DR Fasádou"} aria-haspopup={tucked ? undefined : "dialog"} aria-expanded={tucked ? undefined : open} aria-controls={tucked ? undefined : "mascot-faq"} onClick={hidden ? restore : tucked ? () => setPulledOut(true) : show}>
             {imageFailed ? <span>DR Fasáda<br />Otázky a odpovědi</span> :
               <span className="mascot-nod"><span className="mascot-breathe"><img src={mascotImage} alt="DR Fasáda, maskot AWCLEAN" width={dimensions.width} height={dimensions.height} loading="lazy" decoding="async" onLoad={(event) => { setDimensions({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight }); }} onError={() => setImageFailed(true)} /></span></span>}
           </button>
