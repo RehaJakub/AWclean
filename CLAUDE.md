@@ -166,8 +166,10 @@ Zachovat logo, kontakty, skutečné fotografie, adresy a React + TS strict.
 Fakta pouze z projektu/awclean.cz; nevymýšlet recenze, ceny, místa ani garance.
 Slovenský správce údajů (IČO 50823272, Topoľčany) je výslovná volba uživatele;
 česká kontaktní adresa je Chotětov. Bez zadání neměnit.
-main je schválený stav; výchozí commit 9a0a330, tag stable-before-taste-2026-10-15.
-Změny do feature/* nebo fix/*, kontrolovat git status, commitovat jen vlastní změny.
+main je schválený stav; výchozí stav je tag stable-before-taste-2026-10-15.
+Změny do feature/* nebo fix/*, do main jen přes PR; kontrolovat git status, commitovat jen vlastní změny.
+Autor i committer je jen Jakub Řeha <jakubos.reha@gmail.com>; žádné Co-Authored-By ani
+atribuce Claude/Codex. Commit zprávy ve formátu feat:/fix:/style:/refactor:/docs:/chore:/build:/test:.
 Nezavádět nový design bez zadání. Taste skill (`.claude/skills/`, design-taste-frontend
 a redesign-existing-projects) je hodnotitel, ne zákon: stock fotky a vymyšlená videa
 jsou zakázané. Nevytvářet další ZIP/TAR zálohy,
