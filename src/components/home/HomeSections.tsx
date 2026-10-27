@@ -147,7 +147,6 @@ export function HomeAbout() {
         />
       </div>
       <div className="home-about-copy">
-        <p className="svc-kicker">O nás</p>
         <h2 id="o-nas-title">Čištění fasád od profesionálů již od roku 2001.</h2>
         <p>
           Specializujeme se na čisticí práce v průmyslových, veřejných
@@ -235,8 +234,7 @@ export function HomeReferences() {
             height="150"
           />
           <span>
-            <span className="home-press-kicker">Psali o nás</span>
-            <strong>Odborná reportáž v časopise Dům a Byt</strong>
+            <strong>Psali o nás: odborná reportáž v časopise Dům a Byt</strong>
           </span>
         </a>
       </div>

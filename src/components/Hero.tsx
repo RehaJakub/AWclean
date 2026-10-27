@@ -42,10 +42,14 @@ export function Hero() {
       onPointerCancel={() => (dragging.current = false)}
     >
       <div className="rd-hero-image">
-        <ResponsiveImage src={before.src} alt={before.alt} sizes="100vw" fetchPriority="high" width="1600" height="1200" />
+        <div className="rd-hero-stage">
+          <ResponsiveImage className="rd-hero-before" src={before.src} alt={before.alt} sizes="120vw" fetchPriority="high" width="1600" height="1200" />
+        </div>
       </div>
       <div className="rd-hero-image rd-hero-after">
-        <ResponsiveImage src={after.src} alt={after.alt} sizes="100vw" fetchPriority="high" width="1600" height="1200" />
+        <div className="rd-hero-stage">
+          <ResponsiveImage className="rd-hero-after-img" src={after.src} alt={after.alt} sizes="120vw" fetchPriority="high" width="1600" height="1200" />
+        </div>
       </div>
       <div className="rd-hero-shade" aria-hidden="true" />
       <div className="rd-hero-divider" aria-hidden="true">

@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   ArrowRight,
   Check,
@@ -24,8 +24,10 @@ interface ContactFormProps {
   endpoint?: string;
   /** Fotka firemních dodávek pod kontakty (stránka Kontakt). */
   showVans?: boolean;
+  /** Úvod nad kontakty (stránka Kontakt): nadpis a věta stojí v rovině s formulářem. */
+  lead?: ReactNode;
 }
-export function ContactForm({ endpoint = "", showVans = false }: ContactFormProps) {
+export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFormProps) {
   const [values, setValues] = useState<ContactValues>(initialValues);
   const [errors, setErrors] = useState<ContactErrors>({});
   const [status, setStatus] = useState<SubmitStatus>("idle");
@@ -68,7 +70,7 @@ export function ContactForm({ endpoint = "", showVans = false }: ContactFormProp
     <Section id="kontakt" className="contact-section">
       <div className="container contact-layout">
         <div className="contact-copy">
-          <p className="eyebrow">ZAČÍNÁ TO JEDNÍM KONTAKTEM</p>
+          {lead}
           <h2>
             Poptávka začíná <span>tady.</span>
           </h2>
@@ -81,15 +83,11 @@ export function ContactForm({ endpoint = "", showVans = false }: ContactFormProp
             celé ČR
           </div>
           <div className="contact-phones">
-            {contacts.map((contact, i) => (
+            {contacts.map((contact) => (
               <div key={contact.phone}>
-                <Phone size={i === 0 ? 22 : 17} />
+                <Phone size={22} />
                 <div>
-                  <span>{contact.label}</span>
-                  <a
-                    className={i === 0 ? "primary-contact" : ""}
-                    href={contact.href}
-                  >
+                  <a className="primary-contact" href={contact.href} aria-label={contact.label}>
                     {contact.phone}
                   </a>
                 </div>
@@ -130,7 +128,6 @@ export function ContactForm({ endpoint = "", showVans = false }: ContactFormProp
           }}
           aria-busy={status === "sending"}
         >
-          <span className="small-label">NEZÁVAZNÁ POPTÁVKA</span>
           <h3>S čím vám můžeme pomoci?</h3>
           <p>Nechte nám na sebe kontakt. Společně najdeme řešení.</p>
           <div className="form-grid">
