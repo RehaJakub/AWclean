@@ -28,6 +28,8 @@ export function ContactPage() {
             Na Výsluní 298
             <br />
             294 28 Chotětov, Mladá Boleslav
+            <br />
+            IČO 50823272
           </address>
         </div>
         <div>
