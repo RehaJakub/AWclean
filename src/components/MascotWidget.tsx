@@ -118,13 +118,13 @@ export default function MascotWidget() {
         <div className="mascot-panel">
           <header className="mascot-header">
             {!imageFailed && <span className="mascot-avatar"><img src={mascotImage} alt="DR Fasáda, maskot AWCLEAN" width="655" height="800" loading="lazy" decoding="async" /></span>}
-            <div><p>RÁD VÁM PORADÍM</p><h2 id="mascot-title">DR Fasáda odpovídá</h2></div>
+            <div><p>RÁD VÁM PORADÍM</p><h2 id="mascot-title">DR Fasáda</h2></div>
             <button ref={closeButton} type="button" className="mascot-close" onClick={close} aria-label="Zavřít otázky a odpovědi"><X size={21} aria-hidden="true" /></button>
           </header>
           <div className="mascot-body">
             <div className="mascot-mode" role="group" aria-label="Jak vám DR Fasáda pomůže">
-              <button type="button" aria-pressed={mode === "guide"} onClick={() => setMode("guide")}>Vybrat službu</button>
-              <button type="button" aria-pressed={mode === "faq"} onClick={() => setMode("faq")}>Otázky a odpovědi</button>
+              <button type="button" aria-pressed={mode === "guide"} onClick={() => setMode("guide")}>Najít službu</button>
+              <button type="button" aria-pressed={mode === "faq"} onClick={() => setMode("faq")}>Časté otázky</button>
             </div>
             <div hidden={mode !== "guide"}><ServiceGuide /></div>
             <div hidden={mode !== "faq"}>
@@ -141,7 +141,7 @@ export default function MascotWidget() {
               {!results.length && <p className="mascot-empty">Zkuste jiné slovo nebo kategorii Vše. Nebo se nám ozvěte přímo.</p>}
             </div>
             </div>
-            <section className="mascot-contact" aria-labelledby="mascot-contact-title"><h3 id="mascot-contact-title">Nenašli jste odpověď?</h3><p>Probereme spolu váš konkrétní objekt.</p>
+            <section className="mascot-contact" aria-labelledby="mascot-contact-title"><h3 id="mascot-contact-title">Chcete se raději zeptat přímo?</h3><p>Zavolejte nám. Rádi vám vše vysvětlíme.</p>
               <a className="button button-primary" href="tel:+420773196097"><Phone size={17} aria-hidden="true" />Zavolat +420 773 196 097</a>
               <a className="button button-outline" href="/kontakt/?vzorek=1#kontakt">Referenční vzorek ZDARMA</a>
               <p className="mascot-sample-note">Pro čištění fasád, střech a dlažeb po celé ČR.</p>

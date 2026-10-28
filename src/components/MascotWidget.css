@@ -146,6 +146,13 @@
 .guide-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .guide-choices button:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .guide-choices button svg { flex-shrink: 0; }
+.guide-choices button > span { display: grid; gap: 2px; }
+.guide-choices small { font-size: 14px; font-weight: 400; color: var(--color-muted); }
+.guide-result h5 { margin: 20px 0 8px; font-size: 17px; color: var(--color-primary); }
+.guide-next { margin: 0; padding: 0; list-style: none; counter-reset: guide-step; display: grid; gap: 10px; font-size: 16px; line-height: 1.5; }
+.guide-next li { counter-increment: guide-step; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
+.guide-next li::before { content: counter(guide-step); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--color-surface-blue); color: var(--color-primary); font-weight: 700; font-size: 14px; }
+.guide-result .button + .button { margin-top: -10px; }
 @container (max-width: 380px) {
   .guide-choices { grid-template-columns: 1fr; }
 }
