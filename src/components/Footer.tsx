@@ -88,7 +88,7 @@ export function Footer({ currentPath }: FooterProps) {
               <br />
               Sídlo: Čsl. armády 1457/2A, 955 01 Topoľčany, SR
               <br />
-              IČO 50823272 · IČ DPH SK2120488458
+              IČ DPH SK2120488458
               <br />
               <a href="mailto:info@awclean.cz">info@awclean.cz</a>
             </address>
