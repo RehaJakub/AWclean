@@ -1,0 +1,430 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+new file mode 100644
+index 0000000..2c82c8d
+--- /dev/null
++++ b/.github/workflows/ci.yml
+@@ -0,0 +1,33 @@
++name: CI
++
++on:
++  pull_request:
++  push:
++    branches: [main]
++
++permissions:
++  contents: read
++
++concurrency:
++  group: ci-${{ github.ref }}
++  cancel-in-progress: true
++
++jobs:
++  check:
++    runs-on: ubuntu-24.04
++    timeout-minutes: 15
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 24
++          cache: npm
++      - run: npm ci
++      - run: npm run lint --if-present
++      - run: npm test
++      - run: npm run build
++      - run: npm run check:build
++      # Celý strom: Vite, sharp a TypeScript běží při buildu v CI (devDependencies).
++      - run: npm audit --audit-level=high
++      - name: PHP syntaxe endpointu formuláře
++        run: if [ -f public/contact.php ]; then php -l public/contact.php; fi
+diff --git a/.github/workflows/deploy.yml b/.github/workflows/deploy.yml
+new file mode 100644
+index 0000000..dccdc2a
+--- /dev/null
++++ b/.github/workflows/deploy.yml
+@@ -0,0 +1,99 @@
++name: Deploy
++
++# Nasazení: push tagu v* (např. v2026.11.01) nebo ručně. Rollback = ruční spuštění s předchozím tagem.
++on:
++  push:
++    tags: ["v*"]
++  workflow_dispatch:
++    inputs:
++      ref:
++        description: "Tag nebo commit k nasazení (rollback: předchozí tag)"
++        required: true
++        default: main
++      prune_assets:
++        description: "Smazat staré hashované soubory v /assets/ (jednou za čas, ne hned po vydání)"
++        type: boolean
++        default: false
++
++permissions:
++  contents: read
++
++concurrency:
++  group: deploy-production
++  cancel-in-progress: false
++
++jobs:
++  deploy:
++    runs-on: ubuntu-24.04
++    timeout-minutes: 30
++    environment:
++      name: production
++      url: ${{ vars.SITE_URL || 'https://www.awclean.cz' }}
++    env:
++      SITE_URL: ${{ vars.SITE_URL || 'https://www.awclean.cz' }}
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          ref: ${{ inputs.ref || github.ref }}
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 24
++          cache: npm
++      - run: npm ci
++      - run: npm test
++
++      - name: Build
++        env:
++          VITE_CONTACT_ENDPOINT: ${{ vars.VITE_CONTACT_ENDPOINT }}
++        run: |
++          test -n "$VITE_CONTACT_ENDPOINT" || { echo "::error::Chybí proměnná prostředí production VITE_CONTACT_ENDPOINT"; exit 1; }
++          npm run build
++          npm run check:build
++          grep -qF "$VITE_CONTACT_ENDPOINT" dist/assets/index-*.js
++          # Na Apache nepatří: pravidla pro Netlify a interní poznámky k fotkám.
++          rm -f dist/_redirects
++          find dist -name '*.md' -delete
++
++      - uses: actions/upload-artifact@v4
++        with:
++          name: dist-${{ github.sha }}
++          path: dist
++          include-hidden-files: true
++          retention-days: 90
++
++      - name: Install lftp
++        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
++
++      - name: Upload
++        env:
++          DEPLOY_PROTOCOL: ${{ vars.DEPLOY_PROTOCOL }}
++          DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
++          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
++          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
++          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
++          LFTP_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
++          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
++          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
++          PRUNE_ASSETS: ${{ inputs.prune_assets && '1' || '0' }}
++        run: |
++          umask 077
++          mkdir -p ~/.ssh
++          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
++          if [ -n "$SSH_KEY" ]; then
++            printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
++            export DEPLOY_KEY_FILE=~/.ssh/deploy_key
++          fi
++          sh scripts/deploy.sh
++
++      - name: Smoke test
++        run: |
++          set -eu
++          expected=$(grep -o '/assets/index-[A-Za-z0-9_-]*\.js' dist/index.html | head -n1)
++          live=$(curl -fsS "$SITE_URL/" | grep -o '/assets/index-[A-Za-z0-9_-]*\.js' | head -n1)
++          test "$live" = "$expected" || { echo "::error::Živá homepage odkazuje na $live, build na $expected"; exit 1; }
++          curl -fsS -o /dev/null "$SITE_URL$expected"
++          grep -o '<loc>[^<]*' dist/sitemap.xml | sed 's#<loc>https://[^/]*##' | while read -r path; do
++            curl -fsS -o /dev/null "$SITE_URL$path"
++          done
++          test "$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/neexistuje/")" = 404
++          curl -fsSI "$SITE_URL/" | grep -qi '^content-security-policy:'
+diff --git a/deploy/htaccess.template b/deploy/htaccess.template
+new file mode 100644
+index 0000000..1f8773f
+--- /dev/null
++++ b/deploy/htaccess.template
+@@ -0,0 +1,103 @@
++# AWCLEAN – konfigurace pro sdílený Apache (Wedos, svethostingu.cz) / LiteSpeed (Hostinger).
++# Generuje se při buildu z deploy/htaccess.template (vite.config.ts). Neupravovat v dist ani na FTP:
++# každý deploy soubor přepíše. Všechny direktivy patří do kategorií FileInfo/Indexes/Options=Indexes,
++# které povoluje i nejpřísnější sdílený hosting (Wedos zakazuje jiné volby Options, SetEnv, php_value).
++
++AddDefaultCharset utf-8
++AddCharset utf-8 .css .js .json .xml .txt .svg
++AddType font/woff2 .woff2
++AddType image/webp .webp
++DirectoryIndex index.html
++ErrorDocument 404 /404.html
++ErrorDocument 410 /404.html
++# ETag + komprese: mod_deflate přidává k ETag „-gzip“ a revalidace pak vrací 200 místo 304. Stačí Last-Modified.
++FileETag None
++Options -Indexes
++
++<IfModule mod_rewrite.c>
++  RewriteEngine On
++
++  # 1) Skryté a neveřejné soubory → 404 (ne 403, nic neprozrazuje). .well-known zůstává pro ACME.
++  RewriteRule (^|/)\.(?!well-known/) - [R=404,L]
++  RewriteRule (^|/)(composer\.(json|lock)|package(-lock)?\.json|vendor/|private/|config(\.[a-z]+)?$) - [R=404,L,NC]
++  RewriteRule \.(bak|old|orig|save|swp|tmp|dist|map|md|log|sql|sqlite|ini|env|ya?ml|lock|sh|zip|tar|gz|tgz|7z|rar)$ - [R=404,L,NC]
++  RewriteRule ~$ - [R=404,L]
++  RewriteRule ^_redirects$ - [R=404,L]
++
++  # 2) Migrace ze starého webu (Smartweb): PDF osvědčení a obrázky galerií. Absolutní cíl = jeden skok.
++  RewriteRule ^data/awclean\.cz/documents/Osvedcenie--AWCLEAN\.pdf$ @SITE_URL@/documents/osvedceni-awclean.pdf [R=301,L,NC]
++  RewriteCond %{DOCUMENT_ROOT}/images/projects/$1 -f
++  RewriteRule ^data/awclean\.cz/images/tmp/(.+)$ @SITE_URL@/images/projects/$1 [R=301,L]
++  # Mytí oken (stará URL v sitemap): ROZHODNE VLASTNÍK (SEO-5). Bez pravidla vrací 404.
++  # Pokud se služba už nedělá a má rychle zmizet z indexu, odkomentujte 410 Gone:
++  # RewriteRule ^ostatni-sluzby/myti-oken/?$ - [G]
++
++  # 3) Staré adresy (generováno z routeAliases v src/lib/routes.ts), absolutní cíl = jeden skok i z http/bez www.
++# @ALIASES@
++
++  # 4) Adresář bez koncového lomítka → rovnou kanonická adresa (mod_dir by udělal další skok přes původní host).
++  RewriteCond %{REQUEST_FILENAME} -d
++  RewriteRule ^(.+[^/])$ @SITE_URL@/$1/ [R=301,L]
++
++  # 5) Kanonická doména: awclean.cz → https://www.awclean.cz jedním skokem.
++  RewriteCond %{HTTP_HOST} ^awclean\.cz$ [NC]
++  RewriteRule ^ https://www.awclean.cz%{REQUEST_URI} [R=301,L]
++
++  # 6) HTTP → HTTPS. Na Smartwebu (nginx) i na většině hostingů to dělá hosting sám – nechte zakomentované.
++  #    Zapnout jen tam, kde přepínač hostingu zapisuje do www/.htaccess (Wedos), protože deploy ho přepíše.
++  #    Tři podmínky = žádná smyčka ani za TLS proxy/CDN. Ověření: curl -sI http://www.awclean.cz/ → jediný 301.
++  # RewriteCond %{HTTPS} !=on
++  # RewriteCond %{HTTP:X-Forwarded-Proto} !=https
++  # RewriteCond %{ENV:HTTPS} !=on
++  # RewriteRule ^ https://www.awclean.cz%{REQUEST_URI} [R=301,L]
++</IfModule>
++
++# Komprese: brotli tam, kde ho hosting má, jinak gzip. Obrázky/fonty jsou už komprimované.
++# AddOutputFilterByType patří do mod_filter: bez něj by direktiva shodila web chybou 500, proto vnořené IfModule.
++<IfModule mod_filter.c>
++  <IfModule mod_brotli.c>
++    AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml application/xml application/javascript text/javascript application/json image/svg+xml
++  </IfModule>
++  <IfModule mod_deflate.c>
++    AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/javascript text/javascript application/json image/svg+xml
++  </IfModule>
++</IfModule>
++
++<IfModule mod_headers.c>
++  Header unset ETag
++  # Cache: HTML/sitemap/robots vždy revalidovat; hashované soubory Vite (název-XXXXXXXX.js|css|woff2) rok;
++  # obrázky, fonty a PDF 30 dní (nemají hash v názvu).
++  <FilesMatch "\.(html|xml|txt)$">
++    Header set Cache-Control "no-cache"
++  </FilesMatch>
++  <FilesMatch "\.(webp|avif|jpe?g|png|svg|ico|gif|woff2?|pdf)$">
++    Header set Cache-Control "public, max-age=2592000"
++  </FilesMatch>
++  <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|css|woff2)$">
++    Header set Cache-Control "public, max-age=31536000, immutable"
++  </FilesMatch>
++  # Odpověď formuláře (osobní údaje) se nesmí ukládat do žádné cache.
++  <Files "contact.php">
++    Header always set Cache-Control "no-store"
++  </Files>
++
++  # Bezpečnostní hlavičky. connect-src/form-action 'self' pokrývají /contact.php na stejné doméně.
++  # style-src bez 'unsafe-inline': předvykreslené HTML nesmí obsahovat atribut style="" (prohlížeč ho zahodí);
++  # React style={…} po hydrataci je v pořádku. Hlídá to scripts/verify-build.ts.
++  # Varianta s Cloudflare Turnstile ve formuláři (SEC-3): do script-src i frame-src přidat
++  # https://challenges.cloudflare.com (frame-src 'none' → frame-src https://challenges.cloudflare.com).
++  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
++  Header always set X-Content-Type-Options "nosniff"
++  Header always set X-Frame-Options "DENY"
++  Header always set Referrer-Policy "strict-origin-when-cross-origin"
++  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
++  Header always set Cross-Origin-Opener-Policy "same-origin"
++  # CORP jen pro HTML: obrázky a PDF smějí vkládat i jiné weby (awclean.sk, Google Obrázky).
++  <FilesMatch "\.html$">
++    Header always set Cross-Origin-Resource-Policy "same-origin"
++  </FilesMatch>
++  # HSTS jen přes HTTPS. Současný web (Smartweb) už posílá max-age=31536000, prohlížeče návštěvníků ho
++  # mají uložený – snížení by nic nezměnilo, proto rovnou 1 rok. includeSubDomains/preload ne:
++  # mail.awclean.cz a webmail běží u Smartwebu a jejich HTTPS tu neřídíme.
++  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on' || %{HTTP:X-Forwarded-Proto} == 'https'"
++</IfModule>
+diff --git a/scripts/deploy.sh b/scripts/deploy.sh
+new file mode 100644
+index 0000000..d82c511
+--- /dev/null
++++ b/scripts/deploy.sh
+@@ -0,0 +1,55 @@
++#!/bin/sh
++# Nasazení dist/ na sdílený hosting přes lftp (SFTP, záložně FTPS) ve 4 krocích,
++# aby web během nahrávání nikdy neodkazoval na soubor, který ještě/už neexistuje:
++#   1. assets/  – hashované JS/CSS/fonty, jen přidat (staré zůstávají pro otevřené záložky)
++#   2. ostatní statické soubory (obrázky, maskot, PDF, favicony) – jen přidat
++#   3. HTML, .htaccess, sitemap, robots – vždy všechny (--transfer-all: stejná velikost i čas neznamená
++#      stejný obsah, hash v názvu assetu má pevnou délku), každý do dočasného souboru a přejmenovat
++#   4. smazat zastaralé soubory mimo assets/ a mimo chráněné cesty (private/, vendor/…; contact.php je v dist z public/)
++# Proměnné: DEPLOY_PROTOCOL=sftp|ftps, DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER, LFTP_PASSWORD,
++#   DEPLOY_PATH (např. /www, /public_html, domains/awclean.cz/public_html),
++#   volitelně DEPLOY_KEY_FILE (SFTP klíč), DEPLOY_KNOWN_HOSTS (soubor), PRUNE_ASSETS=1, DIST=dist
++set -eu
++DIST=${DIST:-dist}
++: "${DEPLOY_HOST:?}" "${DEPLOY_USER:?}" "${DEPLOY_PATH:?}"
++PROTO=${DEPLOY_PROTOCOL:-sftp}
++if [ ! -f "$DIST/index.html" ] || [ ! -f "$DIST/.htaccess" ]; then echo "Chybí $DIST/index.html nebo .htaccess" >&2; exit 1; fi
++
++# Soubory na serveru, které deploy nikdy nesmaže ani nepřepíše (backend formuláře, hosting, ACME).
++PROTECT="-x ^contact-config\.php$ -x ^vendor/ -x ^private/ -x ^\.well-known/ -x ^\.user\.ini$ -x ^cgi-bin/ -x ^domains/ -x ^subdom/ -x ^logs?/ -x ^stats/"
++M="mirror --reverse --no-perms --parallel=4 --verbose=1"
++
++if [ "$PROTO" = sftp ]; then
++  SSH="ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${DEPLOY_KNOWN_HOSTS:-$HOME/.ssh/known_hosts}"
++  if [ -n "${DEPLOY_KEY_FILE:-}" ]; then SSH="$SSH -i $DEPLOY_KEY_FILE"; fi
++  SETUP="set sftp:connect-program \"$SSH\"; set net:max-retries 3; set net:timeout 30"
++  URL="sftp://$DEPLOY_HOST:${DEPLOY_PORT:-22}"
++else
++  # FTPS (explicit TLS). Certifikát sdíleného hostingu bývá na jméno serveru, ne domény – DEPLOY_HOST = jméno serveru.
++  SETUP="set ftp:ssl-force true; set ftp:ssl-protect-data true; set ssl:verify-certificate true; set ftp:passive-mode true; set ftp:list-options -a; set net:max-retries 3; set net:timeout 30"
++  URL="ftp://$DEPLOY_HOST:${DEPLOY_PORT:-21}"
++fi
++# Prázdné heslo je u přihlášení klíčem v pořádku; --env-password čte LFTP_PASSWORD, heslo není v argv.
++export LFTP_PASSWORD="${LFTP_PASSWORD:-}"
++
++PRUNE_ASSETS_CMD=""
++if [ "${PRUNE_ASSETS:-0}" = 1 ]; then PRUNE_ASSETS_CMD="$M --delete --ignore-time $DIST/assets assets"; fi
++
++lftp -c "
++$SETUP
++set xfer:use-temp-file yes
++set xfer:temp-file-name .in.*
++open --env-password -u $DEPLOY_USER $URL
++mkdir -pf $DEPLOY_PATH
++cd $DEPLOY_PATH
++echo '== 1/4 assets'
++$M --ignore-time $DIST/assets assets
++echo '== 2/4 statické soubory'
++$M --ignore-time -x ^assets/ -x \.html$ -x ^\.htaccess$ -x ^sitemap\.xml$ -x ^robots\.txt$ $PROTECT $DIST .
++echo '== 3/4 HTML a konfigurace'
++$M --transfer-all -i \.html$ -i ^\.htaccess$ -i ^sitemap\.xml$ -i ^robots\.txt$ -x ^assets/ $PROTECT $DIST .
++echo '== 4/4 úklid'
++$M --delete --ignore-time -x ^assets/ -x '(^|/)\.in\.' $PROTECT $DIST .
++$PRUNE_ASSETS_CMD
++"
++echo "Nasazeno: $DIST → $DEPLOY_HOST:$DEPLOY_PATH"
+diff --git a/scripts/verify-build.ts b/scripts/verify-build.ts
+index b5e1174..098a78f 100644
+--- a/scripts/verify-build.ts
++++ b/scripts/verify-build.ts
+@@ -1,7 +1,13 @@
+ import assert from "node:assert/strict";
+-import { readFileSync, existsSync } from "node:fs";
++import { readFileSync, existsSync, readdirSync } from "node:fs";
+ import { resolve } from "node:path";
+ const sitemap = readFileSync("dist/sitemap.xml", "utf8");
++const htaccess = readFileSync("dist/.htaccess", "utf8");
++assert.match(htaccess, /Content-Security-Policy/, "Chybí CSP v .htaccess");
++assert.match(htaccess, /RewriteRule \^ochrana-osobnich-udaju/, "Chybí aliasy v .htaccess");
++// CSP style-src 'self' zahodí každý předvykreslený atribut style="".
++for (const file of readdirSync("dist", { recursive: true, encoding: "utf8" }).filter((name) => name.endsWith(".html")))
++  assert.doesNotMatch(readFileSync(resolve("dist", file), "utf8"), /\sstyle="/, `Inline style v ${file} poruší CSP`);
+ const titles = new Set<string>();
+ const descriptions = new Set<string>();
+ const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+diff --git a/src/components/Hero.tsx b/src/components/Hero.tsx
+index 8eb8a30..0a0ecea 100644
+--- a/src/components/Hero.tsx
++++ b/src/components/Hero.tsx
+@@ -33,7 +33,8 @@ export function Hero() {
+       ref={section}
+       className="rd-hero"
+       aria-label="Porovnání cihlové fasády před čištěním a po něm"
+-      style={{ "--split": `${split}%` } as CSSProperties}
++      // Výchozí 50 % je v CSS, takže předvykreslené HTML nemá style="" a projde CSP bez 'unsafe-inline'.
++      style={split === 50 ? undefined : ({ "--split": `${split}%` } as CSSProperties)}
+       onPointerDown={start}
+       onPointerMove={(event) => {
+         if (dragging.current) moveTo(event.clientX);
+diff --git a/src/redesign.css b/src/redesign.css
+index ddeb912..c3543e5 100644
+--- a/src/redesign.css
++++ b/src/redesign.css
+@@ -730,14 +730,14 @@
+ }
+ .rd-hero-image { position: absolute; inset: 0; }
+ .rd-hero-image img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+-.rd-hero-after { clip-path: inset(0 0 0 var(--split)); }
++.rd-hero-after { clip-path: inset(0 0 0 var(--split, 50%)); }
+ .rd-hero-shade {
+   position: absolute;
+   inset: 0;
+   pointer-events: none;
+   background: linear-gradient(0deg, rgba(13, 34, 62, 0.92) 0%, rgba(13, 34, 62, 0.5) 36%, rgba(13, 34, 62, 0) 62%);
+ }
+-.rd-hero-divider { position: absolute; top: 0; bottom: 0; left: var(--split); width: 0; pointer-events: none; }
++.rd-hero-divider { position: absolute; top: 0; bottom: 0; left: var(--split, 50%); width: 0; pointer-events: none; }
+ .rd-hero-divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1.5px; width: 3px; background: #fff; }
+ .rd-hero-divider .rd-badge { top: 24px; left: auto; right: 14px; }
+ .rd-hero-divider .rd-badge.is-after { left: 14px; right: auto; }
+diff --git a/vite.config.ts b/vite.config.ts
+index ee38c0c..ee24b76 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -17,6 +17,8 @@ import {
+   normalizePath,
+   type PageMeta,
+ } from "./src/lib/routes";
++const escapeRegex = (value: string): string =>
++  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+ const escapeHtml = (value: string): string =>
+   value
+     .replace(/&/g, "&amp;")
+@@ -56,10 +58,12 @@ function legacyRedirects(): Plugin {
+ }
+ function staticPages(): Plugin {
+   let outputDirectory = "";
++  let rootDirectory = "";
+   return {
+     name: "awclean-static-pages",
+     apply: "build",
+     configResolved(config) {
++      rootDirectory = config.root;
+       outputDirectory = resolve(config.root, config.build.outDir);
+     },
+     async closeBundle() {
+@@ -158,17 +162,25 @@ function staticPages(): Plugin {
+             )
+             .join("\n") + "\n/* /404.html 404\n",
+         );
+-        await writeFile(
+-          resolve(outputDirectory, ".htaccess"),
+-          "DirectoryIndex index.html\nErrorDocument 404 /404.html\n" +
+-            Object.entries(routeAliases)
+-              .map(
+-                ([alias, target]) =>
+-                  `RedirectMatch 301 ^${alias.slice(0, -1)}/?(?:index\\.html)?$ ${target}`,
+-              )
+-              .join("\n") +
+-            "\n",
++        // Apache konfigurace: šablona v deploy/ + 301 aliasy ze stejných dat jako aplikace.
++        const htaccessTemplate = await readFile(
++          resolve(rootDirectory, "deploy/htaccess.template"),
++          "utf8",
++        );
++        if (!htaccessTemplate.includes("# @ALIASES@"))
++          throw new Error("Šablona .htaccess nemá značku # @ALIASES@.");
++        // Cíl přesměrování: produkce, nebo náhledová doména při testu na novém hostingu (SITE_URL).
++        const siteUrl = (process.env.SITE_URL ?? "https://www.awclean.cz").replace(/\/$/, "");
++        const htaccess = htaccessTemplate.replaceAll("@SITE_URL@", siteUrl).replace(
++          "# @ALIASES@",
++          Object.entries(routeAliases)
++            .map(
++              ([alias, target]) =>
++                `  RewriteRule ^${escapeRegex(alias.slice(1, -1))}/?(?:index\\.html)?$ ${siteUrl}${target} [R=301,L]`,
++            )
++            .join("\n"),
+         );
++        await writeFile(resolve(outputDirectory, ".htaccess"), htaccess);
+         await writeFile(
+           resolve(outputDirectory, "404.html"),
+           render(resolveRoute("/404/")).replace(

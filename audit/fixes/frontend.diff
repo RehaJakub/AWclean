@@ -1,0 +1,482 @@
+--- a/src/lib/contact.ts
++++ b/src/lib/contact.ts
+@@ -1,3 +1,4 @@
++import { servicePages } from "../data/pages";
+ export interface ContactValues {
+   name: string;
+   phone: string;
+@@ -27,12 +28,36 @@
+     errors.message = "Popište prosím svůj požadavek alespoň 10 znaky.";
+   return errors;
+ }
++/** Doplňky odesílané s poptávkou: antispam a kontext z odkazu služby. */
++export interface ContactMeta {
++  website: string;
++  fillMs: number;
++  service: string;
++  sample: string;
++}
++/** Kontext z ?sluzba=&vzorek=1 (odkazy z inquiryAction); neznámé hodnoty zahodí. */
++export function inquiryContext(search: string): Pick<ContactMeta, "service" | "sample"> {
++  const params = new URLSearchParams(search);
++  const service = params.get("sluzba") ?? "";
++  return {
++    service: servicePages.some((page) => page.shortTitle === service) ? service : "",
++    sample: params.get("vzorek") === "1" ? "1" : "",
++  };
++}
++/** Chyba s českou zprávou určenou přímo uživateli. */
++export class ContactError extends Error {}
++const statusMessages: Record<number, string> = {
++  413: "Zpráva je příliš dlouhá. Zkraťte ji prosím.",
++  422: "Zkontrolujte prosím vyplněné údaje.",
++  429: "Odeslali jste příliš mnoho poptávek za krátkou dobu. Zkuste to prosím později nebo nám zavolejte.",
++};
+ export async function sendContact(
+   values: ContactValues,
+   endpoint: string,
++  meta: ContactMeta,
+ ): Promise<void> {
+   if (!endpoint)
+-    throw new Error(
++    throw new ContactError(
+       "Odesílání formuláře zatím není připojeno. Zavolejte nám nebo odešlete připravený e-mail níže.",
+     );
+   const controller = new AbortController();
+@@ -41,13 +66,19 @@
+     const response = await fetch(endpoint, {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+-      body: JSON.stringify(values),
++      body: JSON.stringify({ ...values, ...meta }),
+       signal: controller.signal,
+     });
+-    if (!response.ok)
+-      throw new Error(
+-        "Poptávku se nepodařilo odeslat. Zkuste to znovu nebo nám zavolejte.",
++    if (!response.ok) {
++      const body = (await response.json().catch(() => null)) as {
++        errors?: Record<string, string>;
++      } | null;
++      throw new ContactError(
++        body?.errors?.form ??
++          statusMessages[response.status] ??
++          "Poptávku se nepodařilo odeslat. Zkuste to znovu nebo nám zavolejte.",
+       );
++    }
+   } finally {
+     window.clearTimeout(timeout);
+   }
+--- a/src/lib/contact.test.ts
++++ b/src/lib/contact.test.ts
+@@ -1,6 +1,9 @@
++import { readFileSync } from "node:fs";
+ import { afterEach, describe, expect, it, vi } from "vitest";
++import { servicePages } from "../data/pages";
+ import {
+   contactMailto,
++  inquiryContext,
+   sendContact,
+   validateContact,
+   type ContactValues,
+@@ -11,6 +14,7 @@
+   email: "jan@example.cz",
+   message: "Prosím o čištění fasády domu.",
+ };
++const antispam = { website: "", fillMs: 5000, service: "", sample: "" };
+ afterEach(() => vi.unstubAllGlobals());
+ describe("Validace poptávky", () => {
+   it("přijme český i slovenský telefon", () => {
+@@ -38,26 +42,55 @@
+   it("bez endpointu nikdy nehlásí úspěch a neodesílá data", async () => {
+     const fetch = vi.fn();
+     vi.stubGlobal("fetch", fetch);
+-    await expect(sendContact(valid, "")).rejects.toThrow("není připojeno");
++    await expect(sendContact(valid, "", antispam)).rejects.toThrow("není připojeno");
+     expect(fetch).not.toHaveBeenCalled();
+   });
+   it("odešle JSON a přijme úspěšnou odpověď", async () => {
+     vi.stubGlobal("window", { setTimeout, clearTimeout });
+     const fetch = vi.fn().mockResolvedValue({ ok: true });
+     vi.stubGlobal("fetch", fetch);
+-    await expect(sendContact(valid, "/api/contact")).resolves.toBeUndefined();
++    await expect(sendContact(valid, "/api/contact", antispam)).resolves.toBeUndefined();
+     expect(fetch).toHaveBeenCalledWith(
+       "/api/contact",
+-      expect.objectContaining({ method: "POST", body: JSON.stringify(valid) }),
++      expect.objectContaining({ method: "POST", body: JSON.stringify({ ...valid, ...antispam }) }),
+     );
+   });
+   it("zobrazí chybu při odmítnutí serverem", async () => {
+     vi.stubGlobal("window", { setTimeout, clearTimeout });
+-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+-    await expect(sendContact(valid, "/api/contact")).rejects.toThrow(
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500, json: () => Promise.reject(new Error("no json")) }));
++    await expect(sendContact(valid, "/api/contact", antispam)).rejects.toThrow(
+       "nepodařilo",
+     );
+   });
++  it("při limitu ukáže českou zprávu ze serveru", async () => {
++    vi.stubGlobal("window", { setTimeout, clearTimeout });
++    vi.stubGlobal(
++      "fetch",
++      vi.fn().mockResolvedValue({
++        ok: false,
++        status: 429,
++        json: () => Promise.resolve({ ok: false, errors: { form: "Příliš mnoho poptávek." } }),
++      }),
++    );
++    await expect(sendContact(valid, "/api/contact", antispam)).rejects.toThrow(
++      "Příliš mnoho poptávek.",
++    );
++  });
++  it("převezme jen známou službu a vzorek z odkazu", () => {
++    expect(
++      inquiryContext("?sluzba=%C4%8Ci%C5%A1t%C4%9Bn%C3%AD+fas%C3%A1d&vzorek=1"),
++    ).toEqual({ service: "Čištění fasád", sample: "1" });
++    expect(inquiryContext("?sluzba=<script>&vzorek=ano")).toEqual({
++      service: "",
++      sample: "",
++    });
++  });
++  it("contact.php zná stejné služby jako web", () => {
++    const php = readFileSync("public/contact.php", "utf8");
++    const list = php.slice(php.indexOf("const SERVICES"), php.indexOf("];", php.indexOf("const SERVICES")));
++    const phpServices = [...list.matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
++    expect(phpServices).toEqual(servicePages.map((page) => page.shortTitle).sort());
++  });
+   it("zakóduje zprávu do náhradního e-mailu", () => {
+     const result = contactMailto({
+       ...valid,
+--- a/src/components/ContactForm.tsx
++++ b/src/components/ContactForm.tsx
+@@ -1,4 +1,4 @@
+-import { useRef, useState, type FormEvent, type ReactNode } from "react";
++import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+ import {
+   ArrowRight,
+   Check,
+@@ -10,8 +10,10 @@
+ } from "lucide-react";
+ import { contacts, emails, privacyUrl } from "../data/contacts";
+ import {
++  ContactError,
+   contactMailto,
+   initialValues,
++  inquiryContext,
+   sendContact,
+   validateContact,
+   type ContactErrors,
+@@ -33,6 +35,16 @@
+   const [status, setStatus] = useState<SubmitStatus>("idle");
+   const [errorMessage, setErrorMessage] = useState("");
+   const form = useRef<HTMLFormElement>(null);
++  const honeypot = useRef<HTMLInputElement>(null);
++  const startedAt = useRef(0);
++  const [context, setContext] = useState({ service: "", sample: "" });
++  useEffect(() => {
++    startedAt.current = performance.now();
++    setContext(inquiryContext(window.location.search));
++    // Návrat z odeslání bez JavaScriptu (contact.php → 303 /kontakt/?odeslano=1).
++    if (new URLSearchParams(window.location.search).has("odeslano"))
++      setStatus("success");
++  }, []);
+   const update = (field: keyof ContactValues, value: string): void => {
+     setValues((previous) => ({ ...previous, [field]: value }));
+     setErrors((previous) => ({ ...previous, [field]: undefined }));
+@@ -54,13 +66,18 @@
+     }
+     setStatus("sending");
+     try {
+-      await sendContact(values, endpoint);
++      await sendContact(values, endpoint, {
++        website: honeypot.current?.value ?? "",
++        // Rozdíl dvou časů téhož prohlížeče: nezávisí na posunu hodin vůči serveru.
++        fillMs: Math.round(performance.now() - startedAt.current),
++        ...context,
++      });
+       setStatus("success");
+       setValues(initialValues);
+     } catch (error: unknown) {
+       setStatus("error");
+       setErrorMessage(
+-        error instanceof Error && error.name !== "AbortError"
++        error instanceof ContactError
+           ? error.message
+           : "Spojení se nezdařilo nebo vypršel časový limit. Zkuste to znovu, případně nám zavolejte.",
+       );
+@@ -122,6 +139,8 @@
+         <form
+           ref={form}
+           className="contact-form"
++          method="post"
++          action={endpoint || undefined}
+           noValidate
+           onSubmit={(event) => {
+             void submit(event);
+@@ -130,6 +149,16 @@
+         >
+           <h3>S čím vám můžeme pomoci?</h3>
+           <p>Nechte nám na sebe kontakt. Společně najdeme řešení.</p>
++          {(context.service || context.sample) && (
++            <p className="form-context">
++              Poptávka:{" "}
++              {[context.service, context.sample && "ukázka čištění zdarma"]
++                .filter(Boolean)
++                .join(" · ")}
++            </p>
++          )}
++          <input type="hidden" name="service" value={context.service} />
++          <input type="hidden" name="sample" value={context.sample} />
+           <div className="form-grid">
+             {(["name", "phone", "email", "message"] as const).map((field) => {
+               const labels: Record<keyof ContactValues, string> = {
+@@ -201,6 +230,11 @@
+               );
+             })}
+           </div>
++          {/* Honeypot: lidé ho nevidí ani nečtou čtečkou, boti ho vyplní. */}
++          <div className="hp-field" aria-hidden="true">
++            <label htmlFor="website">Web (nevyplňujte)</label>
++            <input ref={honeypot} id="website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
++          </div>
+           <p className="privacy-note">
+             Odesláním nás žádáte o zpracování poptávky. Více o{" "}
+             <a href={privacyUrl}>ochraně osobních údajů</a>.
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -1335,3 +1335,12 @@
+     grid-column: 1 / -1;
+   }
+ }
++
++/* Honeypot formuláře: mimo obrazovku (ne display:none, ten boti přeskakují). */
++.hp-field {
++  position: absolute;
++  left: -10000px;
++  width: 1px;
++  height: 1px;
++  overflow: hidden;
++}
+--- /dev/null
++++ b/public/contact.php
+@@ -0,0 +1,219 @@
++<?php
++// Endpoint kontaktního formuláře AWCLEAN (public/contact.php → dist/contact.php → webroot).
++// config.php, PHPMailer a rate-limit soubor leží v private/ o úroveň výš, nebo v private/ ve webrootu
++// chráněném vlastním .htaccess ("Require all denied").
++declare(strict_types=1);
++
++use PHPMailer\PHPMailer\Exception as MailException;
++use PHPMailer\PHPMailer\PHPMailer;
++
++ini_set('display_errors', '0');
++header('X-Content-Type-Options: nosniff');
++header('Cache-Control: no-store');
++
++const PHONE_HINT = 'Zavolejte nám prosím na +420 773 196 097 nebo napište na info@awclean.cz.';
++// Krátké názvy služeb = shortTitle ze src/data/pages/*.ts. Jiné hodnoty se tiše zahodí.
++const SERVICES = [
++    'Čištění fasád', 'Čištění střech', 'Čištění dlažeb', 'Čištění průmyslových objektů',
++    'Čištění světlíků', 'Hliníkové fasády', 'Historické fasády', 'Čištění pomníků',
++    'Nátěry střech a fasád (airless)', 'Impregnace fasád a střech', 'Nano impregnace',
++    'Odstraňování dopravního značení',
++];
++
++$isJson = str_starts_with(strtolower($_SERVER['CONTENT_TYPE'] ?? ''), 'application/json');
++$cfg = null;
++
++/** Ukončí request: JSON pro fetch, jinak 303 na Kontakt nebo jednoduchá HTML stránka. */
++function finish(int $status, array $errors = [], array $headers = []): never
++{
++    global $isJson, $cfg;
++    foreach ($headers as $h) header($h);
++    if ($isJson) {
++        http_response_code($status);
++        header('Content-Type: application/json; charset=utf-8');
++        echo json_encode($status === 200 ? ['ok' => true] : ['ok' => false, 'errors' => $errors], JSON_UNESCAPED_UNICODE);
++        exit;
++    }
++    if ($status === 200) {
++        header('Location: ' . $cfg['success_url'], true, 303);
++        exit;
++    }
++    http_response_code($status);
++    header('Content-Type: text/html; charset=utf-8');
++    $items = implode('', array_map(fn ($e) => '<li>' . htmlspecialchars($e, ENT_QUOTES, 'UTF-8') . '</li>', $errors));
++    echo '<!doctype html><html lang="cs"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
++        . '<meta name="robots" content="noindex"><title>Poptávku se nepodařilo odeslat | AWCLEAN</title>'
++        . '<body><h1>Poptávku se nepodařilo odeslat</h1><ul>' . $items . '</ul>'
++        . '<p><a href="/kontakt/#kontakt">Zpět na formulář</a> nebo nám zavolejte na <a href="tel:+420773196097">+420 773 196 097</a>.</p></body></html>';
++    exit;
++}
++
++/** Otevře rate-limit soubor se zámkem, předá data callbacku a uloží je. */
++function withLimits(callable $fn): mixed
++{
++    global $cfg;
++    $fh = fopen($cfg['ratelimit_file'], 'c+');
++    if ($fh === false || !flock($fh, LOCK_EX)) finish(503, ['form' => 'Formulář je dočasně nedostupný. ' . PHONE_HINT]);
++    $data = json_decode((string) stream_get_contents($fh), true);
++    $data = ['ip' => (array) ($data['ip'] ?? []), 'sent' => (array) ($data['sent'] ?? [])];
++    $result = $fn($data);
++    ftruncate($fh, 0);
++    rewind($fh);
++    fwrite($fh, json_encode($data));
++    flock($fh, LOCK_UN);
++    fclose($fh);
++    return $result;
++}
++
++foreach ([__DIR__ . '/../private/config.php', __DIR__ . '/private/config.php'] as $path) {
++    if (is_file($path)) {
++        $cfg = require $path;
++        break;
++    }
++}
++if (!is_array($cfg)) {
++    error_log('contact.php: config.php not found');
++    finish(503, ['form' => 'Formulář je dočasně nedostupný. ' . PHONE_HINT]);
++}
++require $cfg['phpmailer_dir'] . '/Exception.php';
++require $cfg['phpmailer_dir'] . '/PHPMailer.php';
++require $cfg['phpmailer_dir'] . '/SMTP.php';
++
++if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
++    finish(405, ['form' => 'Použijte prosím formulář na stránce Kontakt.'], ['Allow: POST']);
++}
++
++$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
++if ($origin !== '' && !in_array($origin, $cfg['allowed_origins'], true)) {
++    finish(403, ['form' => 'Požadavek nepochází z webu AWCLEAN.']);
++}
++
++$maxBytes = 16 * 1024;
++if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > $maxBytes) {
++    finish(413, ['form' => 'Zpráva je příliš dlouhá.']);
++}
++
++if ($isJson) {
++    $raw = (string) stream_get_contents(fopen('php://input', 'rb'), $maxBytes + 1);
++    if (strlen($raw) > $maxBytes) finish(413, ['form' => 'Zpráva je příliš dlouhá.']);
++    $input = json_decode($raw, true, 4);
++    if (!is_array($input)) finish(400, ['form' => 'Neplatná data formuláře.']);
++} elseif (str_starts_with(strtolower($_SERVER['CONTENT_TYPE'] ?? ''), 'application/x-www-form-urlencoded')) {
++    $input = $_POST; // klasický POST bez JavaScriptu
++} else {
++    finish(415, ['form' => 'Nepodporovaný formát dat.']);
++}
++
++$field = static fn (string $k): string => is_string($input[$k] ?? null) ? $input[$k] : '';
++$values = [
++    'name' => trim($field('name')),
++    'phone' => trim($field('phone')),
++    'email' => trim($field('email')),
++    'message' => trim($field('message')),
++];
++$service = in_array($field('service'), SERVICES, true) ? $field('service') : '';
++$sample = $field('sample') === '1';
++
++// Honeypot: bot dostane stejnou odpověď jako člověk, e-mail se ale neodešle.
++if ($field('website') !== '') finish(200);
++
++// Doba vyplnění měřená v prohlížeči (fillMs = rozdíl dvou časů klienta) → posunuté hodiny nevadí.
++// Bez JS (klasický POST) údaj chybí, tam chrání honeypot, limit a případně Turnstile.
++$fillMs = $input['fillMs'] ?? null;
++if ($isJson && (!is_int($fillMs) || $fillMs < $cfg['min_fill_seconds'] * 1000 || $fillMs > 86_400_000)) {
++    finish(422, ['form' => 'Formulář byl odeslán příliš rychle. Počkejte prosím chvíli a odešlete ho znovu.']);
++}
++
++// Limit pokusů na IP (IP jen jako HMAC). Denní strop níže počítá jen skutečně odeslané e-maily.
++// ponytail: jeden soubor s globálním zámkem, pro desítky poptávek denně stačí; při vyšším provozu Redis/DB.
++$ip = (string) ($_SERVER[$cfg['client_ip_server_key']] ?? '');
++$ipKey = substr(hash_hmac('sha256', $ip, $cfg['secret']), 0, 32);
++$now = time();
++[$ipLimited, $capReached] = withLimits(static function (array &$data) use ($ipKey, $now, $cfg): array {
++    $data['ip'] = array_filter(array_map(
++        static fn ($list) => array_values(array_filter((array) $list, static fn ($t) => $t > $now - $cfg['rate_window_seconds'])),
++        $data['ip'],
++    ));
++    $data['sent'] = array_values(array_filter($data['sent'], static fn ($t) => $t > $now - 86400));
++    $ipLimited = count($data['ip'][$ipKey] ?? []) >= $cfg['rate_max_per_ip'];
++    if (!$ipLimited) $data['ip'][$ipKey][] = $now;
++    return [$ipLimited, count($data['sent']) >= $cfg['rate_max_per_day']];
++});
++if ($ipLimited) {
++    finish(429, ['form' => 'Odeslali jste příliš mnoho poptávek za krátkou dobu. Zkuste to prosím později nebo nám zavolejte.'], ['Retry-After: ' . $cfg['rate_window_seconds']]);
++}
++
++// Stejná pravidla jako src/lib/contact.ts validateContact + limity délek z formuláře.
++$errors = [];
++$len = static fn (string $s): int => mb_strlen($s, 'UTF-8');
++if ($len($values['name']) < 2 || $len($values['name']) > 200)
++    $errors['name'] = 'Vyplňte prosím jméno (alespoň 2 znaky).';
++if (!preg_match('/^\+?[\d\s()-]+$/u', $values['phone']) || !preg_match('/^[0-9]{9,15}$/', preg_replace('/\D/', '', $values['phone'])) || $len($values['phone']) > 30)
++    $errors['phone'] = 'Zadejte platný telefon, například +420 773 196 097.';
++if (!preg_match('/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/u', $values['email']) || $len($values['email']) > 200 || !PHPMailer::validateAddress($values['email']))
++    $errors['email'] = 'Zadejte platnou e-mailovou adresu.';
++if ($len($values['message']) < 10 || $len($values['message']) > 5000)
++    $errors['message'] = 'Popište prosím svůj požadavek alespoň 10 znaky.';
++foreach (['name', 'phone', 'email'] as $k) {
++    // CR/LF a řídicí znaky v jednořádkových polích = pokus o header injection.
++    if (preg_match('/[\x00-\x1F\x7F]/', $values[$k])) $errors[$k] = 'Pole obsahuje nepovolené znaky.';
++}
++if (!mb_check_encoding(implode('', $values), 'UTF-8')) $errors['form'] = 'Neplatné kódování textu.';
++if ($errors) finish(422, $errors);
++
++if ($capReached) {
++    error_log('contact.php: daily cap reached');
++    finish(503, ['form' => 'Poptávku teď nelze odeslat formulářem. ' . PHONE_HINT]);
++}
++
++if ($cfg['turnstile']['enabled']) {
++    $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
++    curl_setopt_array($ch, [
++        CURLOPT_POST => true,
++        CURLOPT_RETURNTRANSFER => true,
++        CURLOPT_TIMEOUT => 10,
++        CURLOPT_POSTFIELDS => http_build_query([
++            'secret' => $cfg['turnstile']['secret'],
++            'response' => $field('cf-turnstile-response'),
++            'remoteip' => $ip,
++        ]),
++    ]);
++    $verdict = json_decode((string) curl_exec($ch), true);
++    if (($verdict['success'] ?? false) !== true) finish(422, ['form' => 'Ověření, že nejste robot, se nezdařilo. Zkuste to prosím znovu.']);
++}
++
++$context = trim(($service !== '' ? " – $service" : '') . ($sample ? ' (ukázka zdarma)' : ''));
++$mail = new PHPMailer(true);
++try {
++    $mail->isSMTP();
++    $mail->Host = $cfg['smtp']['host'];
++    $mail->Port = $cfg['smtp']['port'];
++    $mail->SMTPSecure = $cfg['smtp']['secure'];
++    $mail->SMTPAutoTLS = $cfg['smtp']['secure'] !== '';
++    $mail->SMTPAuth = $cfg['smtp']['user'] !== '';
++    $mail->Username = $cfg['smtp']['user'];
++    $mail->Password = $cfg['smtp']['pass'];
++    $mail->Timeout = 10;
++    $mail->CharSet = PHPMailer::CHARSET_UTF8;
++    $mail->Encoding = PHPMailer::ENCODING_QUOTED_PRINTABLE;
++    $mail->setFrom($cfg['mail_from'], $cfg['mail_from_name'], false);
++    $mail->addAddress($cfg['mail_to']);
++    $mail->addReplyTo($values['email'], $values['name']);
++    $mail->Subject = 'Poptávka z webu: ' . $values['name'] . ($context !== '' ? ' ' . $context : '');
++    $mail->isHTML(false);
++    $mail->Body = "Nová poptávka z formuláře na www.awclean.cz\n\n"
++        . ($service !== '' ? "Služba: $service\n" : '')
++        . ($sample ? "Ukázka čištění zdarma: ano\n" : '')
++        . "Jméno: {$values['name']}\nTelefon: {$values['phone']}\nE-mail: {$values['email']}\n\n"
++        . "Zpráva:\n{$values['message']}\n\n"
++        . '-- Odpovědí na tento e-mail odpovíte přímo zákazníkovi.';
++    $mail->send();
++} catch (MailException) {
++    // Do logu jen technická chyba, žádné údaje z formuláře.
++    error_log('contact.php: SMTP send failed: ' . $mail->ErrorInfo);
++    finish(502, ['form' => 'Poptávku se nepodařilo odeslat. ' . PHONE_HINT]);
++}
++withLimits(static function (array &$data) use ($now): void {
++    $data['sent'][] = $now;
++});
++finish(200);

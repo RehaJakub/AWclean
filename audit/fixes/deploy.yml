@@ -1,0 +1,99 @@
+name: Deploy
+
+# Nasazení: push tagu v* (např. v2026.11.01) nebo ručně. Rollback = ruční spuštění s předchozím tagem.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag nebo commit k nasazení (rollback: předchozí tag)"
+        required: true
+        default: main
+      prune_assets:
+        description: "Smazat staré hashované soubory v /assets/ (jednou za čas, ne hned po vydání)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment:
+      name: production
+      url: ${{ vars.SITE_URL || 'https://www.awclean.cz' }}
+    env:
+      SITE_URL: ${{ vars.SITE_URL || 'https://www.awclean.cz' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+      - name: Build
+        env:
+          VITE_CONTACT_ENDPOINT: ${{ vars.VITE_CONTACT_ENDPOINT }}
+        run: |
+          test -n "$VITE_CONTACT_ENDPOINT" || { echo "::error::Chybí proměnná prostředí production VITE_CONTACT_ENDPOINT"; exit 1; }
+          npm run build
+          npm run check:build
+          grep -qF "$VITE_CONTACT_ENDPOINT" dist/assets/index-*.js
+          # Na Apache nepatří: pravidla pro Netlify a interní poznámky k fotkám.
+          rm -f dist/_redirects
+          find dist -name '*.md' -delete
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist
+          include-hidden-files: true
+          retention-days: 90
+
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Upload
+        env:
+          DEPLOY_PROTOCOL: ${{ vars.DEPLOY_PROTOCOL }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          LFTP_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          PRUNE_ASSETS: ${{ inputs.prune_assets && '1' || '0' }}
+        run: |
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          if [ -n "$SSH_KEY" ]; then
+            printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+            export DEPLOY_KEY_FILE=~/.ssh/deploy_key
+          fi
+          sh scripts/deploy.sh
+
+      - name: Smoke test
+        run: |
+          set -eu
+          expected=$(grep -o '/assets/index-[A-Za-z0-9_-]*\.js' dist/index.html | head -n1)
+          live=$(curl -fsS "$SITE_URL/" | grep -o '/assets/index-[A-Za-z0-9_-]*\.js' | head -n1)
+          test "$live" = "$expected" || { echo "::error::Živá homepage odkazuje na $live, build na $expected"; exit 1; }
+          curl -fsS -o /dev/null "$SITE_URL$expected"
+          grep -o '<loc>[^<]*' dist/sitemap.xml | sed 's#<loc>https://[^/]*##' | while read -r path; do
+            curl -fsS -o /dev/null "$SITE_URL$path"
+          done
+          test "$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/neexistuje/")" = 404
+          curl -fsSI "$SITE_URL/" | grep -qi '^content-security-policy:'
