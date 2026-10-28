@@ -285,7 +285,8 @@ export function ConsentManager() {
               </p>
               <p>
                 Na tomto webu používáme místní úložiště pouze k zapamatování
-                této volby. Pomocník DR Fasáda si navíc v úložišti aktuální relace pamatuje otevření nebo zmenšení na ikonku. Hledané výrazy se neukládají. Žádná z volitelných kategorií teď není využívaná.
+                této volby. Pomocník DR Fasáda si nic neukládá a hledané výrazy
+                se neukládají. Žádná z volitelných kategorií teď není využívaná.
                 Odmítnutí proto neomezuje prohlížení webu ani odeslání poptávky.
               </p>
               <p>

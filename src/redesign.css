@@ -512,7 +512,7 @@
   line-height: 0.95;
   letter-spacing: -0.04em;
 }
-.rd-cta p { max-width: 560px; margin: 0; color: #e3f0f9; font-size: 18px; line-height: 1.55; }
+.rd-cta p { max-width: 560px; margin: 0; color: #fff; font-size: 18px; line-height: 1.55; }
 .rd-cta-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 8px; }
 .rd-cta-phone { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-size: 19px; font-weight: 700; }
 .rd-cta-phone:hover { color: #fff; text-decoration: underline; }
@@ -594,7 +594,7 @@
 .rd-footer a { color: #c9d7e8; }
 .rd-footer a:hover { color: #fff; }
 .rd-footer nav { display: flex; flex-direction: column; gap: 11px; }
-.rd-footer h3 {
+.rd-footer .rd-footer-heading {
   margin: 0 0 4px;
   color: #fff;
   font-size: 12px;
@@ -1247,7 +1247,7 @@ p { line-height: 1.6; }
 @media (max-width: 760px) {
   .mobile-call.rd-inquiry-float { min-height: 44px; padding: 0 14px; font-size: 15px; gap: 8px; }
 }
-.contact-section .contact-form h3 { margin-top: 0; }
+.contact-section .contact-form .contact-form-title { margin-top: 0; }
 .home-press strong { font-size: 18px; }
 .contact-section .contact-copy { padding-top: 0; }
 .contact-section .contact-copy > :first-child { margin-top: 0; }
@@ -1341,7 +1341,7 @@ p { line-height: 1.6; }
 
 /* Kontakt: formulář i text vedle něj menší */
 .contact-section .contact-form { padding: clamp(20px, 2.2vw, 26px); }
-.contact-section .contact-form h3 { font-size: 21px; }
+.contact-section .contact-form .contact-form-title { font-size: 21px; }
 .contact-section .contact-form > p:not(.privacy-note) { margin-top: 6px; font-size: 14px; }
 .contact-section .form-grid { margin-top: 14px; gap: 12px 14px; }
 .contact-section .field label { font-size: 14px; }
@@ -1368,3 +1368,77 @@ p { line-height: 1.6; }
 section:has(> .gallery-expand, .gallery-expand) + .client-section {
   margin-top: clamp(40px, 5vw, 64px);
 }
+
+/* ===== Opravy z auditu 27. 10. 2026 ===== */
+
+/* A11Y-5: fokus na tmavých a modrých plochách bílým prstencem (5,07 : 1 vůči #0a74b0, 15,18 : 1 vůči #0f2645). */
+.topbar :focus-visible,
+.rd-hero :focus-visible,
+.rd-cta :focus-visible,
+.rd-404 :focus-visible,
+.rd-footer-main :focus-visible,
+.rd-footer-bottom > :focus-visible { outline-color: #fff; }
+
+/* A11Y-10: čitelný odkaz v dialogu cookies a nápověda vyhledávání firem. */
+.consent-dialog .consent-meta a { color: var(--rd-blue); }
+.client-search input::placeholder { color: var(--rd-muted); opacity: 1; }
+
+/* UX-2: viditelná země u telefonních čísel. */
+.contact-phone-label { display: block; color: var(--rd-muted); font-size: 14px; line-height: 1.3; }
+
+/* A11Y-9: výsledek odeslání dostává fokus, rámeček jen pro klávesnici. */
+.form-status:focus { outline: none; }
+.form-status:focus-visible { outline: 3px solid var(--rd-blue); outline-offset: 4px; border-radius: 8px; }
+.submit-button[aria-disabled="true"] { opacity: .75; cursor: progress; }
+
+/* UX-6: maskot vpravo dole nesmí zakrýt akce v první obrazovce. */
+@media (min-width: 761px) {
+  .rd-hero-actions, .rd-404-actions { padding-right: 200px; }
+}
+
+/* VIS-1: úzké dlaždice homepage – titulek se smí zúžit, šipka do rohu. */
+@media (max-width: 420px) {
+  .home-bento .rd-photo-card { padding: 16px; }
+  .home-bento .rd-photo-card-title { min-width: 0; font-size: 18px; overflow-wrap: break-word; }
+  .home-bento .rd-photo-card:nth-child(n + 3) .rd-photo-card-arrow { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; }
+}
+
+/* VIS-2: nízký viewport (telefon na šířku) – plovoucí poptávka jen jako ikona, text zůstává pro čtečky. */
+@media (max-height: 560px) {
+  .mobile-call.rd-inquiry-float { width: 48px; min-height: 48px; padding: 0; gap: 0; justify-content: center; font-size: 0; }
+}
+
+/* VIS-8: tři realizace ve dvou sloupcích – třetí přes celou šířku místo osiřelé karty. */
+@media (min-width: 680px) and (max-width: 999px) {
+  .home-results-grid > :nth-child(3):last-child { grid-column: 1 / -1; }
+}
+
+/* VIS-7: dlouhé slovo nebo adresa se zalomí, neořízne. */
+h1, h2, h3, p, li, dd, a, label { overflow-wrap: break-word; }
+
+/* UX-8: tlačítko menu se na 320 px nesmrskne. */
+@media (max-width: 1180px) { .rd-menu-toggle { flex: none; } }
+@media (max-width: 350px) { .rd-logo img { height: 28px; } }
+
+/* UX-5: na mobilu formulář na Kontaktu hned pod telefony, fotka dodávek až pod ním. */
+@media (max-width: 900px) {
+  .rd-contact-page .contact-layout { display: flex; flex-direction: column; }
+  .rd-contact-page .contact-copy { display: contents; }
+  .rd-contact-page .contact-copy > * { order: 0; }
+  .rd-contact-page .contact-form { order: 1; }
+  .rd-contact-page .contact-vans { order: 2; }
+}
+
+/* UX-11: tisk bez plovoucích prvků a se všemi sekcemi. */
+@media print {
+  .topbar, .rd-menu-toggle, .rd-inquiry-float, .mobile-call, .mascot-launcher, .skip-link, .contact-form, .rd-footer nav, .rd-socials { display: none !important; }
+  .rd-header { position: static; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  a[href^="tel:"]::after, a[href^="mailto:"]::after { content: " (" attr(href) ")"; font-size: 0.85em; }
+}
+
+/* PERF-7: drobečky na jeden řádek, dlouhá poslední položka se zkrátí – stránka po načtení písma neposkočí. */
+.breadcrumbs ol { flex-wrap: nowrap; min-width: 0; }
+.breadcrumbs li { flex-shrink: 0; }
+.breadcrumbs li:last-child { flex-shrink: 1; min-width: 0; }
+.breadcrumbs [aria-current] { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

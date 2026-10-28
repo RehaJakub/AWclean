@@ -37,7 +37,7 @@ export const cisteniFasad: ServicePageData = {
         "Tlak, pracovní vzdálenost a dobu působení vždy přizpůsobujeme materiálu a stavu fasády. Podmínky a délku záruky stanovíme podle zvoleného ošetření.",
       ],
       bullets: [
-        "Posouzení podkladu a zkušební čištění",
+        "Posouzení podkladu a ukázka čištění",
         "Odstranění nečistot a biologických povlaků",
         "Oplach a následná fungicidní ochrana",
       ],
@@ -45,7 +45,7 @@ export const cisteniFasad: ServicePageData = {
     {
       title: "Nejdříve ukázka. Potom rozhodnutí.",
       paragraphs: [
-        "Na místě provedeme zkoušku čištění, připravíme cenovou kalkulaci a navrhneme termín. Sami se rozhodnete, zda máte o realizaci zájem. Prohlídka a referenční vzorek jsou po celé ČR zdarma.",
+        "Na malé ploše přímo na místě předvedeme čištění, připravíme cenovou kalkulaci a navrhneme termín. Sami se rozhodnete, zda máte o realizaci zájem. Prohlídka a ukázka čištění jsou po celé ČR zdarma.",
       ],
     },
   ],
@@ -224,16 +224,8 @@ export const cisteniFasad: ServicePageData = {
       alt: "Zkušební vyčištěná plocha na šedé fasádě u chodníku.",
     },
     {
-      src: "/images/realizace/vyskova-plosina-podel-prosklene-cihlove-haly.webp",
-      alt: "Výšková plošina podél prosklené cihlové haly.",
-    },
-    {
       src: "/images/realizace/cisteni-fasady-administrativni-budovy-ze-zavesne-plosiny.webp",
       alt: "Čištění fasády administrativní budovy ze závěsné plošiny.",
-    },
-    {
-      src: "/images/realizace/prace-na-zavesne-plosine-pred-tmavou-fasadou.webp",
-      alt: "Práce na závěsné plošině před tmavou fasádou.",
     },
     {
       src: "/images/realizace/detail-znecisteneho-cihloveho-zdiva.webp",

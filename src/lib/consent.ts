@@ -64,3 +64,18 @@ export function saveConsent(
   storage.setItem(consentStorageKey, JSON.stringify(saved));
   return saved;
 }
+/**
+ * Jediné místo, přes které smí web spustit volitelný skript (analytika, marketing, personalizace).
+ * Bez platné uložené volby vrací false.
+ */
+export function hasConsent(
+  key: keyof ConsentPreferences,
+  storage: Pick<Storage, "getItem"> | undefined = typeof window === "undefined" ? undefined : window.localStorage,
+  now = Date.now(),
+): boolean {
+  try {
+    return parseConsent(storage?.getItem(consentStorageKey) ?? null, now)?.[key] ?? false;
+  } catch {
+    return false;
+  }
+}

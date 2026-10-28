@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Phone, Search, X } from "lucide-react";
 import { faqCategories, filterFaq, type FaqCategory } from "../data/faq";
+import { sampleLabel } from "../data/offers";
 import { useWidgetVisibility } from "../hooks/useWidgetVisibility";
 import { ServiceGuide } from "./ServiceGuide";
 import "./MascotWidget.css";
 
-const mascotImage = "/mascot/dr-fasada.png";
+const mascotImage = "/mascot/dr-fasada-440.webp";
 export default function MascotWidget() {
   const { obscured, formFocused } = useWidgetVisibility("mascot-faq");
   const [hidden, setHidden] = useState(false);
@@ -28,14 +29,38 @@ export default function MascotWidget() {
   const results = filterFaq(category, query);
   const [overForm, setOverForm] = useState(false);
   const [pulledOut, setPulledOut] = useState(false);
-  const tucked = hidden || formFocused || (overForm && !pulledOut);
+  const [focusUnder, setFocusUnder] = useState(false);
+  // Nízký viewport (telefon na šířku, zoom 400 %): přijet zasunutý, jinak maskot zakryje většinu obrazovky.
+  const [compact] = useState(() => window.matchMedia("(max-height: 560px)").matches);
+  const tucked = hidden || formFocused || focusUnder || ((overForm || compact) && !pulledOut);
 
+  // Zasunout nad formulářem, patičkou a ukázkou s kresleným maskotem, aby nic nezakrýval.
   useEffect(() => {
-    const form = document.querySelector("form.contact-form");
-    if (!form || !("IntersectionObserver" in window)) return;
-    const observer = new IntersectionObserver(([entry]) => setOverForm(entry.isIntersecting), { threshold: 0.05 });
-    observer.observe(form);
+    const targets = document.querySelectorAll("form.contact-form, footer.rd-footer, .home-sample");
+    if (!targets.length || !("IntersectionObserver" in window)) return;
+    const visible = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
+      }
+      setOverForm(visible.size > 0);
+    }, { threshold: 0.05 });
+    targets.forEach((target) => observer.observe(target));
     return () => observer.disconnect();
+  }, []);
+
+  // Fokus klávesnice nesmí skončit pod maskotem (WCAG 2.4.11).
+  useEffect(() => {
+    const check = (event: FocusEvent): void => {
+      const own = document.querySelector(".mascot-launcher");
+      if (!(event.target instanceof Element) || !own || own.contains(event.target) || event.target.closest("#mascot-faq")) return;
+      const a = event.target.getBoundingClientRect();
+      const b = own.getBoundingClientRect();
+      setFocusUnder(a.right > b.left && a.left < b.right && a.bottom > b.top && a.top < b.bottom);
+    };
+    document.addEventListener("focusin", check);
+    return () => document.removeEventListener("focusin", check);
   }, []);
 
   useEffect(() => {
@@ -136,14 +161,14 @@ export default function MascotWidget() {
             <div className="mascot-questions">
               {results.map((item) => <article className="mascot-question" key={item.id}>
                 <h3><button id={`faq-question-${item.id}`} type="button" aria-expanded={expanded === item.id} aria-controls={`faq-answer-${item.id}`} onClick={() => setExpanded(expanded === item.id ? null : item.id)}>{item.question}<ChevronDown size={18} aria-hidden="true" /></button></h3>
-                <div className={`mascot-answer${expanded === item.id ? " is-expanded" : ""}`} id={`faq-answer-${item.id}`} role="region" aria-labelledby={`faq-question-${item.id}`} aria-hidden={expanded !== item.id} inert={expanded !== item.id}><div><p>{item.answer}</p></div></div>
+                <div className={`mascot-answer${expanded === item.id ? " is-expanded" : ""}`} id={`faq-answer-${item.id}`} role="region" aria-labelledby={`faq-question-${item.id}`} aria-hidden={expanded !== item.id} inert={expanded !== item.id}><div><p><strong>Doktor radí:</strong> {item.answer}</p></div></div>
               </article>)}
               {!results.length && <p className="mascot-empty">Zkuste jiné slovo nebo kategorii Vše. Nebo se nám ozvěte přímo.</p>}
             </div>
             </div>
             <section className="mascot-contact" aria-labelledby="mascot-contact-title"><h3 id="mascot-contact-title">Chcete se raději zeptat přímo?</h3><p>Zavolejte nám. Rádi vám vše vysvětlíme.</p>
               <a className="button button-primary" href="tel:+420773196097"><Phone size={17} aria-hidden="true" />Zavolat +420 773 196 097</a>
-              <a className="button button-outline" href="/kontakt/?vzorek=1#kontakt">Referenční vzorek ZDARMA</a>
+              <a className="button button-outline" href="/kontakt/?vzorek=1#kontakt">{sampleLabel}</a>
               <p className="mascot-sample-note">Pro čištění fasád, střech a dlažeb po celé ČR.</p>
               <a className="text-link" href="/kontakt/#kontakt">Napsat přes kontaktní formulář</a>
             </section>

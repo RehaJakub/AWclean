@@ -23,19 +23,11 @@ export const cisteniHistorickychFasad: ServicePageData = {
     {
       title: "Nejdříve posouzení a ukázka",
       paragraphs: [
-        "Každý objekt nejprve posoudíme a domluvíme vhodný rozsah zásahu. Referenční ukázka vám pomůže představit si výsledek před samotnou realizací. V galerii najdete ukázky našich realizací.",
+        "Každý objekt nejprve posoudíme a domluvíme vhodný rozsah zásahu i postup. V galerii najdete ukázky našich realizací.",
       ],
     },
   ],
   gallery: [
-    {
-      src: "/images/realizace/znecistene-panely-hlinikove-fasady.webp",
-      alt: "Znečištěné panely hliníkové fasády.",
-    },
-    {
-      src: "/images/realizace/svetle-panely-a-okna-hlinikove-fasady.webp",
-      alt: "Světlé panely a okna hliníkové fasády.",
-    },
     {
       src: "/images/realizace/pracovnik-cisti-cihlovou-stenu-vedle-ocelove-konstrukce.webp",
       alt: "Pracovník čistí cihlovou stěnu vedle ocelové konstrukce.",

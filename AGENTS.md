@@ -16,3 +16,5 @@
 - Zachovej React + TypeScript strict; bez `any` a bez zdrojových `.js` souborů.
 - Obchodní informace čerpej jen z aktuálního obsahu projektu a z awclean.cz. Nevymýšlej reference, lokality, ceny ani garance.
 - Logo, kontakty, skutečné fotografie a existující funkční adresy zachovej, pokud uživatel výslovně nezadá změnu.
+- Volitelné skripty (analytika, marketing, personalizace) spouštěj jen po kontrole `hasConsent(...)` ze `src/lib/consent.ts`; bez platné volby se nesmí načíst nic volitelného.
+- Konfiguraci serveru upravuj v `deploy/htaccess.template` (build z ní generuje `dist/.htaccess`), ne v `dist/` ani na FTP.

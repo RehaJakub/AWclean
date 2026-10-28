@@ -3,6 +3,7 @@ import { ResponsiveImage } from "./ResponsiveImage";
 import { ArrowUp, MessageSquareText, Facebook, Youtube } from "lucide-react";
 import { ConsentManager } from "./ConsentManager";
 import { privacyUrl } from "../data/contacts";
+import { useCurrentYear } from "../hooks/useCurrentYear";
 import { servicesByCategory } from "../data/services";
 import { projects } from "../data/projects";
 interface FooterLink {
@@ -48,6 +49,7 @@ const pagesWithForm = ["/", "/kontakt/"];
 export function Footer({ currentPath }: FooterProps) {
   const formHref = pagesWithForm.includes(currentPath) ? "#kontakt" : "/kontakt/#kontakt";
   const [formVisible, setFormVisible] = useState(false);
+  const year = useCurrentYear();
   useEffect(() => {
     const form = document.getElementById("kontakt");
     if (!form || !("IntersectionObserver" in window)) return;
@@ -71,11 +73,9 @@ export function Footer({ currentPath }: FooterProps) {
                 alt="AWCLEAN"
               />
             </a>
-            {currentPath !== "/" && (
-              <a className="rd-footer-phone" href="tel:+420773196097">
-                +420 773 196 097
-              </a>
-            )}
+            <a className="rd-footer-phone" href="tel:+420773196097">
+              +420 773 196 097
+            </a>
             <p>
               Telefonní linka NON-STOP
               <br />
@@ -103,7 +103,7 @@ export function Footer({ currentPath }: FooterProps) {
           </div>
           {footerColumns.map((column) => (
             <nav key={column.title} aria-label={column.title}>
-              <h3>{column.title}</h3>
+              <h2 className="rd-footer-heading">{column.title}</h2>
               {column.links.map((link) => (
                 <a key={link.href} href={link.href}>
                   {link.label.replace(" (airless)", "")}
@@ -114,7 +114,7 @@ export function Footer({ currentPath }: FooterProps) {
         </div>
         <div className="rd-footer-bottom">
           <span>
-            © {new Date().getFullYear()} AWCLEAN s.r.o. · od roku 2001
+            © {year} AWCLEAN s.r.o. · zkušenosti s čištěním od roku 2001
           </span>
           <a href="/kontakt/#provozovatel">Údaje o společnosti</a>
           <a href={privacyUrl}>Ochrana osobních údajů a cookies</a>

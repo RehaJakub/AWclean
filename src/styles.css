@@ -306,7 +306,7 @@ h1 span {
   background: white;
   box-shadow: 0 15px 45px #122b4d07;
 }
-.contact-form h3 {
+.contact-form .contact-form-title {
   font-size: 25px;
   letter-spacing: -0.9px;
   margin-top: 11px;
@@ -519,7 +519,7 @@ h1 span {
   .contact-form {
     padding: 26px;
   }
-  .contact-form h3 {
+  .contact-form .contact-form-title {
     font-size: 22px;
   }
   .submit-button {
@@ -610,7 +610,7 @@ h1 span {
     padding: 26px 22px;
     border-radius: 16px;
   }
-  .contact-form h3 {
+  .contact-form .contact-form-title {
     font-size: 24px;
   }
   .contact-form > p:not(.privacy-note) {
@@ -672,7 +672,7 @@ h1 span {
   .form-grid {
     grid-template-columns: 1fr;
   }
-  .contact-form h3 {
+  .contact-form .contact-form-title {
     font-size: 21px;
   }
   .contact-copy h2 {

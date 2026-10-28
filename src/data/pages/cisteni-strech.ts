@@ -18,7 +18,7 @@ export const cisteniStrech: ServicePageData = {
       title: "Čistá střecha od hřebene po okap",
       paragraphs: [
         "Čistíme nánosy na celé ploše střechy i v jejích rozích, mechy, zelené povlaky, listí, prach a ptačí trus. Vyčistíme také ucpané okapy a svody.",
-        "Mech zadržuje vodu a zatěžuje střešní konstrukci. Pravidelnou péčí proto řešíte vzhled střechy i odstranění nahromaděných nečistot.",
+        "Mech zadržuje vodu a zatěžuje střešní konstrukci. Pravidelné čištění proto střechu chrání, nejen zlepší její vzhled.",
       ],
     },
     {

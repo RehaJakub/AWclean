@@ -16,7 +16,7 @@ export function ServiceCTA({ servicePath }: ServiceCTAProps) {
           </h2>
           <p>
             {action.freeSample
-              ? "Výsledek uvidíte na malé ploše předem. Po celé ČR zdarma."
+              ? "Na malé ploše vašeho objektu předvedeme čištění. Výsledek uvidíte předem, bez závazku. Zdarma po celé ČR."
               : "Posoudíme povrch a navrhneme postup."}
           </p>
           <div className="rd-cta-actions">
@@ -30,7 +30,7 @@ export function ServiceCTA({ servicePath }: ServiceCTAProps) {
         </div>
         <img
           className="rd-cta-mascot"
-          src="/mascot/dr-fasada.png"
+          src="/mascot/dr-fasada-440.webp"
           alt=""
           width="655"
           height="800"

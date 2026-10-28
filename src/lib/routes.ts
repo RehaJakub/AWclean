@@ -31,7 +31,7 @@ const staticRoutes: StaticRoute[] = [
     path: "/",
     title: "Čištění fasád, střech a dlažeb od roku 2001",
     description:
-      "AWCLEAN: profesionální čištění fasád, střech, dlažeb a průmyslových objektů. Referenční ukázka zdarma po celé ČR.",
+      "AWCLEAN: profesionální čištění fasád, střech, dlažeb a průmyslových objektů. Ukázka čištění zdarma po celé ČR.",
     image: "/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp",
   },
   {
@@ -46,7 +46,7 @@ const staticRoutes: StaticRoute[] = [
     path: "/ostatni-sluzby/",
     title: "Ostatní služby",
     description:
-      "Impregnace fasád a střech, nano impregnace a odstraňování dopravního značení.",
+      "Impregnace fasád a střech, nanoimpregnace a odstraňování dopravního značení.",
   },
   {
     kind: "references",
@@ -60,7 +60,7 @@ const staticRoutes: StaticRoute[] = [
     path: "/kontakt/",
     title: "Kontakt a nezávazná poptávka",
     description:
-      "Zavolejte AWCLEAN na +420 773 196 097 nebo nám napište. Posouzení a referenční ukázka čištění zdarma po celé ČR.",
+      "Zavolejte AWCLEAN na +420 773 196 097 nebo nám napište. Posouzení a ukázka čištění zdarma po celé ČR.",
   },
   {
     kind: "press",
@@ -80,7 +80,7 @@ const staticRoutes: StaticRoute[] = [
     path: "/ciste-fasady/",
     title: "Odborné posouzení fasády",
     description:
-      "Nejste spokojení s předchozím čištěním fasády? AWCLEAN nabízí posouzení a referenční ukázku zdarma.",
+      "Nejste spokojení s předchozím čištěním fasády? AWCLEAN nabízí posouzení a ukázku čištění zdarma.",
   },
 ];
 export const routeAliases: Record<string, string> = {

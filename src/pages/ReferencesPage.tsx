@@ -6,6 +6,7 @@ import { Gallery } from "../components/Gallery";
 import { ServiceCTA } from "../components/services/ServiceCTA";
 import { referenceClients } from "../data/clients";
 import { projects } from "../data/projects";
+import { useCurrentYear } from "../hooks/useCurrentYear";
 import {
   referenceFilters,
   referenceWorks,
@@ -18,7 +19,7 @@ const normalize = (value: string): string =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("cs");
 export function ReferencesPage() {
-  const referencePeriod = `2001–${new Date().getFullYear()}`;
+  const referencePeriod = `2001–${useCurrentYear()}`;
   const [category, setCategory] = useState<ReferenceFilter>("all");
   useEffect(() => {
     const readCategory = (): void => {
@@ -52,13 +53,14 @@ export function ReferencesPage() {
           <p>Skutečné fotografie z naší práce.</p>
         </header>
         <div className="reference-details">
-          {projects.map((project) => (
+          {projects.map((project, index) => (
             <a key={project.path} href={project.path} className="rd-photo-card is-tall">
               <ResponsiveImage
                 src={project.image}
                 alt=""
                 sizes="(max-width: 760px) 100vw, 33vw"
-                loading="lazy"
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : undefined}
                 width="750"
                 height="560"
               />
@@ -99,11 +101,10 @@ export function ReferencesPage() {
         <details className="container client-details">
           <summary>Firemní reference {referencePeriod}</summary>
           <h2>
-            Pracovali jsme <span>také pro.</span>
+            Pracovali jsme <span>také pro tyto firmy</span>
           </h2>
           <p className="client-intro">
-            Přehled firem a organizací z původních referencí AWCLEAN. Nejde o
-            zákaznická hodnocení ani tvrzení o aktuální spolupráci.
+            Firmy a organizace, pro které jsme pracovali.
           </p>
           <label className="client-search">
             <Search size={18} />

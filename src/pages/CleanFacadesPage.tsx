@@ -28,7 +28,7 @@ export function CleanFacadesPage() {
           </div>
           <img
             className="advice-mascot"
-            src="/mascot/dr-fasada.png"
+            src="/mascot/dr-fasada-440.webp"
             alt=""
             width="655"
             height="800"

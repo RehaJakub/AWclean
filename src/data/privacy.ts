@@ -1,69 +1,106 @@
 import type { ContentSection } from "./pages/types";
 export const privacySections: ContentSection[] = [
   {
-    title: "Správce osobních údajů",
+    title: "Kdo je správce",
     paragraphs: [
-      "AWCLEAN s.r.o., IČO 50823272, se sídlem Čsl. armády 1457/2A, 955 01 Topoľčany, Slovensko. Pro otázky týkající se osobních údajů nás kontaktujte na info@awclean.cz.",
-      "Kontaktní adresa pro služby v České republice: Na Výsluní 298, 294 28 Chotětov, Mladá Boleslav.",
+      "Správcem osobních údajů je AWCLEAN s.r.o., IČO 50823272, se sídlem Čsl. armády 1457/2A, 955 01 Topoľčany, Slovenská republika, zapsaná v Obchodnom registri Okresného súdu Nitra, oddiel Sro, vložka č. 43001/N.",
+      "Kontakt pro otázky k osobním údajům: info@awclean.cz, telefon +420 773 196 097. Kontaktní adresa v České republice: Na Výsluní 298, 294 28 Chotětov.",
+         ],
+  },
+  {
+    title: "Jaké údaje, proč a na jakém právním základě",
+    paragraphs: [
+      "Zpracováváme jen údaje, které nám sami pošlete formulářem, e-mailem nebo sdělíte telefonicky, a údaje vzniklé při plnění zakázky.",
+    ],
+    bullets: [
+      "Vyřízení poptávky a příprava nabídky (jméno a příjmení, telefon, e-mail, obsah zprávy, případně adresa a popis objektu). Právní základ: provedení opatření před uzavřením smlouvy na vaši žádost, čl. 6 odst. 1 písm. b) GDPR.",
+      "Uzavření a plnění smlouvy, včetně ukázky čištění na místě, realizace a komunikace k zakázce (identifikační a kontaktní údaje, adresa realizace, fakturační údaje). Právní základ: plnění smlouvy, čl. 6 odst. 1 písm. b) GDPR.",
+      "Vedení účetnictví a daňové povinnosti (údaje na fakturách a účetních dokladech). Právní základ: plnění právní povinnosti, čl. 6 odst. 1 písm. c) GDPR.",
+      "Uplatnění a obhajoba právních nároků, zejména z odpovědnosti za vady a ze záruky (údaje o zakázce a komunikace). Právní základ: oprávněný zájem správce na ochraně svých práv, čl. 6 odst. 1 písm. f) GDPR.",
+      "Ochrana formuláře před spamem a zneužitím (technické údaje o požadavku, zejména IP adresa uložená jen jako jednosměrný otisk pro omezení počtu odeslání). Právní základ: oprávněný zájem správce na bezpečném provozu webu, čl. 6 odst. 1 písm. f) GDPR.",
     ],
   },
   {
-    title: "Jaké údaje nám poskytujete",
+    title: "Oprávněné zájmy",
     paragraphs: [
-      "Při zaslání poptávky nám poskytujete jméno a příjmení, telefonní číslo, e-mail a obsah zprávy. Používáme je k vyřízení požadavku, přípravě nabídky a navazující komunikaci.",
-      "Údaje potřebné k realizaci zakázky a vystavení dokladů zpracováváme v souvislosti se smluvním vztahem a příslušnými zákonnými povinnostmi.",
+      "Tam, kde zpracování zakládáme na oprávněném zájmu, jde o zájem doložit, co bylo se zákazníkem dohodnuto a provedeno, uplatnit nebo bránit své nároky a chránit web a schránku před spamem a útoky. Proti takovému zpracování můžete kdykoli vznést námitku (viz Vaše práva).",
+    ],
+  },
+  {
+    title: "Musíte nám údaje poskytnout?",
+    paragraphs: [
+      "Poskytnutí údajů ve formuláři je dobrovolné. Bez jména, kontaktu a popisu požadavku ale poptávku nedokážeme vyřídit ani připravit nabídku. Údaje potřebné k uzavření smlouvy a vystavení dokladu jsou smluvním požadavkem; bez nich smlouvu uzavřít nelze.",
+    ],
+  },
+  {
+    title: "Kdo k údajům má přístup",
+    paragraphs: [
+      "Údaje nikomu neprodáváme a nepoužíváme je k reklamě. Zpracovávají je naši pracovníci, kteří poptávku vyřizují. Dále mohou mít k údajům přístup tito zpracovatelé a příjemci:",
+    ],
+    bullets: [
+      "Poskytovatel webhostingu, na kterém běží web a skript formuláře.",
+      "Poskytovatel e-mailových schránek a odesílání pošty.",
+      "Účetní nebo daňový poradce.",
+      "Orgány veřejné moci, pokud nám to ukládá právní předpis.",
+    ],
+  },
+  {
+    title: "Předávání mimo EU",
+    paragraphs: [
+      "Osobní údaje nemáme v úmyslu předávat do zemí mimo Evropskou unii ani mezinárodním organizacím.",
     ],
   },
   {
     title: "Jak dlouho údaje uchováváme",
-    paragraphs: [
-      "Údaje uchováváme po dobu nezbytnou k vyřízení poptávky, výkonu práv a povinností ze smluvního vztahu a uplatnění souvisejících nároků. Účetní a daňové doklady uchováváme obvykle 10 let, a to bez ohledu na souhlas. Údaje zpracovávané na základě souhlasu uchováváme do jeho odvolání.",
-      "Je-li určité zpracování založeno na vašem souhlasu, můžete jej odvolat. Tím není dotčena zákonnost předchozího zpracování.",
+    bullets: [
+      "Poptávka, ze které nevznikne zakázka: po dobu potřebnou k jejímu vyřízení a navazující komunikaci, poté ji smažeme.",
+      "Údaje ze smlouvy a komunikace k zakázce: po dobu trvání smlouvy a dále po dobu, kdy lze uplatnit práva z vad a ze záruky a související nároky.",
+      "Účetní a daňové doklady: po dobu stanovenou právními předpisy, obvykle 10 let.",
+      "Technické údaje ochrany formuláře: nejvýše 24 hodin.",
     ],
+    paragraphs: [],
   },
   {
     title: "Vaše práva",
     paragraphs: [
-      "V souvislosti se zpracováním osobních údajů můžete podle podmínek příslušných předpisů uplatnit následující práva. Se svým požadavkem se obraťte na info@awclean.cz.",
+      "Máte tato práva podle čl. 15 až 21 GDPR. Žádost pošlete na info@awclean.cz; odpovíme bez zbytečného odkladu, nejpozději do jednoho měsíce.",
     ],
     bullets: [
-      "Právo na přístup k osobním údajům a informacím o jejich zpracování",
-      "Právo na opravu nebo doplnění nepřesných údajů",
-      "Právo na výmaz, pokud nejsou údaje dále potřebné a nebrání tomu zákonná povinnost",
-      "Právo na omezení zpracování, například při ověřování správnosti údajů",
-      "Právo vznést námitku vůči zpracování na základě oprávněného zájmu",
-      "Právo na přenositelnost údajů při splnění příslušných podmínek",
-      "Právo odvolat souhlas",
-      "Právo podat stížnost u Úřadu na ochranu osobních údajů Slovenské republiky",
+      "Právo na přístup k osobním údajům a na kopii",
+      "Právo na opravu nepřesných nebo doplnění neúplných údajů",
+      "Právo na výmaz, pokud údaje už nepotřebujeme a nebrání tomu zákonná povinnost",
+      "Právo na omezení zpracování",
+      "Právo vznést námitku proti zpracování založenému na oprávněném zájmu",
+      "Právo na přenositelnost údajů, které jste nám poskytli a které zpracováváme automatizovaně na základě smlouvy",
     ],
   },
   {
-    title: "Oprava, přístup a výmaz",
+    title: "Stížnost u dozorového úřadu",
     paragraphs: [
-      "Na požádání vám poskytneme informace o tom, které údaje zpracováváme, za jakým účelem, komu je poskytujeme a jak dlouho je uchováváme. Nepřesné údaje můžete nechat opravit nebo doplnit.",
-      "Výmaz se nevztahuje na údaje, které musíme dále uchovávat kvůli zákonné povinnosti nebo jinému platnému důvodu zpracování.",
+      "Pokud se domníváte, že zpracováním porušujeme předpisy, můžete podat stížnost u dozorového úřadu, zejména v členském státě svého bydliště, místa výkonu práce nebo místa údajného porušení (čl. 77 GDPR).",
+      "Úřad sídla správce: Úrad na ochranu osobných údajov Slovenskej republiky, Galvaniho Business Centrum II, Galvaniho 7/B, 821 04 Bratislava, https://dataprotection.gov.sk.",
+      "Pro osoby z České republiky: Úřad pro ochranu osobních údajů, Pplk. Sochora 27, 170 00 Praha 7, https://uoou.gov.cz.",
     ],
   },
   {
-    title: "Zabezpečení a předávání údajů",
+    title: "Automatizované rozhodování",
     paragraphs: [
-      "K ochraně údajů přijímáme přiměřená technická a organizační opatření. Podle původních zásad AWCLEAN nemá správce v úmyslu předávat osobní údaje do třetích zemí mimo EU nebo mezinárodním organizacím.",
+      "Nerozhodujeme o vás automatizovaně a neprovádíme profilování.",
     ],
   },
   {
-    title: "Cookies a měření návštěvnosti",
+    title: "Cookies a místní úložiště",
     paragraphs: [
-      "Tato verze webu nepoužívá analytické ani reklamní cookies a neobsahuje Google Analytics, reklamní pixely, newsletter ani uživatelské účty. Údaje rozepsané ve formuláři se neukládají do cookies ani do místního úložiště prohlížeče.",
-      "Fotografie a písma se načítají ze stejného webu. Po kliknutí na Facebook nebo YouTube přecházíte do externí služby, která se řídí vlastními pravidly ochrany soukromí.",
-      "Volbu kategorií spravujete přes tlačítko Spravovat souhlas v patičce. Nastavení a datum uložení uchováváme po dobu 180 dní v místním úložišti prohlížeče pod klíčem awclean-consent-v1. Tyto údaje nikomu neodesíláme. Povolení volitelných kategorií v této verzi webu nespouští sledování.",
-      "Pomocník DR Fasáda se zobrazí při každém načtení stránky a nic si neukládá. Hledané výrazy ani otázky se neukládají ani neodesílají.",
-      "Cookies a místní data webu můžete spravovat a odstraňovat v nastavení svého prohlížeče.",
+      "Web nepoužívá analytické ani reklamní cookies, měřicí kódy ani reklamní pixely. Fotografie a písma se načítají z našeho serveru. Facebook a YouTube jsou pouze odkazy; po kliknutí přecházíte do externí služby s vlastními pravidly.",
+      "Jediné, co web ukládá do vašeho prohlížeče, je vaše volba v okně Spravovat souhlas: kategorie a datum uložení pod klíčem awclean-consent-v1 v místním úložišti, na 180 dní. Nikam ji neodesíláme.",
+      "Údaje rozepsané ve formuláři se do prohlížeče neukládají. Pomocník DR Fasáda si nic neukládá; hledané výrazy se neukládají ani neodesílají.",
+      "Svou volbu v okně Spravovat souhlas můžete kdykoli změnit nebo odvolat. Cookies a data webu můžete smazat v nastavení prohlížeče.",
     ],
   },
   {
-    title: "Kontakt a stížnosti",
+    title: "Změny zásad",
     paragraphs: [
-      "Pro uplatnění práv nebo dotazy ke zpracování údajů použijte info@awclean.cz. Pokud se domníváte, že zpracování porušuje pravidla ochrany osobních údajů, máte právo podat stížnost u Úřadu na ochranu osobních údajů Slovenské republiky.",
+      "Tyto zásady platí od 28. 10. 2026. Změny zveřejníme na této stránce.",
     ],
   },
 ];

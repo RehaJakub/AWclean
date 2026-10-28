@@ -88,3 +88,15 @@ describe("Uložení souhlasu", () => {
     ).toThrow("Storage unavailable");
   });
 });
+describe("hasConsent", () => {
+  it("povolí volitelnou kategorii jen s platnou uloženou volbou", async () => {
+    const { hasConsent, saveConsent } = await import("./consent");
+    const data = new Map<string, string>();
+    const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => void data.set(key, value) };
+    expect(hasConsent("analytics", storage)).toBe(false);
+    saveConsent(storage, { personalized: false, analytics: true, marketing: false });
+    expect(hasConsent("analytics", storage)).toBe(true);
+    expect(hasConsent("marketing", storage)).toBe(false);
+    expect(hasConsent("analytics", undefined)).toBe(false);
+  });
+});

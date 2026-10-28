@@ -2,7 +2,7 @@
   position: fixed; right: 18px; bottom: env(safe-area-inset-bottom); width: 176px; height: 254px;
   z-index: 40; pointer-events: none; visibility: hidden;
   transform: translateY(110%) rotate(5deg); transform-origin: bottom right;
-  transition: transform .65s cubic-bezier(.22,1,.36,1), visibility .65s, right .4s ease;
+  transition: transform .65s cubic-bezier(.22,1,.36,1), right .4s ease;
 }
 .mascot-launcher.is-arrived { visibility: visible; transform: translateY(0) rotate(0); }
 .mascot-launcher.is-open { opacity: 0; }

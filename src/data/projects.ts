@@ -15,7 +15,7 @@ export const projects: Project[] = [
     path: "/reference/fasada-v-puvodnich-barvach/",
     title: "Fasáda v původních barvách",
     description:
-      "Detail fasády před čištěním a po odstranění biologických povlaků. Ukázka z původní fotodokumentace AWCLEAN.",
+      "Detail fasády před čištěním a po odstranění biologických povlaků.",
     image: "/images/realizace/cervena-fasada-pred-a-po-cisteni.webp",
     gallery: [
       {

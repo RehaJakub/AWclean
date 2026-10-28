@@ -29,7 +29,7 @@ export const impregnaceFasadAStrech: ServicePageData = {
     {
       title: "Ošetření střech a zámkové dlažby",
       paragraphs: [
-        "Pro střechy nabízíme mimo jiné ošetření BPS 7718 od výrobce Trion Tensid. Vhodnost konkrétního řešení ověříme podle povrchu a požadovaného výsledku. Pokud chcete zachovat původní vzhled, probereme také možnosti nano impregnace.",
+        "Pro střechy nabízíme mimo jiné ošetření BPS 7718 od výrobce Trion Tensid. Vhodnost konkrétního řešení ověříme podle povrchu a požadovaného výsledku. Pokud chcete zachovat původní vzhled, probereme také možnosti nanoimpregnace.",
       ],
     },
   ],
