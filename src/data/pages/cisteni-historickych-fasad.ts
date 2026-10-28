@@ -5,7 +5,7 @@ export const cisteniHistorickychFasad: ServicePageData = {
   title: "Čištění historických fasád",
   shortTitle: "Historické fasády",
   intro:
-    "Citlivá péče o budovy s historií. Odstraňujeme usazené nečistoty a biologické povlaky s ohledem na stav a charakter fasády.",
+    "Citlivá péče o budovy s historií. Odstraňujeme usazené nečistoty a biologické povlaky s ohledem na stav a charakter fasády.",
   category: "cisteni",
   heroImage: "/images/realizace/cihlova-fasada-po-cisteni.webp",
   highlights: [
@@ -15,15 +15,15 @@ export const cisteniHistorickychFasad: ServicePageData = {
   ],
   sections: [
     {
-      title: "Respekt k původnímu povrchu",
+      title: "Respekt k původnímu povrchu",
       paragraphs: [
-        "Historické fasády vyžadují obzvlášť šetrný přístup. Čistíme fasádní systémy náchylné k usazování mikroorganismů i starší budovy, u kterých je potřeba zohlednit stav podkladu.",
+        "Historické fasády vyžadují obzvlášť šetrný přístup. Čistíme fasádní systémy náchylné k usazování mikroorganismů i starší budovy, u kterých je potřeba zohlednit stav podkladu.",
       ],
     },
     {
-      title: "Nejdříve posouzení a ukázka",
+      title: "Nejdříve posouzení a ukázka",
       paragraphs: [
-        "Každý objekt nejprve posoudíme a domluvíme vhodný rozsah zásahu i postup. V galerii najdete ukázky našich realizací.",
+        "Každý objekt nejprve posoudíme a domluvíme vhodný rozsah zásahu i postup. V galerii najdete ukázky našich realizací.",
       ],
     },
   ],
@@ -46,15 +46,15 @@ export const cisteniHistorickychFasad: ServicePageData = {
     },
     {
       src: "/images/realizace/cisteni-cihlove-steny-z-vyskove-plosiny.webp",
-      alt: "Čištění cihlové stěny z výškové plošiny.",
+      alt: "Čištění cihlové stěny z výškové plošiny.",
     },
     {
       src: "/images/realizace/odstranovani-necistot-z-cihlove-fasady-pomoci-tlakove-vody.webp",
-      alt: "Odstraňování nečistot z cihlové fasády pomocí tlakové vody.",
+      alt: "Odstraňování nečistot z cihlové fasády pomocí tlakové vody.",
     },
     {
       src: "/images/realizace/bocni-pohled-na-cihlovou-halu-a-pracovni-plosiny.webp",
-      alt: "Boční pohled na cihlovou halu a pracovní plošiny.",
+      alt: "Boční pohled na cihlovou halu a pracovní plošiny.",
     },
     {
       src: "/images/realizace/pracovnik-cisti-cihlovou-stenu-ze-zeme.webp",
@@ -62,11 +62,11 @@ export const cisteniHistorickychFasad: ServicePageData = {
     },
     {
       src: "/images/realizace/pracovni-plosina-u-prosklene-steny-cihlove-haly.webp",
-      alt: "Pracovní plošina u prosklené stěny cihlové haly.",
+      alt: "Pracovní plošina u prosklené stěny cihlové haly.",
     },
     {
       src: "/images/realizace/plosina-u-horni-casti-cihlove-fasady.webp",
-      alt: "Plošina u horní části cihlové fasády.",
+      alt: "Plošina u horní části cihlové fasády.",
     },
     {
       src: "/images/realizace/celni-cihlova-fasada-historicke-prumyslove-haly.webp",

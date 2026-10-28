@@ -2,14 +2,14 @@ import type { ServicePageData } from "./types";
 
 export const cisteniPomniku: ServicePageData = {
   path: "/ostatni-sluzby/cisteni-pomniku/",
-  title: "Čištění pomníků a soch",
+  title: "Čištění pomníků a soch",
   shortTitle: "Čištění pomníků",
   intro:
-    "Ohleduplné čištění pomníků, soch, hrobů a náhrobních kamenů. Odstraníme mech a usazené nánosy s respektem k materiálu.",
+    "Ohleduplné čištění pomníků, soch, hrobů a náhrobních kamenů. Odstraníme mech a usazené nánosy s respektem k materiálu.",
   category: "cisteni",
   heroImage: "/images/realizace/kamenny-kriz-a-jeho-okoli-pred-cistenim.webp",
   highlights: [
-    "Pomníky a sochy",
+    "Pomníky a sochy",
     "Náhrobní kameny",
     "Postup podle typu kamene",
   ],
@@ -17,24 +17,24 @@ export const cisteniPomniku: ServicePageData = {
     {
       title: "Odstranění známek času",
       paragraphs: [
-        "Pomocí speciální technologie odstraňujeme mechy a nánosy z pomníků, soch a náhrobních kamenů. Každý povrch nejprve posoudíme a zvolíme přiměřený způsob práce.",
+        "Pomocí speciální technologie odstraňujeme mechy a nánosy z pomníků, soch a náhrobních kamenů. Každý povrch nejprve posoudíme a zvolíme přiměřený způsob práce.",
       ],
     },
     {
-      title: "Ohleduplně k různým druhům kamene",
+      title: "Ohleduplně k různým druhům kamene",
       paragraphs: [
-        "Různé typy kamene vyžadují rozdílnou péči. Sdělte nám, o jaký objekt se jedná, kde se nachází a v jakém je stavu. Na základě prohlídky připravíme vhodné řešení.",
+        "Různé typy kamene vyžadují rozdílnou péči. Sdělte nám, o jaký objekt se jedná, kde se nachází a v jakém je stavu. Na základě prohlídky připravíme vhodné řešení.",
       ],
     },
   ],
   gallery: [
     {
       src: "/images/realizace/kamenny-kriz-a-jeho-okoli-pred-cistenim.webp",
-      alt: "Kamenný kříž a jeho okolí před čištěním.",
+      alt: "Kamenný kříž a jeho okolí před čištěním.",
     },
     {
       src: "/images/realizace/kamenny-kriz-a-jeho-okoli-po-cisteni.webp",
-      alt: "Kamenný kříž a jeho okolí po čištění.",
+      alt: "Kamenný kříž a jeho okolí po čištění.",
     },
     {
       src: "/images/realizace/kamenna-socha-se-zelenym-povlakem-pred-cistenim.webp",

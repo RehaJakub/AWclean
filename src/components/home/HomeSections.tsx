@@ -102,14 +102,14 @@ export function HomeResults() {
                     <span key={image.src} className="home-result-photo">
                       <ResponsiveImage
                         src={image.src}
-                        alt={image.alt}
+                        alt=""
                         sizes="(max-width: 900px) 50vw, 17vw"
                         loading="lazy"
                         width="600"
                         height="800"
                       />
                       {image.label && (
-                        <span className={`rd-badge${image.label === "Po" ? " is-after" : ""}`}>
+                        <span className={`rd-badge${image.label === "Po" ? " is-after" : ""}`} aria-hidden="true">
                           {image.label}
                         </span>
                       )}

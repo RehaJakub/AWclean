@@ -213,12 +213,6 @@ h1 span {
 .icon-button:hover {
   background: white;
 }
-.small-label {
-  font-size: 15px;
-  letter-spacing: 1.4px;
-  font-weight: 600;
-  color: var(--color-muted);
-}
 .contact-section {
   background: var(--color-ice);
   position: relative;

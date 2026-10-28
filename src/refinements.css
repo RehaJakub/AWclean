@@ -86,15 +86,6 @@ html {
 .catalog-card:hover > img {
   transform: scale(1.04);
 }
-/* Trust indicators use dark text, with the logo cyan reserved for icons. */
-.comparison:has(:focus-visible) {
-  outline: 4px solid var(--color-accent-ink);
-  outline-offset: 4px;
-}
-.comparison:has(:focus-visible) .comparison-line > span {
-  outline: 3px solid var(--color-primary);
-  outline-offset: 4px;
-}
 .contact-section {
   padding-bottom: 130px;
   background: linear-gradient(

@@ -2,34 +2,34 @@ import type { ServicePageData } from "./types";
 
 export const impregnaceFasadAStrech: ServicePageData = {
   path: "/impregnace-fasad-a-strech/",
-  title: "Impregnace fasád a střech",
+  title: "Impregnace fasád a střech",
   shortTitle: "Impregnace fasád a střech",
   intro:
-    "Čištění doplníme ochranou povrchu. Vhodná impregnace pomáhá omezovat působení vody a udržet ošetřený materiál v dobrém stavu.",
+    "Čištění doplníme ochranou povrchu. Vhodná impregnace pomáhá omezovat působení vody a udržet ošetřený materiál v dobrém stavu.",
   category: "ostatni",
   heroImage: "/images/realizace/impregnace-taskove-strechy.webp",
   highlights: [
     "Hydrofobní ochrana",
-    "Fasády, střechy a dlažby",
-    "Varianta s mokrým efektem",
+    "Fasády, střechy a dlažby",
+    "Varianta s mokrým efektem",
   ],
   sections: [
     {
       title: "Ochrana po vyčištění",
       paragraphs: [
-        "Po čištění lze fasádu, střechu nebo dlažbu ošetřit impregnací podle druhu materiálu. Výběr přípravku a vzhled výsledného povrchu s vámi předem domluvíme.",
+        "Po čištění lze fasádu, střechu nebo dlažbu ošetřit impregnací podle druhu materiálu. Výběr přípravku a vzhled výsledného povrchu s vámi předem domluvíme.",
       ],
     },
     {
-      title: "Mokrý efekt a zvýraznění povrchu",
+      title: "Mokrý efekt a zvýraznění povrchu",
       paragraphs: [
-        "Používáme hydrofobní impregnaci s mokrým efektem, která zvýrazňuje zašedlou dlažbu a střešní krytinu. U hladkých povrchů, zejména pálených tašek, může výsledkem být jemný hedvábný lesk.",
+        "Používáme hydrofobní impregnaci s mokrým efektem, která zvýrazňuje zašedlou dlažbu a střešní krytinu. U hladkých povrchů, zejména pálených tašek, může výsledkem být jemný hedvábný lesk.",
       ],
     },
     {
-      title: "Ošetření střech a zámkové dlažby",
+      title: "Ošetření střech a zámkové dlažby",
       paragraphs: [
-        "Pro střechy nabízíme mimo jiné ošetření BPS 7718 od výrobce Trion Tensid. Vhodnost konkrétního řešení ověříme podle povrchu a požadovaného výsledku. Pokud chcete zachovat původní vzhled, probereme také možnosti nanoimpregnace.",
+        "Pro střechy nabízíme mimo jiné ošetření BPS 7718 od výrobce Trion Tensid. Vhodnost konkrétního řešení ověříme podle povrchu a požadovaného výsledku. Pokud chcete zachovat původní vzhled, probereme také možnosti nanoimpregnace.",
       ],
     },
   ],

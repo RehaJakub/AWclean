@@ -4,13 +4,13 @@ export const cisteniStrech: ServicePageData = {
   path: "/cisteni-strech/",
   title: "Čištění střech",
   shortTitle: "Čištění střech",
-  seoTitle: "Čištění střech od mechu a lišejníků",
+  seoTitle: "Čištění střech od mechu a lišejníků",
   intro:
-    "Mech, lišejníky, listí i prach odstraníme ze střech a těžko přístupných míst. Postaráme se také o okapy a svody.",
+    "Mech, lišejníky, listí i prach odstraníme ze střech a těžko přístupných míst. Postaráme se také o okapy a svody.",
   category: "cisteni",
   heroImage: "/images/realizace/tlakove-cisteni-strechy.webp",
   highlights: [
-    "Čištění střech, okapů a svodů",
+    "Čištění střech, okapů a svodů",
     "Postup podle typu krytiny",
     "Možnost následné ochrany",
   ],
@@ -18,26 +18,26 @@ export const cisteniStrech: ServicePageData = {
     {
       title: "Čistá střecha od hřebene po okap",
       paragraphs: [
-        "Čistíme nánosy na celé ploše střechy i v jejích rozích, mechy, zelené povlaky, listí, prach a ptačí trus. Vyčistíme také ucpané okapy a svody.",
-        "Mech zadržuje vodu a zatěžuje střešní konstrukci. Pravidelné čištění proto střechu chrání, nejen zlepší její vzhled.",
+        "Čistíme nánosy na celé ploše střechy i v jejích rozích, mechy, zelené povlaky, listí, prach a ptačí trus. Vyčistíme také ucpané okapy a svody.",
+        "Mech zadržuje vodu a zatěžuje střešní konstrukci. Pravidelné čištění proto střechu chrání, nejen zlepší její vzhled.",
       ],
     },
     {
       title: "Ošetření podle materiálu",
       paragraphs: [
-        "Postup volíme podle konkrétní krytiny a jejího stavu. Čistíme pálené a betonové tašky, plech i asfaltové šindele. U starších materiálů je nutné nejprve posoudit jejich složení a vhodnost zásahu.",
-        "K práci ve výškách využíváme odpovídající techniku. Rozsah prací, termín a způsob přístupu domluvíme při prohlídce.",
+        "Postup volíme podle konkrétní krytiny a jejího stavu. Čistíme pálené a betonové tašky, plech i asfaltové šindele. U starších materiálů je nutné nejprve posoudit jejich složení a vhodnost zásahu.",
+        "K práci ve výškách využíváme odpovídající techniku. Rozsah prací, termín a způsob přístupu domluvíme při prohlídce.",
       ],
     },
     {
-      title: "Čištění a následná ochrana",
+      title: "Čištění a následná ochrana",
       paragraphs: [
-        "Používáme čisticí systém TRION: navlhčení povrchu, aplikaci prostředku, jeho působení a oplach. Po vyschnutí lze aplikovat fungicidní nebo hydrofobní ochranu.",
-        "Délka záruky se odvíjí od typu zvoleného ošetření. Konkrétní rozsah a podmínky dostanete v nabídce.",
+        "Používáme čisticí systém TRION: navlhčení povrchu, aplikaci prostředku, jeho působení a oplach. Po vyschnutí lze aplikovat fungicidní nebo hydrofobní ochranu.",
+        "Délka záruky se odvíjí od typu zvoleného ošetření. Konkrétní rozsah a podmínky dostanete v nabídce.",
       ],
       bullets: [
-        "Odstranění mechů a biologických povlaků",
-        "Vyčištění okapů a obtížně dostupných míst",
+        "Odstranění mechů a biologických povlaků",
+        "Vyčištění okapů a obtížně dostupných míst",
         "Ochranné ošetření podle podkladu",
       ],
     },
@@ -45,19 +45,19 @@ export const cisteniStrech: ServicePageData = {
   gallery: [
     {
       src: "/images/realizace/strecha-s-vyznacenou-vycistenou-a-neosetrenou-casti.webp",
-      alt: "Střecha s vyznačenou vyčištěnou a neošetřenou částí.",
+      alt: "Střecha s vyznačenou vyčištěnou a neošetřenou částí.",
     },
     {
       src: "/images/realizace/porovnani-stresni-krytiny-pred-impregnaci-a-po-ni.webp",
-      alt: "Porovnání střešní krytiny před impregnací a po ní.",
+      alt: "Porovnání střešní krytiny před impregnací a po ní.",
     },
     {
       src: "/images/realizace/stresni-krytina-behem-cisteni-s-viditelnym-rozdilem-odstinu.webp",
-      alt: "Střešní krytina během čištění s viditelným rozdílem odstínu.",
+      alt: "Střešní krytina během čištění s viditelným rozdílem odstínu.",
     },
     {
       src: "/images/realizace/vycistena-taskova-strecha-a-komin.webp",
-      alt: "Vyčištěná tašková střecha a komín.",
+      alt: "Vyčištěná tašková střecha a komín.",
     },
     {
       src: "/images/realizace/porovnani-vzhledu-stresnich-tasek-pri-impregnaci.webp",
@@ -73,7 +73,7 @@ export const cisteniStrech: ServicePageData = {
     },
     {
       src: "/images/realizace/taskova-strecha-s-casti-vycisteneho-povrchu.webp",
-      alt: "Tašková střecha s částí vyčištěného povrchu.",
+      alt: "Tašková střecha s částí vyčištěného povrchu.",
     },
     {
       src: "/images/realizace/oranzova-stresni-krytina-kolem-stresniho-okna.webp",
@@ -89,11 +89,11 @@ export const cisteniStrech: ServicePageData = {
     },
     {
       src: "/images/realizace/porovnani-strechy-zeleneho-rodinneho-domu-pred-cistenim-a-po-nem.webp",
-      alt: "Porovnání střechy zeleného rodinného domu před čištěním a po něm.",
+      alt: "Porovnání střechy zeleného rodinného domu před čištěním a po něm.",
     },
     {
       src: "/images/realizace/cisteni-taskove-strechy.webp",
-      alt: "Pracovník s hadicí na taškové střeše.",
+      alt: "Pracovník s hadicí na taškové střeše.",
     },
     {
       src: "/images/realizace/tlakove-cisteni-strechy.webp",
@@ -117,15 +117,15 @@ export const cisteniStrech: ServicePageData = {
     },
     {
       src: "/images/realizace/pohled-pres-cistou-taskovou-strechu-k-ulici.webp",
-      alt: "Pohled přes čistou taškovou střechu k ulici.",
+      alt: "Pohled přes čistou taškovou střechu k ulici.",
     },
     {
       src: "/images/realizace/rozdil-mezi-cistymi-a-znecistenymi-taskami-u-stresniho-uzlabi.webp",
-      alt: "Rozdíl mezi čistými a znečištěnými taškami u střešního úžlabí.",
+      alt: "Rozdíl mezi čistými a znečištěnými taškami u střešního úžlabí.",
     },
     {
       src: "/images/realizace/taskova-strecha-s-castecne-vycistenou-krytinou.webp",
-      alt: "Tašková střecha s částečně vyčištěnou krytinou.",
+      alt: "Tašková střecha s částečně vyčištěnou krytinou.",
     },
   ],
   related: [

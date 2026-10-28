@@ -30,58 +30,58 @@ const staticRoutes: StaticRoute[] = [
   {
     kind: "home",
     path: "/",
-    title: "Čištění fasád, střech a dlažeb od roku 2001",
+    title: "Čištění fasád, střech a dlažeb od roku 2001",
     description:
-      "AWCLEAN: profesionální čištění fasád, střech, dlažeb a průmyslových objektů. Ukázka čištění zdarma po celé ČR.",
+      "AWCLEAN: profesionální čištění fasád, střech, dlažeb a průmyslových objektů. Ukázka čištění zdarma po celé ČR.",
     image: "/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp",
   },
   {
     kind: "services",
     path: "/sluzby/",
-    title: "Služby: čištění fasád, střech a dlažeb",
+    title: "Služby: čištění fasád, střech a dlažeb",
     description:
-      "Přehled služeb AWCLEAN: čištění, nátěry, impregnace a speciální práce. Postupy, fotografie a nezávazná poptávka.",
+      "Přehled služeb AWCLEAN: čištění, nátěry, impregnace a speciální práce. Postupy, fotografie a nezávazná poptávka.",
   },
   {
     kind: "other",
     path: "/ostatni-sluzby/",
-    title: "Impregnace, nanoochrana a další služby",
+    title: "Impregnace, nanoochrana a další služby",
     description:
-      "Impregnace fasád a střech, nanoimpregnace a odstraňování dopravního značení.",
+      "Impregnace fasád a střech, nanoimpregnace a odstraňování dopravního značení.",
   },
   {
     kind: "references",
     path: "/reference/",
-    title: "Reference a realizace",
+    title: "Reference a realizace",
     description:
-      "Skutečné fotografie realizací AWCLEAN, porovnání před a po čištění a přehled firemních referencí.",
+      "Skutečné fotografie realizací AWCLEAN, porovnání před a po čištění a přehled firemních referencí.",
   },
   {
     kind: "contact",
     path: "/kontakt/",
-    title: "Kontakt a nezávazná poptávka",
+    title: "Kontakt a nezávazná poptávka",
     description:
-      "Zavolejte AWCLEAN na +420 773 196 097 nebo nám napište. Posouzení a ukázka čištění zdarma po celé ČR.",
+      "Zavolejte AWCLEAN na +420 773 196 097 nebo nám napište. Posouzení a ukázka čištění zdarma po celé ČR.",
   },
   {
     kind: "press",
     path: "/psali-o-nas/",
-    title: "Psali o nás",
-    description: "Odborná reportáž AWCLEAN v časopise Dům a Byt o čištění fasád a střech. Prohlédněte si všechny strany článku.",
+    title: "Psali o nás",
+    description: "Odborná reportáž AWCLEAN v časopise Dům a Byt o čištění fasád a střech. Prohlédněte si všechny strany článku.",
   },
   {
     kind: "privacy",
     path: "/privacy-policy/",
-    title: "Ochrana osobních údajů a cookies",
+    title: "Ochrana osobních údajů a cookies",
     description:
-      "Informace o ochraně osobních údajů, vyřizování poptávek a cookies na webu AWCLEAN.",
+      "Informace o ochraně osobních údajů, vyřizování poptávek a cookies na webu AWCLEAN.",
   },
   {
     kind: "advice",
     path: "/ciste-fasady/",
     title: "Odborné posouzení fasády",
     description:
-      "Nejste spokojení s předchozím čištěním fasády? AWCLEAN nabízí posouzení a ukázku čištění zdarma.",
+      "Nejste spokojení s předchozím čištěním fasády? AWCLEAN nabízí posouzení a ukázku čištění zdarma.",
   },
 ];
 export const routeAliases: Record<string, string> = {

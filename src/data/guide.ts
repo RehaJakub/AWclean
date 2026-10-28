@@ -15,7 +15,7 @@ export const guideProblems = [
   { value: "nater", label: "Chci novou barvu", hint: "nátěr" },
 ] as const;
 export const guideBuildings = [
-  { value: "dum", label: "Rodinný dům", hint: "váš dům a okolí" },
+  { value: "dum", label: "Rodinný dům", hint: "váš dům a okolí" },
   { value: "bytovy", label: "Bytový dům", hint: "SVJ, družstvo, správa domu" },
   { value: "firma", label: "Firma", hint: "hala, areál, kanceláře" },
 ] as const;
@@ -32,7 +32,7 @@ export function getGuideSurfaces(building: GuideBuilding) {
     .map((item) => ({
       ...item,
       label: item.value === "dlazba"
-        ? building === "dum" ? "Dlažba kolem domu" : building === "bytovy" ? "Chodníky a společné plochy" : "Dlažba v areálu"
+        ? building === "dum" ? "Dlažba kolem domu" : building === "bytovy" ? "Chodníky a společné plochy" : "Dlažba v areálu"
         : item.label,
     }));
 }
@@ -62,7 +62,7 @@ export function getGuideResult(selection: GuideSelection): GuideResult {
     title: surface === "strecha" ? "Nátěr střechy" : "Nátěr fasády",
     href: `/natery-strech-a-fasad/#${surface === "strecha" ? "natery-strech" : "natery-fasad"}`,
     referenceCategory: "natery",
-    text: "Doktor radí: Pomůže nový nátěr. Nejdřív se podíváme, v jakém stavu povrch je, a podle toho navrhneme postup.",
+    text: "Doktor radí: Pomůže nový nátěr. Nejdřív se podíváme, v jakém stavu povrch je, a podle toho navrhneme postup.",
   };
   if (problem === "ochrana" && supportsCoating) return {
     title: surface === "strecha" ? "Impregnace střechy" : "Impregnace fasády",
@@ -72,7 +72,7 @@ export function getGuideResult(selection: GuideSelection): GuideResult {
   if (problem === "nater" || problem === "ochrana") return {
     title: "Individuální posouzení povrchu",
     href: "/kontakt/", referenceCategory: cleaning[surface].referenceCategory,
-    text: "Doktor radí: Tady je nejlepší se nejdřív domluvit. Zavolejte nám nebo napište a společně vybereme vhodné řešení.",
+    text: "Doktor radí: Tady je nejlepší se nejdřív domluvit. Zavolejte nám nebo napište a společně vybereme vhodné řešení.",
   };
   const facadeExamples: Record<GuideBuilding, string> = {
     dum: "/images/fasady-nove/cisteni-fasady-rodinneho-domu-s-balkonem-pred-a-po.webp",
@@ -88,7 +88,7 @@ export function getGuideResult(selection: GuideSelection): GuideResult {
     hlinik: "Čištění hliníkových fasád",
   };
   const reason = problem === "povlak"
-    ? "Mech, řasy i plíseň odstraní čištění."
+    ? "Mech, řasy i plíseň odstraní čištění."
     : "Usazenou špínu odstraní čištění.";
   return { ...cleaning[surface], title: titles[surface], exampleImage: surface === "fasada" ? facadeExamples[selection.building] : undefined, text: `Doktor radí: ${reason} Šetrný postup vybereme podle materiálu a stavu vašeho objektu.` };
 }

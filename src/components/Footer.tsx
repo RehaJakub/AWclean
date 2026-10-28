@@ -77,9 +77,9 @@ export function Footer({ currentPath }: FooterProps) {
               {primaryPhone.phone}
             </a>
             <p>
-              Telefonní linka NON-STOP
+              Telefon NON-STOP · provozní doba Po–Ne 8:00–17:00
               <br />
-              Po–Ne 8:00–17:00 · Působíme po celé ČR a SR
+              Působíme po celé ČR a SR
             </p>
             <address>
               AWCLEAN s.r.o., IČO 50823272

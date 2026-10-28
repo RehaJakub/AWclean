@@ -65,7 +65,7 @@ export function Gallery({
                   height="560"
                 />
                 <span>
-                  <Expand size={18} />
+                  <Expand size={18} aria-hidden="true" />
                 </span>
               </button>
               <figcaption>

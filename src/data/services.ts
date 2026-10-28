@@ -17,11 +17,11 @@ export const serviceCategoryLabels: Record<ServiceCategory, string> = {
   ostatni: "Ostatní služby",
 };
 const summaries: Record<string, string> = {
-  "/cisteni-fasad/": "Odstranění řas a nečistot z rodinných i bytových domů.",
-  "/cisteni-strech/": "Čištění krytiny od mechu, lišejníků a usazenin.",
-  "/cisteni-dlazeb/": "Obnova vzhledu chodníků, teras a příjezdových cest.",
+  "/cisteni-fasad/": "Odstranění řas a nečistot z rodinných i bytových domů.",
+  "/cisteni-strech/": "Čištění krytiny od mechu, lišejníků a usazenin.",
+  "/cisteni-dlazeb/": "Obnova vzhledu chodníků, teras a příjezdových cest.",
   "/cisteni-prumyslovych-objektu/":
-    "Čištění hal, konstrukcí a technického vybavení.",
+    "Čištění hal, konstrukcí a technického vybavení.",
 };
 export const services: Service[] = servicePages.map((page) => ({
   slug: page.path.split("/").filter(Boolean).at(-1) ?? "",

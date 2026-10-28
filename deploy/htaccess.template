@@ -28,9 +28,8 @@ Options -Indexes
   RewriteRule ^data/awclean\.cz/documents/Osvedcenie--AWCLEAN\.pdf$ @SITE_URL@/documents/osvedceni-awclean.pdf [R=301,L,NC]
   RewriteCond %{DOCUMENT_ROOT}/images/projects/$1 -f
   RewriteRule ^data/awclean\.cz/images/tmp/(.+)$ @SITE_URL@/images/projects/$1 [R=301,L]
-  # Mytí oken (stará URL v sitemap): ROZHODNE VLASTNÍK (SEO-5). Bez pravidla vrací 404.
-  # Pokud se služba už nedělá a má rychle zmizet z indexu, odkomentujte 410 Gone:
-  # RewriteRule ^ostatni-sluzby/myti-oken/?$ - [G]
+  # Mytí oken (stará URL v sitemap): služba už v nabídce není, 410 Gone ji rychle odstraní z indexu (SEO-5).
+  RewriteRule ^ostatni-sluzby/myti-oken/?$ - [G]
 
   # 3) Staré adresy (generováno z routeAliases v src/lib/routes.ts), absolutní cíl = jeden skok i z http/bez www.
 # @ALIASES@
