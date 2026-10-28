@@ -82,7 +82,9 @@ export function Footer({ currentPath }: FooterProps) {
               Po–Ne 8:00–17:00 · Působíme po celé ČR a SR
             </p>
             <address>
-              AWCLEAN s.r.o., Na Výsluní 298, 294 28 Chotětov
+              AWCLEAN s.r.o., IČO 50823272
+              <br />
+              Na Výsluní 298, 294 28 Chotětov
               <br />
               <a href="mailto:info@awclean.cz">info@awclean.cz</a>
             </address>
