@@ -17,7 +17,7 @@ export const privacySections: ContentSection[] = [
   {
     title: "Jak dlouho údaje uchováváme",
     paragraphs: [
-      "Údaje uchováváme po dobu nezbytnou k vyřízení poptávky, výkonu práv a povinností ze smluvního vztahu a uplatnění souvisejících nároků. Účetní a daňové doklady uchováváme po dobu stanovenou příslušnými právními předpisy.",
+      "Údaje uchováváme po dobu nezbytnou k vyřízení poptávky, výkonu práv a povinností ze smluvního vztahu a uplatnění souvisejících nároků. Účetní a daňové doklady uchováváme obvykle 10 let, a to bez ohledu na souhlas. Údaje zpracovávané na základě souhlasu uchováváme do jeho odvolání.",
       "Je-li určité zpracování založeno na vašem souhlasu, můžete jej odvolat. Tím není dotčena zákonnost předchozího zpracování.",
     ],
   },
@@ -33,7 +33,8 @@ export const privacySections: ContentSection[] = [
       "Právo na omezení zpracování, například při ověřování správnosti údajů",
       "Právo vznést námitku vůči zpracování na základě oprávněného zájmu",
       "Právo na přenositelnost údajů při splnění příslušných podmínek",
-      "Právo odvolat souhlas a podat stížnost dozorovému orgánu",
+      "Právo odvolat souhlas",
+      "Právo podat stížnost u Úřadu na ochranu osobních údajů Slovenské republiky",
     ],
   },
   {
@@ -62,7 +63,7 @@ export const privacySections: ContentSection[] = [
   {
     title: "Kontakt a stížnosti",
     paragraphs: [
-      "Pro uplatnění práv nebo dotazy ke zpracování údajů použijte info@awclean.cz. Pokud se domníváte, že zpracování porušuje pravidla ochrany osobních údajů, máte právo obrátit se na příslušný dozorový orgán.",
+      "Pro uplatnění práv nebo dotazy ke zpracování údajů použijte info@awclean.cz. Pokud se domníváte, že zpracování porušuje pravidla ochrany osobních údajů, máte právo podat stížnost u Úřadu na ochranu osobních údajů Slovenské republiky.",
     ],
   },
 ];
