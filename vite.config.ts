@@ -17,6 +17,8 @@ import {
   normalizePath,
   type PageMeta,
 } from "./src/lib/routes";
+const escapeRegex = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const escapeHtml = (value: string): string =>
   value
     .replace(/&/g, "&amp;")
@@ -56,10 +58,12 @@ function legacyRedirects(): Plugin {
 }
 function staticPages(): Plugin {
   let outputDirectory = "";
+  let rootDirectory = "";
   return {
     name: "awclean-static-pages",
     apply: "build",
     configResolved(config) {
+      rootDirectory = config.root;
       outputDirectory = resolve(config.root, config.build.outDir);
     },
     async closeBundle() {
@@ -158,17 +162,25 @@ function staticPages(): Plugin {
             )
             .join("\n") + "\n/* /404.html 404\n",
         );
-        await writeFile(
-          resolve(outputDirectory, ".htaccess"),
-          "DirectoryIndex index.html\nErrorDocument 404 /404.html\n" +
-            Object.entries(routeAliases)
-              .map(
-                ([alias, target]) =>
-                  `RedirectMatch 301 ^${alias.slice(0, -1)}/?(?:index\\.html)?$ ${target}`,
-              )
-              .join("\n") +
-            "\n",
+        // Apache konfigurace: šablona v deploy/ + 301 aliasy ze stejných dat jako aplikace.
+        const htaccessTemplate = await readFile(
+          resolve(rootDirectory, "deploy/htaccess.template"),
+          "utf8",
         );
+        if (!htaccessTemplate.includes("# @ALIASES@"))
+          throw new Error("Šablona .htaccess nemá značku # @ALIASES@.");
+        // Cíl přesměrování: produkce, nebo náhledová doména při testu na novém hostingu (SITE_URL).
+        const siteUrl = (process.env.SITE_URL ?? "https://www.awclean.cz").replace(/\/$/, "");
+        const htaccess = htaccessTemplate.replaceAll("@SITE_URL@", siteUrl).replace(
+          "# @ALIASES@",
+          Object.entries(routeAliases)
+            .map(
+              ([alias, target]) =>
+                `  RewriteRule ^${escapeRegex(alias.slice(1, -1))}/?(?:index\\.html)?$ ${siteUrl}${target} [R=301,L]`,
+            )
+            .join("\n"),
+        );
+        await writeFile(resolve(outputDirectory, ".htaccess"), htaccess);
         await writeFile(
           resolve(outputDirectory, "404.html"),
           render(resolveRoute("/404/")).replace(

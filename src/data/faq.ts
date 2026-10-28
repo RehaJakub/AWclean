@@ -71,11 +71,12 @@ export function filterFaq(category: FaqCategory, query: string): FaqItem[] {
     terms.every((term) => normalize(`${item.question} ${item.answer}`).includes(term)),
   );
 }
-export const faqSchema = {
+/** FAQPage only for the questions actually shown on the page (Google requires visible content). */
+export const faqSchema = (items: FaqItem[]) => ({
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: faqItems.map((item) => ({
+  mainEntity: items.map((item) => ({
     "@type": "Question", name: item.question,
     acceptedAnswer: { "@type": "Answer", text: item.answer },
   })),
-};
+});

@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { servicePages } from "../data/pages";
 import {
   contactMailto,
+  inquiryContext,
   sendContact,
   validateContact,
   type ContactValues,
@@ -11,6 +14,7 @@ const valid: ContactValues = {
   email: "jan@example.cz",
   message: "Prosím o čištění fasády domu.",
 };
+const antispam = { website: "", fillMs: 5000, service: "", sample: "" };
 afterEach(() => vi.unstubAllGlobals());
 describe("Validace poptávky", () => {
   it("přijme český i slovenský telefon", () => {
@@ -38,25 +42,54 @@ describe("Validace poptávky", () => {
   it("bez endpointu nikdy nehlásí úspěch a neodesílá data", async () => {
     const fetch = vi.fn();
     vi.stubGlobal("fetch", fetch);
-    await expect(sendContact(valid, "")).rejects.toThrow("není připojeno");
+    await expect(sendContact(valid, "", antispam)).rejects.toThrow("není připojeno");
     expect(fetch).not.toHaveBeenCalled();
   });
   it("odešle JSON a přijme úspěšnou odpověď", async () => {
     vi.stubGlobal("window", { setTimeout, clearTimeout });
     const fetch = vi.fn().mockResolvedValue({ ok: true });
     vi.stubGlobal("fetch", fetch);
-    await expect(sendContact(valid, "/api/contact")).resolves.toBeUndefined();
+    await expect(sendContact(valid, "/api/contact", antispam)).resolves.toBeUndefined();
     expect(fetch).toHaveBeenCalledWith(
       "/api/contact",
-      expect.objectContaining({ method: "POST", body: JSON.stringify(valid) }),
+      expect.objectContaining({ method: "POST", body: JSON.stringify({ ...valid, ...antispam }) }),
     );
   });
   it("zobrazí chybu při odmítnutí serverem", async () => {
     vi.stubGlobal("window", { setTimeout, clearTimeout });
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
-    await expect(sendContact(valid, "/api/contact")).rejects.toThrow(
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500, json: () => Promise.reject(new Error("no json")) }));
+    await expect(sendContact(valid, "/api/contact", antispam)).rejects.toThrow(
       "nepodařilo",
     );
+  });
+  it("při limitu ukáže českou zprávu ze serveru", async () => {
+    vi.stubGlobal("window", { setTimeout, clearTimeout });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 429,
+        json: () => Promise.resolve({ ok: false, errors: { form: "Příliš mnoho poptávek." } }),
+      }),
+    );
+    await expect(sendContact(valid, "/api/contact", antispam)).rejects.toThrow(
+      "Příliš mnoho poptávek.",
+    );
+  });
+  it("převezme jen známou službu a vzorek z odkazu", () => {
+    expect(
+      inquiryContext("?sluzba=%C4%8Ci%C5%A1t%C4%9Bn%C3%AD+fas%C3%A1d&vzorek=1"),
+    ).toEqual({ service: "Čištění fasád", sample: "1" });
+    expect(inquiryContext("?sluzba=<script>&vzorek=ano")).toEqual({
+      service: "",
+      sample: "",
+    });
+  });
+  it("contact.php zná stejné služby jako web", () => {
+    const php = readFileSync("public/contact.php", "utf8");
+    const list = php.slice(php.indexOf("const SERVICES"), php.indexOf("];", php.indexOf("const SERVICES")));
+    const phpServices = [...list.matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
+    expect(phpServices).toEqual(servicePages.map((page) => page.shortTitle).sort());
   });
   it("zakóduje zprávu do náhradního e-mailu", () => {
     const result = contactMailto({

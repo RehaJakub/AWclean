@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Phone, Plus, Search } from "lucide-react";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
 import { ServiceCTA } from "../components/services/ServiceCTA";
-import { faqCategories, filterFaq, type FaqCategory } from "../data/faq";
+import { faqCategories, faqItems, faqSchema, filterFaq, type FaqCategory } from "../data/faq";
+import { JsonLd } from "../components/JsonLd";
 export function CleanFacadesPage() {
   const [category, setCategory] = useState<FaqCategory>("vse");
   const [query, setQuery] = useState("");
@@ -63,6 +64,8 @@ export function CleanFacadesPage() {
       </article>
       <section className="rd-wrap advice-faq" aria-labelledby="advice-faq-title">
         <h2 id="advice-faq-title">DR Fasáda odpovídá</h2>
+        {/* Server HTML lists all questions; filtering is a client-side view of the same set. */}
+        <JsonLd data={faqSchema(faqItems)} />
         <label className="advice-search">
           <Search size={20} aria-hidden="true" />
           <span className="sr-only">Hledat v otázkách a odpovědích</span>

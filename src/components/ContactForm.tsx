@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   ArrowRight,
   Check,
@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 import { contacts, emails, privacyUrl } from "../data/contacts";
 import {
+  ContactError,
   contactMailto,
   initialValues,
+  inquiryContext,
   sendContact,
   validateContact,
   type ContactErrors,
@@ -33,6 +35,16 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const form = useRef<HTMLFormElement>(null);
+  const honeypot = useRef<HTMLInputElement>(null);
+  const startedAt = useRef(0);
+  const [context, setContext] = useState({ service: "", sample: "" });
+  useEffect(() => {
+    startedAt.current = performance.now();
+    setContext(inquiryContext(window.location.search));
+    // Návrat z odeslání bez JavaScriptu (contact.php → 303 /kontakt/?odeslano=1).
+    if (new URLSearchParams(window.location.search).has("odeslano"))
+      setStatus("success");
+  }, []);
   const update = (field: keyof ContactValues, value: string): void => {
     setValues((previous) => ({ ...previous, [field]: value }));
     setErrors((previous) => ({ ...previous, [field]: undefined }));
@@ -54,13 +66,18 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
     }
     setStatus("sending");
     try {
-      await sendContact(values, endpoint);
+      await sendContact(values, endpoint, {
+        website: honeypot.current?.value ?? "",
+        // Rozdíl dvou časů téhož prohlížeče: nezávisí na posunu hodin vůči serveru.
+        fillMs: Math.round(performance.now() - startedAt.current),
+        ...context,
+      });
       setStatus("success");
       setValues(initialValues);
     } catch (error: unknown) {
       setStatus("error");
       setErrorMessage(
-        error instanceof Error && error.name !== "AbortError"
+        error instanceof ContactError
           ? error.message
           : "Spojení se nezdařilo nebo vypršel časový limit. Zkuste to znovu, případně nám zavolejte.",
       );
@@ -122,6 +139,8 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
         <form
           ref={form}
           className="contact-form"
+          method="post"
+          action={endpoint || undefined}
           noValidate
           onSubmit={(event) => {
             void submit(event);
@@ -130,6 +149,16 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
         >
           <h3>S čím vám můžeme pomoci?</h3>
           <p>Nechte nám na sebe kontakt. Společně najdeme řešení.</p>
+          {(context.service || context.sample) && (
+            <p className="form-context">
+              Poptávka:{" "}
+              {[context.service, context.sample && "ukázka čištění zdarma"]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          )}
+          <input type="hidden" name="service" value={context.service} />
+          <input type="hidden" name="sample" value={context.sample} />
           <div className="form-grid">
             {(["name", "phone", "email", "message"] as const).map((field) => {
               const labels: Record<keyof ContactValues, string> = {
@@ -200,6 +229,11 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
                 </div>
               );
             })}
+          </div>
+          {/* Honeypot: lidé ho nevidí ani nečtou čtečkou, boti ho vyplní. */}
+          <div className="hp-field" aria-hidden="true">
+            <label htmlFor="website">Web (nevyplňujte)</label>
+            <input ref={honeypot} id="website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
           </div>
           <p className="privacy-note">
             Odesláním nás žádáte o zpracování poptávky. Více o{" "}

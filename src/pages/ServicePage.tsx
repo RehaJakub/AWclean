@@ -2,7 +2,9 @@ import { ResponsiveImage } from "../components/ResponsiveImage";
 import { ArrowRight, Check, Phone, Plus } from "lucide-react";
 import { inquiryAction } from "../data/offers";
 import { serviceCategoryLabels } from "../data/services";
-import { faqItems } from "../data/faq";
+import { faqItems, faqSchema } from "../data/faq";
+import { JsonLd } from "../components/JsonLd";
+import { serviceSchema } from "../data/seo";
 import { photoDetails } from "../data/photos";
 import { serviceBlockImages, serviceFaqIds } from "../data/serviceVisuals";
 import type { ServicePageData } from "../data/pages/types";
@@ -34,6 +36,7 @@ export function ServicePage({ page, related }: ServicePageProps) {
     .filter((item) => item !== undefined);
   return (
     <>
+      <JsonLd data={serviceSchema(page)} />
       <Breadcrumbs
         items={[...(category ? [category] : []), { label: page.shortTitle }]}
       />
@@ -132,6 +135,7 @@ export function ServicePage({ page, related }: ServicePageProps) {
       )}
       {faq.length > 0 && (
         <section className="svc-faq rd-wrap" aria-labelledby="faq-title">
+          <JsonLd data={faqSchema(faq)} />
           <div className="svc-faq-head">
             <h2 id="faq-title">Časté otázky</h2>
             <a className="rd-link" href="/ciste-fasady/">

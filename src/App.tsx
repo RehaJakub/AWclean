@@ -1,5 +1,4 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { faqSchema } from "./data/faq";
 const MascotWidget = lazy(() => import("./components/MascotWidget"));
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -128,7 +127,6 @@ export default function App({
       />
       <main id="main">{content}</main>
       <Footer currentPath={route.path} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <Suspense fallback={null}>{clientReady && route.kind !== "advice" && <MascotWidget />}</Suspense>
     </>
   );
