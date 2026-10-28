@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Phone, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Mail, Phone, RotateCcw } from "lucide-react";
 import { guideBuildings, getGuideSurfaces, getGuideProblems, getGuideResult, type GuideSurface, type GuideProblem, type GuideBuilding } from "../data/guide";
 import { services } from "../data/services";
 import { referenceWorks } from "../data/referenceWorks";
@@ -12,6 +12,9 @@ export function ServiceGuide() {
   const [building, setBuilding] = useState<GuideBuilding | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const interacted = useRef(false);
+  // Formulář je na homepage a kontaktu přímo na stránce; jinde vede odkaz na kontakt.
+  const [formHref, setFormHref] = useState("/kontakt/#kontakt");
+  useEffect(() => { if (document.getElementById("kontakt")) setFormHref("#kontakt"); }, []);
   useEffect(() => { if (interacted.current) heading.current?.focus(); }, [step]);
   const go = (next: number): void => { interacted.current = true; setStep(next); };
   const result = surface && problem && building ? getGuideResult({ surface, problem, building }) : null;
@@ -45,6 +48,7 @@ export function ServiceGuide() {
           <li>Dostanete nezávaznou nabídku. Rozhodnete se sami.</li>
         </ol>
         <a className="button button-primary" href="tel:+420773196097"><Phone size={17} aria-hidden="true" />Zavolat +420 773 196 097</a>
+        <a className="button button-outline" href={formHref} onClick={(event) => event.currentTarget.closest("dialog")?.close()}><Mail size={17} aria-hidden="true" />Napsat přes formulář</a>
         {service && <a className="button button-outline" href={result.href}>Více o službě {service.title}<ArrowRight size={17} aria-hidden="true" /></a>}
         {example && <a className="guide-example" href={`/reference/?typ=${result.referenceCategory}`}><ResponsiveImage src={example.src} alt={example.alt} loading="lazy" width={600} height={450} sizes="380px" /><span>Podívejte se na naše výsledky <ArrowRight size={17} aria-hidden="true" /></span></a>}
       </div>}
