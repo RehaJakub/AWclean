@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
-    "check:build": "node --experimental-strip-types scripts/verify-build.ts",
+    "check:build": "node --experimental-strip-types scripts/verify-build.ts && node --experimental-strip-types scripts/check-gps.ts dist",
+    "strip:gps": "node --experimental-strip-types scripts/strip-gps.ts public",
     "images": "node --experimental-strip-types scripts/generate-images.ts"
   },
   "dependencies": {
