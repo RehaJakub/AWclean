@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Phone, RotateCcw } from "lucide-react";
-import { guideProblems, guideBuildings, getGuideSurfaces, getGuideProblems, getGuideResult, type GuideSurface, type GuideProblem, type GuideBuilding } from "../data/guide";
+import { guideBuildings, getGuideSurfaces, getGuideProblems, getGuideResult, type GuideSurface, type GuideProblem, type GuideBuilding } from "../data/guide";
 import { services } from "../data/services";
 import { referenceWorks } from "../data/referenceWorks";
 import { ResponsiveImage } from "./ResponsiveImage";
@@ -20,8 +20,6 @@ export function ServiceGuide() {
   const surfaceChoices = building ? getGuideSurfaces(building) : [];
   const problemChoices = surface ? getGuideProblems(surface) : [];
   const sampleFree = result?.href === "/cisteni-fasad/" || result?.href === "/cisteni-strech/" || result?.href === "/cisteni-dlazeb/";
-  const buildingLabel = guideBuildings.find((item) => item.value === building)?.label;
-  const surfaceLabel = surfaceChoices.find((item) => item.value === surface)?.label;
   const titles = ["Kde potřebujete pomoct?", "Co chcete vyčistit nebo ošetřit?", "Jak to teď vypadá?", "DR Fasáda doporučuje"];
   const choice = (item: { value: string; label: string; hint?: string }, pressed: boolean, pick: () => void) => (
     <button key={item.value} type="button" aria-pressed={pressed} onClick={pick}>
@@ -30,21 +28,14 @@ export function ServiceGuide() {
   );
   return (
     <section className="service-guide" aria-label="Průvodce výběrem služby">
-      {step === 0 && <div className="guide-intro">
-        <h3>Nevíte si rady?</h3>
-        <p><strong>Odpovězte na 3 krátké otázky</strong> a já vám řeknu, která služba vám pomůže.</p>
-      </div>}
-      <p className="guide-progress">{step < 3 ? `Krok ${step + 1} ze 3` : "Váš výběr"}</p>
-      <div className="guide-progress-track" aria-hidden="true"><span style={{ width: `${Math.min(step + 1, 3) / 3 * 100}%` }} /></div>
+      {step === 0 && <p className="guide-intro"><strong>Poradím vám, jakou službu potřebujete.</strong> Stačí pár kliknutí.</p>}
       <h3 ref={heading} tabIndex={-1}>{titles[step]}</h3>
-      {step > 0 && step < 3 && <p className="guide-summary">{buildingLabel}{step === 2 && surfaceLabel ? ` · ${surfaceLabel}` : ""}</p>}
       {step < 3 && <div className="guide-choices">
         {step === 0 && guideBuildings.map((item) => choice(item, building === item.value, () => { setBuilding(item.value); setSurface(null); setProblem(null); go(1); }))}
         {step === 1 && surfaceChoices.map((item) => choice(item, surface === item.value, () => { setSurface(item.value); setProblem(null); go(2); }))}
         {step === 2 && problemChoices.map((item) => choice(item, problem === item.value, () => { setProblem(item.value); go(3); }))}
       </div>}
       {step === 3 && result && <div className="guide-result">
-        <p className="guide-summary">Vybrali jste: {buildingLabel} · {surfaceLabel} · {guideProblems.find((item) => item.value === problem)?.label}</p>
         <h4>{result.title}</h4>
         <p>{result.text}</p>
         <h5>Co bude dál?</h5>
@@ -61,7 +52,6 @@ export function ServiceGuide() {
         {step > 0 && <button type="button" onClick={() => go(step - 1)}><ArrowLeft size={17} aria-hidden="true" />Zpět</button>}
         {step > 0 && <button type="button" onClick={() => { setSurface(null); setProblem(null); setBuilding(null); go(0); }}><RotateCcw size={17} aria-hidden="true" />Začít znovu</button>}
       </div>}
-      {step < 3 && <p className="guide-note">Je to jen rychlá rada. Přesné řešení vám řekneme po prohlídce.</p>}
     </section>
   );
 }
