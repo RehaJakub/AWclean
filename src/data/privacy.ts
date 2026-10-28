@@ -3,7 +3,7 @@ export const privacySections: ContentSection[] = [
   {
     title: "Správce osobních údajů",
     paragraphs: [
-      "AWCLEAN s.r.o., IČO 50823272, se sídlem Čsl. armády 1457, 955 01 Topoľčany, Slovensko. Pro otázky týkající se osobních údajů nás kontaktujte na info@awclean.cz.",
+      "AWCLEAN s.r.o., IČO 50823272, se sídlem Čsl. armády 1457/2A, 955 01 Topoľčany, Slovensko. Pro otázky týkající se osobních údajů nás kontaktujte na info@awclean.cz.",
       "Kontaktní adresa pro služby v České republice: Na Výsluní 298, 294 28 Chotětov, Mladá Boleslav.",
     ],
   },

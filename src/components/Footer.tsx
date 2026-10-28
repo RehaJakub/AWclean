@@ -86,6 +86,10 @@ export function Footer({ currentPath }: FooterProps) {
               <br />
               Na Výsluní 298, 294 28 Chotětov
               <br />
+              Sídlo: Čsl. armády 1457/2A, 955 01 Topoľčany, SR
+              <br />
+              IČO 50823272 · IČ DPH SK2120488458
+              <br />
               <a href="mailto:info@awclean.cz">info@awclean.cz</a>
             </address>
             <div className="rd-socials">
@@ -112,6 +116,7 @@ export function Footer({ currentPath }: FooterProps) {
           <span>
             © {new Date().getFullYear()} AWCLEAN s.r.o. · od roku 2001
           </span>
+          <a href="/kontakt/#provozovatel">Údaje o společnosti</a>
           <a href={privacyUrl}>Ochrana osobních údajů a cookies</a>
           <ConsentManager />
           <a href="#" className="rd-back-top">

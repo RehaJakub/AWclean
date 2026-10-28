@@ -117,7 +117,7 @@ describe("Kompletní lokální web", () => {
       );
       for (const href of links) {
         if (
-          /^(tel:|mailto:|https:\/\/(www\.)?(facebook\.com|youtube\.com)\/)/.test(
+          /^(tel:|mailto:|https:\/\/(www\.)?(facebook\.com|youtube\.com)\/|https:\/\/(adr\.coi\.cz|www\.mhsr\.sk\/))/.test(
             href,
           )
         )

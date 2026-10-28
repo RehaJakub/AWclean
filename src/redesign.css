@@ -1295,6 +1295,11 @@ p { line-height: 1.6; }
   .rd-contact-page .contact-vans img { flex: 1 1 auto; height: auto; min-height: 220px; object-position: center 60%; }
 }
 .rd-contact-details { padding-block: 24px 56px; }
+.rd-legal-info { padding-block: 0 56px; color: var(--rd-text); line-height: 1.6; scroll-margin-top: 120px; }
+.rd-legal-info h2 { margin: 0 0 12px; color: var(--rd-ink); font-size: 20px; }
+.rd-legal-info h3 { margin: 20px 0 8px; color: var(--rd-ink); font-size: 17px; }
+.rd-legal-info p { margin: 0 0 10px; max-width: 75ch; }
+.rd-legal-info a { color: var(--rd-blue); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 
 /* Telefonní čísla menší a lehčí; úvod Kontaktu stojí v rovině s formulářem */
 .contact-section .contact-phones .primary-contact { font-size: clamp(21px, 1.9vw, 27px); font-weight: 500; letter-spacing: -0.01em; }
