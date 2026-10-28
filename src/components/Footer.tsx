@@ -50,13 +50,19 @@ export function Footer({ currentPath }: FooterProps) {
   const formHref = pagesWithForm.includes(currentPath) ? "#kontakt" : "/kontakt/#kontakt";
   const [formVisible, setFormVisible] = useState(false);
   const year = useCurrentYear();
+  // Plovoucí tlačítko schovat, když je vidět formulář nebo spodní lišta patičky (jinak by ji zakrylo).
   useEffect(() => {
-    const form = document.getElementById("kontakt");
-    if (!form || !("IntersectionObserver" in window)) return;
-    const observer = new IntersectionObserver(([entry]) =>
-      setFormVisible(entry?.isIntersecting ?? false),
-    );
-    observer.observe(form);
+    const targets = document.querySelectorAll("#kontakt, .rd-footer-bottom");
+    if (!targets.length || !("IntersectionObserver" in window)) return;
+    const visible = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
+      }
+      setFormVisible(visible.size > 0);
+    });
+    targets.forEach((target) => observer.observe(target));
     return () => observer.disconnect();
   }, []);
   return (
