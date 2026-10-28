@@ -4,6 +4,7 @@ export const cisteniDlazeb: ServicePageData = {
   path: "/cisteni-dlazeb/",
   title: "Čištění dlažeb",
   shortTitle: "Čištění dlažeb",
+  seoTitle: "Čištění zámkové dlažby horkou vodou",
   intro:
     "Zámková dlažba, terasy, chodníky i příjezdové cesty mohou znovu vypadat upraveně. Používáme horkovodní vysokotlaké strojní čištění.",
   category: "cisteni",

@@ -5,6 +5,7 @@ export const cisteniFasad: ServicePageData = {
   path: "/cisteni-fasad/",
   title: "Čištění fasád",
   shortTitle: "Čištění fasád",
+  seoTitle: "Čištění fasád bez lešení – ukázka zdarma",
   intro:
     "Vrátíme vaší fasádě původní barvu. Odstraníme řasy, plísně, prach i usazeniny ze zateplených, břizolitových a natřených fasád.",
   category: "cisteni",

@@ -1,3 +1,4 @@
+import { primaryPhone } from "../../data/contacts";
 import { ArrowRight, Phone } from "lucide-react";
 import { ResponsiveImage } from "../ResponsiveImage";
 import { servicesByCategory } from "../../data/services";
@@ -183,8 +184,8 @@ export function HomeSample() {
             <a className="rd-btn rd-btn-light" href="#kontakt">
               {sampleLabel} <ArrowRight size={18} aria-hidden="true" />
             </a>
-            <a className="rd-cta-phone" href="tel:+420773196097">
-              <Phone size={18} aria-hidden="true" /> +420 773 196 097
+            <a className="rd-cta-phone" href={primaryPhone.href}>
+              <Phone size={18} aria-hidden="true" /> {primaryPhone.phone}
             </a>
           </div>
         </div>

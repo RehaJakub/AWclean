@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { localBusiness } from "./src/data/seo";
 import {
   defineConfig,
@@ -15,8 +16,11 @@ import {
   routeAliases,
   resolveRoute,
   normalizePath,
+  shareImage,
   type PageMeta,
 } from "./src/lib/routes";
+import sharp from "sharp";
+import { referenceWorks } from "./src/data/referenceWorks";
 const escapeRegex = (value: string): string =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const escapeHtml = (value: string): string =>
@@ -106,7 +110,15 @@ function staticPages(): Plugin {
             )
             .replace(
               /(<meta\s+name="twitter:image"\s+content=")[^"]*("\s*\/?>)/,
-              `$1https://www.awclean.cz${page.image ?? "/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp"}$2`,
+              `$1https://www.awclean.cz${shareImage(page.image).url}$2`,
+            )
+            .replace(
+              /(<meta\s+name="twitter:image:alt"\s+content=")[^"]*("\s*\/?>)/,
+              `$1${escapeHtml(page.title)}$2`,
+            )
+            .replace(
+              /(<meta\s+property="og:image:alt"\s+content=")[^"]*("\s*\/?>)/,
+              `$1${escapeHtml(page.title)}$2`,
             )
             .replace(
               /<title>[\s\S]*?<\/title>/,
@@ -130,12 +142,20 @@ function staticPages(): Plugin {
             )
             .replace(
               /(<meta\s+property="og:image"\s+content=")[^"]*("\s*\/?>)/,
-              `$1https://www.awclean.cz${page.image ?? "/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp"}$2`,
+              `$1https://www.awclean.cz${shareImage(page.image).url}$2`,
             )
             .replace(
               /(<link\s+rel="canonical"\s+href=")[^"]*("\s*\/?>)/,
               `$1https://www.awclean.cz${page.path}$2`,
             );
+        // Obrázky pro sdílení 1200×630 JPEG (Open Graph) z fotek stránek.
+        await mkdir(resolve(outputDirectory, "images/og"), { recursive: true });
+        const shareImages = new Map(routes.map((route) => [shareImage(route.image).url, shareImage(route.image).source]));
+        for (const [url, source] of shareImages)
+          await sharp(resolve(rootDirectory, `public${source}`))
+            .resize(1200, 630, { fit: "cover", position: "attention" })
+            .jpeg({ quality: 80, mozjpeg: true })
+            .toFile(resolve(outputDirectory, `.${url}`));
         for (const route of routes) {
           const directory = resolve(outputDirectory, `.${route.path}`);
           await mkdir(directory, { recursive: true });
@@ -183,17 +203,23 @@ function staticPages(): Plugin {
         await writeFile(resolve(outputDirectory, ".htaccess"), htaccess);
         await writeFile(
           resolve(outputDirectory, "404.html"),
-          render(resolveRoute("/404/")).replace(
-            "</head>",
-            '<meta name="robots" content="noindex" /></head>',
-          ),
+          render(resolveRoute("/404/"))
+            .replace(/<link\s+rel="canonical"[^>]*>\s*/, "")
+            .replace("</head>", '<meta name="robots" content="noindex" /></head>'),
         );
         await writeFile(
           resolve(outputDirectory, "sitemap.xml"),
-          `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${routes
+          `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${routes
             .map(
               (route) =>
-                `<url><loc>https://www.awclean.cz${route.path}</loc></url>`,
+                // SEO-11: Reference načítají většinu fotek až na klientu, proto je vyjmenujeme v sitemapě.
+                `<url><loc>https://www.awclean.cz${route.path}</loc>${
+                  route.path === "/reference/"
+                    ? [...new Set(referenceWorks.map((work) => work.src))]
+                        .map((src) => `<image:image><image:loc>https://www.awclean.cz${escapeHtml(src)}</image:loc></image:image>`)
+                        .join("")
+                    : ""
+                }</url>`,
             )
             .join("")}</urlset>`,
         );
@@ -211,4 +237,6 @@ export default defineConfig({
     legacyRedirects(),
     staticPages(),
   ],
+  // Testy jen ze src: historické kopie v backups/ (ignorované Gitem) se nespouštějí.
+  test: { include: ["src/**/*.test.{ts,tsx}"] },
 });

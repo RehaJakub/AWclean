@@ -1,3 +1,4 @@
+import { primaryPhone } from "../data/contacts";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Phone, Search, X } from "lucide-react";
 import { faqCategories, filterFaq, type FaqCategory } from "../data/faq";
@@ -167,7 +168,7 @@ export default function MascotWidget() {
             </div>
             </div>
             <section className="mascot-contact" aria-labelledby="mascot-contact-title"><h3 id="mascot-contact-title">Chcete se raději zeptat přímo?</h3><p>Zavolejte nám. Rádi vám vše vysvětlíme.</p>
-              <a className="button button-primary" href="tel:+420773196097"><Phone size={17} aria-hidden="true" />Zavolat +420 773 196 097</a>
+              <a className="button button-primary" href={primaryPhone.href}><Phone size={17} aria-hidden="true" />Zavolat {primaryPhone.phone}</a>
               <a className="button button-outline" href="/kontakt/?vzorek=1#kontakt">{sampleLabel}</a>
               <p className="mascot-sample-note">Pro čištění fasád, střech a dlažeb po celé ČR.</p>
               <a className="text-link" href="/kontakt/#kontakt">Napsat přes kontaktní formulář</a>

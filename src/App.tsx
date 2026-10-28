@@ -1,3 +1,4 @@
+import { primaryPhone } from "./data/contacts";
 import { lazy, Suspense, useEffect, useState } from "react";
 const MascotWidget = lazy(() => import("./components/MascotWidget"));
 import { Navbar } from "./components/Navbar";
@@ -13,7 +14,7 @@ import { PrivacyPage } from "./pages/PrivacyPage";
 import { CleanFacadesPage } from "./pages/CleanFacadesPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { servicePages } from "./data/pages";
-import { resolveRoute } from "./lib/routes";
+import { resolveRoute, shareImage } from "./lib/routes";
 import { scrollToForm, useFormScroll } from "./hooks/useFormScroll";
 interface AppProps {
   pathname?: string;
@@ -64,12 +65,16 @@ export default function App({
       .querySelector('meta[property="og:image"]')
       ?.setAttribute(
         "content",
-        `https://www.awclean.cz${route.image ?? "/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp"}`,
+        `https://www.awclean.cz${shareImage(route.image).url}`,
       );
+    document
+      .querySelector('meta[property="og:image:alt"]')
+      ?.setAttribute("content", route.title);
     for (const [name, content] of Object.entries({
       "twitter:title": `${route.title} | AWCLEAN`,
       "twitter:description": route.description,
-      "twitter:image": `https://www.awclean.cz${route.image ?? "/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp"}`,
+      "twitter:image": `https://www.awclean.cz${shareImage(route.image).url}`,
+      "twitter:image:alt": route.title,
     }))
       document
         .querySelector(`meta[name="${name}"]`)
@@ -122,8 +127,8 @@ export default function App({
       </a>
       <Navbar
         currentPath={route.path}
-        phone="+420 773 196 097"
-        phoneHref="tel:+420773196097"
+        phone={primaryPhone.phone}
+        phoneHref={primaryPhone.href}
       />
       <main id="main">{content}</main>
       <Footer currentPath={route.path} />

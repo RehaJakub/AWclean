@@ -4,6 +4,7 @@ export const cisteniStrech: ServicePageData = {
   path: "/cisteni-strech/",
   title: "Čištění střech",
   shortTitle: "Čištění střech",
+  seoTitle: "Čištění střech od mechu a lišejníků",
   intro:
     "Mech, lišejníky, listí i prach odstraníme ze střech a těžko přístupných míst. Postaráme se také o okapy a svody.",
   category: "cisteni",

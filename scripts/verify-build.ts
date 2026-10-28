@@ -98,12 +98,17 @@ for (const url of urls) {
     assert.ok(og && twitter, `Chybí metadata ${field}: ${url.pathname}`);
     assert.equal(twitter, og, `Nesouhlasí OG/Twitter: ${url.pathname}`);
   }
+  const ogImage = html.match(/property="og:image"\s+content="https:\/\/www\.awclean\.cz([^"]+)"/)?.[1];
+  assert.ok(ogImage && existsSync(resolve("dist", `.${ogImage}`)), `Chybí obrázek pro sdílení: ${url.pathname}`);
+  assert.match(html, /property="og:image:width" content="1200"/);
+  assert.match(html, /property="og:image:alt" content="[^"]+"/);
   for (const match of html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)) {
     if (!existsSync(resolve("dist", `.${match[1]}`)))
       throw new Error(`Chybí asset: ${match[1]}`);
   }
 }
 const notFound = readFileSync("dist/404.html", "utf8");
+assert.ok(!notFound.includes('rel="canonical"'), "404 nesmí mít canonical.");
 assert.ok(!notFound.includes('"FAQPage"'), "404 nesmí mít FAQPage.");
 if (!notFound.includes('content="noindex"'))
   throw new Error("404 musí obsahovat noindex.");

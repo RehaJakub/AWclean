@@ -1,4 +1,4 @@
-import { contacts, emails } from "./contacts";
+import { address, contacts, emails } from "./contacts";
 import type { ServicePageData } from "./pages/types";
 const site = "https://www.awclean.cz";
 const areaServed = [
@@ -44,9 +44,9 @@ export const localBusiness = {
       email: emails[0],
       address: {
         "@type": "PostalAddress",
-        streetAddress: "Na Výsluní 298",
-        addressLocality: "Chotětov",
-        postalCode: "294 28",
+        streetAddress: address.street,
+        addressLocality: address.city,
+        postalCode: address.postalCode,
         addressCountry: "CZ",
       },
       areaServed,

@@ -1,7 +1,7 @@
 import { servicePages } from "./pages";
 
 // Explicitly offered on the original service pages (verified 8 October 2026).
-export const freeSamplePaths: readonly string[] = [
+const freeSamplePaths: readonly string[] = [
   "/cisteni-fasad/",
   "/cisteni-strech/",
   "/cisteni-dlazeb/",

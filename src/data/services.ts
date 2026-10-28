@@ -38,10 +38,6 @@ export const servicesByCategory: Record<ServiceCategory, Service[]> = {
   natery: services.filter((service) => service.category === "natery"),
   ostatni: services.filter((service) => service.category === "ostatni"),
 };
-export const footerServices: Service[] = [
-  ...servicesByCategory.cisteni.slice(0, 4),
-  ...servicesByCategory.natery,
-];
 
 export type ServiceLink = Pick<Service, "title" | "href">;
 export const serviceNavigation: Record<ServiceCategory, ServiceLink[]> = {

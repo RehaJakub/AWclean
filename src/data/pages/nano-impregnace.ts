@@ -4,6 +4,7 @@ export const nanoImpregnace: ServicePageData = {
   path: "/ostatni-sluzby/nano-impregnace/",
   title: "Nanoimpregnace",
   shortTitle: "Nanoimpregnace",
+  seoTitle: "Nanoimpregnace povrchů proti vlhkosti a nečistotám",
   intro:
     "Tenká ochranná vrstva pro delší čistý vzhled povrchů. Hydrofobní a olejofobní ošetření s ohledem na prodyšnost podkladu.",
   category: "ostatni",

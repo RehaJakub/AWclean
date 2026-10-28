@@ -1,3 +1,4 @@
+import { primaryPhone, address } from "../data/contacts";
 import { MapPin, Clock, Mail } from "lucide-react";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
 import { ContactForm } from "../components/ContactForm";
@@ -25,9 +26,9 @@ export function ContactPage() {
           <address>
             <strong>AWCLEAN s.r.o.</strong>
             <br />
-            Na Výsluní 298
+            {address.street}
             <br />
-            294 28 Chotětov, Mladá Boleslav
+            {address.postalCode} {address.city}, {address.region}
             <br />
             IČO 50823272
           </address>
@@ -59,9 +60,9 @@ export function ContactPage() {
           Zapsaná v Obchodnom registri Okresného súdu Nitra, oddiel Sro, vložka č. 43001/N.
         </p>
         <p>
-          Kontaktní adresa pro Českou republiku: Na Výsluní 298, 294 28 Chotětov.
+          Kontaktní adresa pro Českou republiku: {address.street}, {address.postalCode} {address.city}.
           E-mail <a href="mailto:info@awclean.cz">info@awclean.cz</a>, <a href="mailto:info@awclean.sk">info@awclean.sk</a>,
-          telefon <a href="tel:+420773196097">+420 773 196 097</a>.
+          telefon <a href={primaryPhone.href}>{primaryPhone.phone}</a>.
         </p>
         <h3>Mimosoudní řešení spotřebitelských sporů</h3>
         <p>

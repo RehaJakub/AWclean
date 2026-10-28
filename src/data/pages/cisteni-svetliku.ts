@@ -4,6 +4,7 @@ export const cisteniSvetliku: ServicePageData = {
   path: "/cisteni-svetliku/",
   title: "Čištění světlíků",
   shortTitle: "Čištění světlíků",
+  seoTitle: "Čištění světlíků průmyslových hal",
   intro:
     "Postaráme se o střešní světlíky a prosklené části objektů, včetně ploch ve výškách a obtížně přístupných místech.",
   category: "cisteni",

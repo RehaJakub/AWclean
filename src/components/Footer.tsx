@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ResponsiveImage } from "./ResponsiveImage";
 import { ArrowUp, MessageSquareText, Facebook, Youtube } from "lucide-react";
 import { ConsentManager } from "./ConsentManager";
-import { privacyUrl } from "../data/contacts";
+import { privacyUrl, primaryPhone, address } from "../data/contacts";
 import { useCurrentYear } from "../hooks/useCurrentYear";
 import { servicesByCategory } from "../data/services";
 import { projects } from "../data/projects";
@@ -73,8 +73,8 @@ export function Footer({ currentPath }: FooterProps) {
                 alt="AWCLEAN"
               />
             </a>
-            <a className="rd-footer-phone" href="tel:+420773196097">
-              +420 773 196 097
+            <a className="rd-footer-phone" href={primaryPhone.href}>
+              {primaryPhone.phone}
             </a>
             <p>
               Telefonní linka NON-STOP
@@ -84,7 +84,7 @@ export function Footer({ currentPath }: FooterProps) {
             <address>
               AWCLEAN s.r.o., IČO 50823272
               <br />
-              Na Výsluní 298, 294 28 Chotětov
+              {address.street}, {address.postalCode} {address.city}
               <br />
               Sídlo: Čsl. armády 1457/2A, 955 01 Topoľčany, SR
               <br />

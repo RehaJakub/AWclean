@@ -14,3 +14,12 @@ export const contacts: Contact[] = [
 ];
 export const emails: string[] = ["info@awclean.cz", "info@awclean.sk"];
 export const privacyUrl = "/privacy-policy/";
+/** Hlavní česká linka (NON-STOP); jediný zdroj pro odkazy „Zavolat“. */
+export const primaryPhone: Contact = contacts[0];
+/** Kontaktní adresa v ČR (sídlo firmy je v privacy.ts a na Kontaktu). */
+export const address = {
+  street: "Na Výsluní 298",
+  postalCode: "294 28",
+  city: "Chotětov",
+  region: "Mladá Boleslav",
+};

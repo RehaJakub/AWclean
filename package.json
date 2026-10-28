@@ -10,24 +10,39 @@
     "test": "vitest run",
     "check:build": "node --experimental-strip-types scripts/verify-build.ts && node --experimental-strip-types scripts/check-gps.ts dist",
     "strip:gps": "node --experimental-strip-types scripts/strip-gps.ts public",
-    "images": "node --experimental-strip-types scripts/generate-images.ts"
+    "images": "node --experimental-strip-types scripts/generate-images.ts",
+    "lint": "eslint .",
+    "favicon": "node --experimental-strip-types scripts/generate-favicon.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
     "@tailwindcss/vite": "^4.1.0",
     "lucide-react": "^0.468.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "tailwindcss": "^4.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.4.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "jiti": "^2.7.0",
     "sharp": "^0.35.5",
     "typescript": "~5.7.3",
+    "typescript-eslint": "^8.72.1",
     "vite": "^6.2.0",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "allowScripts": {
+    "esbuild": false,
+    "fsevents": false
   }
 }

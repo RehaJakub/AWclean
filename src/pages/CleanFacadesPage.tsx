@@ -1,3 +1,4 @@
+import { primaryPhone } from "../data/contacts";
 import { useState } from "react";
 import { Phone, Plus, Search } from "lucide-react";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
@@ -109,8 +110,8 @@ export function CleanFacadesPage() {
         </div>
         <div className="advice-help">
           <strong>Nenašli jste odpověď?</strong>
-          <a className="rd-btn rd-btn-primary" href="tel:+420773196097">
-            <Phone size={17} aria-hidden="true" /> +420 773 196 097
+          <a className="rd-btn rd-btn-primary" href={primaryPhone.href}>
+            <Phone size={17} aria-hidden="true" /> {primaryPhone.phone}
           </a>
         </div>
       </section>

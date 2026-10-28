@@ -1,3 +1,4 @@
+import { primaryPhone } from "../data/contacts";
 import { ResponsiveImage } from "../components/ResponsiveImage";
 import { ArrowRight, Check, Phone, Plus } from "lucide-react";
 import { inquiryAction } from "../data/offers";
@@ -49,8 +50,8 @@ export function ServicePage({ page, related }: ServicePageProps) {
             <a className="rd-btn rd-btn-primary" href={action.href}>
               {action.label} <ArrowRight size={18} aria-hidden="true" />
             </a>
-            <a className="rd-btn rd-btn-outline" href="tel:+420773196097">
-              <Phone size={17} aria-hidden="true" /> +420 773 196 097
+            <a className="rd-btn rd-btn-outline" href={primaryPhone.href}>
+              <Phone size={17} aria-hidden="true" /> {primaryPhone.phone}
             </a>
           </div>
           <ul className="svc-highlights">
