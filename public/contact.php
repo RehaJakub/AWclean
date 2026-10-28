@@ -16,7 +16,7 @@ const PHONE_HINT = 'Zavolejte nám prosím na +420 773 196 097 nebo napište na 
 const SERVICES = [
     'Čištění fasád', 'Čištění střech', 'Čištění dlažeb', 'Čištění průmyslových objektů',
     'Čištění světlíků', 'Hliníkové fasády', 'Historické fasády', 'Čištění pomníků',
-    'Nátěry střech a fasád (airless)', 'Impregnace fasád a střech', 'Nano impregnace',
+    'Nátěry střech a fasád (airless)', 'Impregnace fasád a střech', 'Nanoimpregnace',
     'Odstraňování dopravního značení',
 ];
 
