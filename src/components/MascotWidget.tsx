@@ -33,7 +33,7 @@ export default function MascotWidget() {
   const [focusUnder, setFocusUnder] = useState(false);
   // Nízký viewport (telefon na šířku, zoom 400 %): přijet zasunutý, jinak maskot zakryje většinu obrazovky.
   const [compact] = useState(() => window.matchMedia("(max-height: 560px)").matches);
-  const tucked = hidden || formFocused || focusUnder || ((overForm || compact) && !pulledOut);
+  const tucked = hidden || ((formFocused || focusUnder || overForm || compact) && !pulledOut);
 
   // Zasunout nad formulářem, patičkou a ukázkou s kresleným maskotem, aby nic nezakrýval.
   useEffect(() => {
@@ -60,8 +60,12 @@ export default function MascotWidget() {
       const b = own.getBoundingClientRect();
       setFocusUnder(a.right > b.left && a.left < b.right && a.bottom > b.top && a.top < b.bottom);
     };
+    const release = (event: FocusEvent): void => {
+      if (!(event.relatedTarget instanceof Element)) setFocusUnder(false);
+    };
     document.addEventListener("focusin", check);
-    return () => document.removeEventListener("focusin", check);
+    document.addEventListener("focusout", release);
+    return () => { document.removeEventListener("focusin", check); document.removeEventListener("focusout", release); };
   }, []);
 
   useEffect(() => {
