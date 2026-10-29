@@ -13,7 +13,7 @@ describe("FAQ DR Fasáda", () => {
   });
   it("publikuje totožné otázky a odpovědi do FAQPage", () => {
     expect(new Set(faqItems.map((item) => item.id)).size).toBe(faqItems.length);
-    expect(faqSchema.mainEntity.map((item) => [item.name, item.acceptedAnswer.text]))
+    expect(faqSchema(faqItems).mainEntity.map((item) => [item.name, item.acceptedAnswer.text]))
       .toEqual(faqItems.map((item) => [item.question, item.answer]));
   });
 });

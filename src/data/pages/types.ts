@@ -17,6 +17,8 @@ export interface ServicePageData {
   path: string;
   title: string;
   shortTitle: string;
+  /** Delší titulek do <title> a sdílení; H1 zůstává `title`. */
+  seoTitle?: string;
   intro: string;
   heroImage: string;
   imageAlt?: string;

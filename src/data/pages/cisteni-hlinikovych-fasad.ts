@@ -5,7 +5,7 @@ export const cisteniHlinikovychFasad: ServicePageData = {
   title: "Čištění hliníkových fasád",
   shortTitle: "Hliníkové fasády",
   intro:
-    "Odborná péče o hliníkové opláštění a fasádní plochy. Konkrétní postup zvolíme podle povrchové úpravy a znečištění.",
+    "Odborná péče o hliníkové opláštění a fasádní plochy. Konkrétní postup zvolíme podle povrchové úpravy a znečištění.",
   category: "cisteni",
   heroImage:
     "/images/realizace/pracovnici-na-lanech-cisti-prosklenou-a-hlinikovou-fasadu.webp",
@@ -16,26 +16,26 @@ export const cisteniHlinikovychFasad: ServicePageData = {
   ],
   sections: [
     {
-      title: "Čištění s ohledem na povrchovou úpravu",
+      title: "Čištění s ohledem na povrchovou úpravu",
       paragraphs: [
-        "U hliníkové fasády je důležité zohlednit materiál, povrchovou úpravu a stav jednotlivých ploch. Při prohlídce posoudíme vhodný způsob čištění a možnosti přístupu.",
+        "U hliníkové fasády je důležité zohlednit materiál, povrchovou úpravu a stav jednotlivých ploch. Při prohlídce posoudíme vhodný způsob čištění a možnosti přístupu.",
       ],
     },
     {
-      title: "Kompletní péče o objekt",
+      title: "Kompletní péče o objekt",
       paragraphs: [
-        "Čištění opláštění lze propojit s čištěním světlíků a dalších částí objektu. Podívejte se na fotografie našich realizací a popište nám, jaké plochy potřebujete vyčistit.",
+        "Čištění opláštění lze propojit s čištěním světlíků a dalších částí objektu. Podívejte se na fotografie našich realizací a popište nám, jaké plochy potřebujete vyčistit.",
       ],
     },
   ],
   gallery: [
     {
       src: "/images/realizace/pracovnici-na-lanech-cisti-prosklenou-a-hlinikovou-fasadu.webp",
-      alt: "Pracovníci na lanech čistí prosklenou a hliníkovou fasádu.",
+      alt: "Pracovníci na lanech čistí prosklenou a hliníkovou fasádu.",
     },
     {
       src: "/images/realizace/pracovni-plosina-u-hlinikovych-lamel-a-oken.webp",
-      alt: "Pracovní plošina u hliníkových lamel a oken.",
+      alt: "Pracovní plošina u hliníkových lamel a oken.",
     },
     {
       src: "/images/realizace/detail-svetleho-hlinikoveho-oplasteni-budovy.webp",
@@ -47,27 +47,27 @@ export const cisteniHlinikovychFasad: ServicePageData = {
     },
     {
       src: "/images/realizace/vyskova-budova-s-prosklenou-fasadou.webp",
-      alt: "Výšková budova s prosklenou fasádou.",
+      alt: "Výšková budova s prosklenou fasádou.",
     },
     {
       src: "/images/realizace/porovnani-tmaveho-a-vycisteneho-oplasteni-budovy.webp",
-      alt: "Porovnání tmavého a vyčištěného opláštění budovy.",
+      alt: "Porovnání tmavého a vyčištěného opláštění budovy.",
     },
     {
       src: "/images/realizace/hlinikove-oplasteni-a-prosklena-fasada-budovy.webp",
-      alt: "Hliníkové opláštění a prosklená fasáda budovy.",
+      alt: "Hliníkové opláštění a prosklená fasáda budovy.",
     },
     {
       src: "/images/realizace/moderni-budova-s-hlinikovymi-panely.webp",
-      alt: "Moderní budova s hliníkovými panely.",
+      alt: "Moderní budova s hliníkovými panely.",
     },
     {
       src: "/images/realizace/vyskova-administrativni-budova-s-prosklenou-fasadou.webp",
-      alt: "Výšková administrativní budova s prosklenou fasádou.",
+      alt: "Výšková administrativní budova s prosklenou fasádou.",
     },
     {
       src: "/images/realizace/hlinikova-fasada-pred-cistenim-a-po-vycisteni.webp",
-      alt: "Hliníková fasáda před čištěním a po vyčištění.",
+      alt: "Hliníková fasáda před čištěním a po vyčištění.",
     },
   ],
   related: ["/cisteni-prumyslovych-objektu/", "/cisteni-fasad/"],

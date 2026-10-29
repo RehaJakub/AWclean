@@ -1,0 +1,103 @@
+# AWCLEAN – konfigurace pro sdílený Apache (Wedos, svethostingu.cz) / LiteSpeed (Hostinger).
+# Generuje se při buildu z deploy/htaccess.template (vite.config.ts). Neupravovat v dist ani na FTP:
+# každý deploy soubor přepíše. Všechny direktivy patří do kategorií FileInfo/Indexes/Options=Indexes,
+# které povoluje i nejpřísnější sdílený hosting (Wedos zakazuje jiné volby Options, SetEnv, php_value).
+
+AddDefaultCharset utf-8
+AddCharset utf-8 .css .js .json .xml .txt .svg
+AddType font/woff2 .woff2
+AddType image/webp .webp
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+ErrorDocument 410 /404.html
+# ETag + komprese: mod_deflate přidává k ETag „-gzip“ a revalidace pak vrací 200 místo 304. Stačí Last-Modified.
+FileETag None
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # 1) Skryté a neveřejné soubory → 404 (ne 403, nic neprozrazuje). .well-known zůstává pro ACME.
+  RewriteRule (^|/)\.(?!well-known/) - [R=404,L]
+  RewriteRule (^|/)(composer\.(json|lock)|package(-lock)?\.json|vendor/|private/|config(\.[a-z]+)?$) - [R=404,L,NC]
+  RewriteRule \.(bak|old|orig|save|swp|tmp|dist|map|md|log|sql|sqlite|ini|env|ya?ml|lock|sh|zip|tar|gz|tgz|7z|rar)$ - [R=404,L,NC]
+  RewriteRule ~$ - [R=404,L]
+  RewriteRule ^_redirects$ - [R=404,L]
+
+  # 2) Migrace ze starého webu (Smartweb): PDF osvědčení a obrázky galerií. Absolutní cíl = jeden skok.
+  RewriteRule ^data/awclean\.cz/documents/Osvedcenie--AWCLEAN\.pdf$ @SITE_URL@/documents/osvedceni-awclean.pdf [R=301,L,NC]
+  RewriteCond %{DOCUMENT_ROOT}/images/projects/$1 -f
+  RewriteRule ^data/awclean\.cz/images/tmp/(.+)$ @SITE_URL@/images/projects/$1 [R=301,L]
+  # Mytí oken (stará URL v sitemap): služba už v nabídce není, 410 Gone ji rychle odstraní z indexu (SEO-5).
+  RewriteRule ^ostatni-sluzby/myti-oken/?$ - [G]
+
+  # 3) Staré adresy (generováno z routeAliases v src/lib/routes.ts), absolutní cíl = jeden skok i z http/bez www.
+# @ALIASES@
+
+  # 4) Adresář bez koncového lomítka → rovnou kanonická adresa (mod_dir by udělal další skok přes původní host).
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^(.+[^/])$ @SITE_URL@/$1/ [R=301,L]
+
+  # 5) Kanonická doména: awclean.cz → https://www.awclean.cz jedním skokem.
+  RewriteCond %{HTTP_HOST} ^awclean\.cz$ [NC]
+  RewriteRule ^ https://www.awclean.cz%{REQUEST_URI} [R=301,L]
+
+  # 6) HTTP → HTTPS. Na Smartwebu (nginx) i na většině hostingů to dělá hosting sám – nechte zakomentované.
+  #    Zapnout jen tam, kde přepínač hostingu zapisuje do www/.htaccess (Wedos), protože deploy ho přepíše.
+  #    Tři podmínky = žádná smyčka ani za TLS proxy/CDN. Ověření: curl -sI http://www.awclean.cz/ → jediný 301.
+  # RewriteCond %{HTTPS} !=on
+  # RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  # RewriteCond %{ENV:HTTPS} !=on
+  # RewriteRule ^ https://www.awclean.cz%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# Komprese: brotli tam, kde ho hosting má, jinak gzip. Obrázky/fonty jsou už komprimované.
+# AddOutputFilterByType patří do mod_filter: bez něj by direktiva shodila web chybou 500, proto vnořené IfModule.
+<IfModule mod_filter.c>
+  <IfModule mod_brotli.c>
+    AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml application/xml application/javascript text/javascript application/json image/svg+xml
+  </IfModule>
+  <IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/javascript text/javascript application/json image/svg+xml
+  </IfModule>
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header unset ETag
+  # Cache: HTML/sitemap/robots vždy revalidovat; hashované soubory Vite (název-XXXXXXXX.js|css|woff2) rok;
+  # obrázky, fonty a PDF 30 dní (nemají hash v názvu).
+  <FilesMatch "\.(html|xml|txt)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(webp|avif|jpe?g|png|svg|ico|gif|woff2?|pdf)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # Odpověď formuláře (osobní údaje) se nesmí ukládat do žádné cache.
+  <Files "contact.php">
+    Header always set Cache-Control "no-store"
+  </Files>
+
+  # Bezpečnostní hlavičky. connect-src/form-action 'self' pokrývají /contact.php na stejné doméně.
+  # Google Analytics 4 (src/lib/analytics.ts, jen po souhlasu): googletagmanager.com a google-analytics.com.
+  # style-src bez 'unsafe-inline': předvykreslené HTML nesmí obsahovat atribut style="" (prohlížeč ho zahodí);
+  # React style={…} po hydrataci je v pořádku. Hlídá to scripts/verify-build.ts.
+  # Varianta s Cloudflare Turnstile ve formuláři (SEC-3): do script-src i frame-src přidat
+  # https://challenges.cloudflare.com (frame-src 'none' → frame-src https://challenges.cloudflare.com).
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; manifest-src 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # CORP jen pro HTML: obrázky a PDF smějí vkládat i jiné weby (awclean.sk, Google Obrázky).
+  <FilesMatch "\.html$">
+    Header always set Cross-Origin-Resource-Policy "same-origin"
+  </FilesMatch>
+  # HSTS jen přes HTTPS. Současný web (Smartweb) už posílá max-age=31536000, prohlížeče návštěvníků ho
+  # mají uložený – snížení by nic nezměnilo, proto rovnou 1 rok. includeSubDomains/preload ne:
+  # mail.awclean.cz a webmail běží u Smartwebu a jejich HTTPS tu neřídíme.
+  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on' || %{HTTP:X-Forwarded-Proto} == 'https'"
+</IfModule>

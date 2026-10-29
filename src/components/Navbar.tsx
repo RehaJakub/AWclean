@@ -112,7 +112,7 @@ export function Navbar({ phone, phoneHref, currentPath }: NavbarProps) {
   };
   return (
     <>
-      <div className="topbar">
+      <div className="topbar" role="region" aria-label="O firmě">
         <div className="container flex items-center justify-between gap-4">
           <span>
             Profesionální péče o váš domov i firmu.{" "}
@@ -128,6 +128,10 @@ export function Navbar({ phone, phoneHref, currentPath }: NavbarProps) {
         data-menu-open={open || dropdown !== null}
         className="rd-header"
         onMouseLeave={hoverClose}
+        onBlur={(event) => {
+          // Fokus opustil hlavičku: zavřít mobilní menu, ať nezakrývá prvek s fokusem.
+          if (open && !event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+        }}
       >
         <div className="rd-header-inner">
           <a className="rd-logo" href="/" aria-label="AWCLEAN – úvodní stránka">
@@ -175,7 +179,11 @@ export function Navbar({ phone, phoneHref, currentPath }: NavbarProps) {
                     className={`rd-nav-link${current === category ? " is-current" : ""}`}
                     aria-expanded={isOpen}
                     aria-controls={id}
-                    onClick={() => setDropdown(isOpen ? null : category)}
+                    onClick={(event) => {
+                      // UX-7: myš na desktopu menu jen otevírá (hover ho už otevřel); klávesnice (detail 0) a dotyk přepínají.
+                      if (event.detail > 0 && canHover()) setDropdown(category);
+                      else setDropdown(isOpen ? null : category);
+                    }}
                     onKeyDown={(event) => {
                       if (event.key !== "ArrowDown") return;
                       event.preventDefault();
@@ -279,8 +287,11 @@ export function Navbar({ phone, phoneHref, currentPath }: NavbarProps) {
             aria-expanded={open}
             aria-controls="navigation"
             onClick={() => {
-              setOpen(!open);
-              if (open) setDropdown(null);
+              const next = !open;
+              setOpen(next);
+              if (!next) setDropdown(null);
+              // A11Y-6: po otevření fokus na první odkaz menu, Tab tak nejde do obsahu pod menu.
+              else window.requestAnimationFrame(() => document.querySelector<HTMLAnchorElement>("#navigation a")?.focus());
             }}
           >
             {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}

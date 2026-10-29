@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   ArrowRight,
   Check,
@@ -10,14 +10,17 @@ import {
 } from "lucide-react";
 import { contacts, emails, privacyUrl } from "../data/contacts";
 import {
+  ContactError,
   contactMailto,
   initialValues,
+  inquiryContext,
   sendContact,
   validateContact,
   type ContactErrors,
   type ContactValues,
   type SubmitStatus,
 } from "../lib/contact";
+import { track } from "../lib/analytics";
 import { Section } from "./Section";
 import { ResponsiveImage } from "./ResponsiveImage";
 interface ContactFormProps {
@@ -33,6 +36,21 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const form = useRef<HTMLFormElement>(null);
+  const honeypot = useRef<HTMLInputElement>(null);
+  const statusBox = useRef<HTMLDivElement>(null);
+  // Po odeslání přesunout fokus na výsledek, jinak by po zakázaných polích spadl na body.
+  const focusStatus = (): void => {
+    window.requestAnimationFrame(() => statusBox.current?.focus());
+  };
+  const startedAt = useRef(0);
+  const [context, setContext] = useState({ service: "", sample: "" });
+  useEffect(() => {
+    startedAt.current = performance.now();
+    setContext(inquiryContext(window.location.search));
+    // Návrat z odeslání bez JavaScriptu (contact.php → 303 /kontakt/?odeslano=1).
+    if (new URLSearchParams(window.location.search).has("odeslano"))
+      setStatus("success");
+  }, []);
   const update = (field: keyof ContactValues, value: string): void => {
     setValues((previous) => ({ ...previous, [field]: value }));
     setErrors((previous) => ({ ...previous, [field]: undefined }));
@@ -54,16 +72,24 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
     }
     setStatus("sending");
     try {
-      await sendContact(values, endpoint);
+      await sendContact(values, endpoint, {
+        website: honeypot.current?.value ?? "",
+        // Rozdíl dvou časů téhož prohlížeče: nezávisí na posunu hodin vůči serveru.
+        fillMs: Math.round(performance.now() - startedAt.current),
+        ...context,
+      });
       setStatus("success");
       setValues(initialValues);
+      focusStatus();
+      track("generate_lead");
     } catch (error: unknown) {
       setStatus("error");
       setErrorMessage(
-        error instanceof Error && error.name !== "AbortError"
+        error instanceof ContactError
           ? error.message
           : "Spojení se nezdařilo nebo vypršel časový limit. Zkuste to znovu, případně nám zavolejte.",
       );
+      focusStatus();
     }
   };
   return (
@@ -79,15 +105,16 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
             připravíme nezávaznou nabídku.
           </p>
           <div className="contact-perk">
-            <Check size={17} /> Ukázka čištění fasád, střech a dlažeb zdarma po
+            <Check size={17} aria-hidden="true" /> Ukázka čištění fasád, střech a dlažeb zdarma po
             celé ČR
           </div>
           <div className="contact-phones">
             {contacts.map((contact) => (
               <div key={contact.phone}>
-                <Phone size={22} />
+                <Phone size={22} aria-hidden="true" />
                 <div>
-                  <a className="primary-contact" href={contact.href} aria-label={contact.label}>
+                  <span className="contact-phone-label">{contact.label}</span>
+                  <a className="primary-contact" href={contact.href}>
                     {contact.phone}
                   </a>
                 </div>
@@ -95,7 +122,7 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
             ))}
           </div>
           <div className="contact-emails">
-            <Mail size={18} />
+            <Mail size={18} aria-hidden="true" />
             <div>
               {emails.map((email) => (
                 <a href={`mailto:${email}`} key={email}>
@@ -105,7 +132,7 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
             </div>
           </div>
           <div className="hours">
-            <Clock size={17} /> Provozní doba: Po–Ne 8:00–17:00
+            <Clock size={17} aria-hidden="true" /> Provozní doba: Po–Ne 8:00–17:00
           </div>
           {showVans && <figure className="contact-vans">
             <ResponsiveImage
@@ -122,14 +149,26 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
         <form
           ref={form}
           className="contact-form"
+          method="post"
+          action={endpoint || undefined}
           noValidate
           onSubmit={(event) => {
             void submit(event);
           }}
           aria-busy={status === "sending"}
         >
-          <h3>S čím vám můžeme pomoci?</h3>
-          <p>Nechte nám na sebe kontakt. Společně najdeme řešení.</p>
+          <h2 className="contact-form-title">S čím vám můžeme pomoci?</h2>
+          <p>Napište nám, ozveme se. Společně najdeme řešení.</p>
+          {(context.service || context.sample) && (
+            <p className="form-context">
+              Poptávka:{" "}
+              {[context.service, context.sample && "ukázka čištění zdarma"]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          )}
+          <input type="hidden" name="service" value={context.service} />
+          <input type="hidden" name="sample" value={context.sample} />
           <div className="form-grid">
             {(["name", "phone", "email", "message"] as const).map((field) => {
               const labels: Record<keyof ContactValues, string> = {
@@ -154,7 +193,7 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
                 "aria-describedby": errors[field]
                   ? `${field}-error`
                   : undefined,
-                disabled: status === "sending",
+                readOnly: status === "sending",
               };
               return (
                 <div
@@ -201,13 +240,20 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
               );
             })}
           </div>
+          {/* Honeypot: lidé ho nevidí ani nečtou čtečkou, boti ho vyplní. */}
+          <div className="hp-field" aria-hidden="true">
+            <label htmlFor="website">Web (nevyplňujte)</label>
+            <input ref={honeypot} id="website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+          </div>
           <p className="privacy-note">
-            Odesláním nás žádáte o zpracování poptávky. Více o{" "}
-            <a href={privacyUrl}>ochraně osobních údajů</a>.
+            Údaje z formuláře zpracuje AWCLEAN s.r.o. (IČO 50823272) jen
+            k vyřízení vaší poptávky a přípravě nabídky. Podrobnosti, doba
+            uložení a vaše práva jsou v{" "}
+            <a href={privacyUrl}>zásadách ochrany osobních údajů</a>.
           </p>
           <button
             className="button button-primary submit-button"
-            disabled={status === "sending"}
+            aria-disabled={status === "sending"}
             type="submit"
           >
             {status === "sending" ? (
@@ -220,10 +266,10 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
               </>
             )}
           </button>
-          <div aria-live="polite" role="status">
+          <div ref={statusBox} tabIndex={-1} aria-live="polite" role="status" className="form-status">
             {status === "success" && (
               <p className="form-success">
-                <Check size={18} /> Děkujeme! Vaše poptávka byla přijata. Ozveme
+                <Check size={18} aria-hidden="true" /> Děkujeme! Vaše poptávka byla přijata. Ozveme
                 se vám.
               </p>
             )}
@@ -231,7 +277,7 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
               <div className="form-error">
                 <p>{errorMessage}</p>
                 <a href={contactMailto(values)}>
-                  <Send size={15} /> Otevřít poptávku v e-mailu
+                  <Send size={15} aria-hidden="true" /> Otevřít poptávku v e-mailu
                 </a>
               </div>
             )}

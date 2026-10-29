@@ -1,0 +1,392 @@
+diff --git a/scripts/verify-build.ts b/scripts/verify-build.ts
+index b5e1174..0f5e74a 100644
+--- a/scripts/verify-build.ts
++++ b/scripts/verify-build.ts
+@@ -1,6 +1,8 @@
+ import assert from "node:assert/strict";
+ import { readFileSync, existsSync } from "node:fs";
+ import { resolve } from "node:path";
++const escapeText = (value: string): string =>
++  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+ const sitemap = readFileSync("dist/sitemap.xml", "utf8");
+ const titles = new Set<string>();
+ const descriptions = new Set<string>();
+@@ -18,8 +20,23 @@ for (const url of urls) {
+   );
+   const structuredData: unknown[] = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+     .map((match) => JSON.parse(match[1]) as unknown);
+-  const faq = structuredData.find((entry) => entry && typeof entry === "object" && "@type" in entry && entry["@type"] === "FAQPage");
+-  assert.ok(faq && typeof faq === "object" && "mainEntity" in faq && Array.isArray(faq.mainEntity) && faq.mainEntity.length === 9, `Chybí FAQPage: ${url.pathname}`);
++  const ofType = (type: string) =>
++    structuredData.filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === "object" && "@type" in entry && entry["@type"] === type);
++  // FAQPage jen tam, kde je FAQ vidět, a jen s viditelnými otázkami.
++  const visibleQuestions = [...html.matchAll(/<summary><span>([^<]+)<\/span>/g)].map((match) => match[1]);
++  const faq = ofType("FAQPage");
++  assert.equal(faq.length, visibleQuestions.length ? 1 : 0, `FAQPage neodpovídá viditelnému FAQ: ${url.pathname}`);
++  if (faq.length)
++    assert.deepEqual(
++      (faq[0].mainEntity as { name: string }[]).map((question) => escapeText(question.name)),
++      visibleQuestions,
++      `FAQPage obsahuje jiné otázky, než stránka zobrazuje: ${url.pathname}`,
++    );
++  const crumbs = html.match(/aria-label="Drobečková navigace"><ol>([\s\S]*?)<\/ol>/)?.[1];
++  const breadcrumbList = ofType("BreadcrumbList");
++  assert.equal(breadcrumbList.length, crumbs ? 1 : 0, `BreadcrumbList neodpovídá drobečkům: ${url.pathname}`);
++  if (crumbs)
++    assert.equal((breadcrumbList[0].itemListElement as unknown[]).length, crumbs.match(/<li>/g)?.length);
+   const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+   const description = html.match(/name="description"\s+content="([^"]+)"/)?.[1];
+   assert.ok(title && description);
+@@ -56,27 +73,14 @@ for (const url of urls) {
+     /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
+   )?.[1];
+   assert.ok(metadata, `Chybí JSON-LD: ${url.pathname}`);
+-  const business: unknown = JSON.parse(metadata);
+-  assert.ok(
+-    typeof business === "object" &&
+-      business !== null &&
+-      "@type" in business &&
+-      business["@type"] === "LocalBusiness",
+-  );
+-  assert.ok(
+-    "address" in business &&
+-      JSON.stringify(business.address).includes("Na Výsluní 298"),
+-  );
+-  assert.ok(
+-    "telephone" in business &&
+-      Array.isArray(business.telephone) &&
+-      business.telephone.length === 3,
+-  );
+-  assert.ok(
+-    "email" in business &&
+-      Array.isArray(business.email) &&
+-      business.email.length === 2,
+-  );
++  const graph: unknown = JSON.parse(metadata);
++  assert.ok(typeof graph === "object" && graph !== null && "@graph" in graph && Array.isArray(graph["@graph"]));
++  const business = (graph["@graph"] as Record<string, unknown>[]).find((node) => node["@type"] === "HomeAndConstructionBusiness");
++  assert.ok(business, `Chybí HomeAndConstructionBusiness: ${url.pathname}`);
++  assert.ok(JSON.stringify(business.address).includes("Na Výsluní 298"));
++  assert.equal(business.telephone, "+420 773 196 097");
++  assert.equal((business.contactPoint as unknown[]).length, 3);
++  assert.equal((business.areaServed as unknown[]).length, 2);
+   assert.match(html, /name="twitter:card" content="summary_large_image"/);
+   for (const field of ["title", "description", "image"]) {
+     const og = html.match(
+@@ -93,7 +97,9 @@ for (const url of urls) {
+       throw new Error(`Chybí asset: ${match[1]}`);
+   }
+ }
+-if (!readFileSync("dist/404.html", "utf8").includes('content="noindex"'))
++const notFound = readFileSync("dist/404.html", "utf8");
++assert.ok(!notFound.includes('"FAQPage"'), "404 nesmí mít FAQPage.");
++if (!notFound.includes('content="noindex"'))
+   throw new Error("404 musí obsahovat noindex.");
+ if (
+   !readFileSync("public/documents/osvedceni-awclean.pdf")
+diff --git a/src/App.tsx b/src/App.tsx
+index 30e15ef..ab55d44 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,5 +1,4 @@
+ import { lazy, Suspense, useEffect, useState } from "react";
+-import { faqSchema } from "./data/faq";
+ const MascotWidget = lazy(() => import("./components/MascotWidget"));
+ import { Navbar } from "./components/Navbar";
+ import { Footer } from "./components/Footer";
+@@ -128,7 +127,6 @@ export default function App({
+       />
+       <main id="main">{content}</main>
+       <Footer currentPath={route.path} />
+-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
+       <Suspense fallback={null}>{clientReady && route.kind !== "advice" && <MascotWidget />}</Suspense>
+     </>
+   );
+diff --git a/src/components/JsonLd.tsx b/src/components/JsonLd.tsx
+new file mode 100644
+index 0000000..15fce94
+--- /dev/null
++++ b/src/components/JsonLd.tsx
+@@ -0,0 +1,9 @@
++/** Structured data rendered next to the content it describes; `<` is escaped so text cannot close the script. */
++export function JsonLd({ data }: { data: object }) {
++  return (
++    <script
++      type="application/ld+json"
++      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
++    />
++  );
++}
+diff --git a/src/components/layout/Breadcrumbs.tsx b/src/components/layout/Breadcrumbs.tsx
+index edfaef1..ff36216 100644
+--- a/src/components/layout/Breadcrumbs.tsx
++++ b/src/components/layout/Breadcrumbs.tsx
+@@ -1,4 +1,5 @@
+ import { ChevronRight, House } from "lucide-react";
++import { JsonLd } from "../JsonLd";
+ interface BreadcrumbItem {
+   label: string;
+   href?: string;
+@@ -7,7 +8,21 @@ interface BreadcrumbsProps {
+   items: BreadcrumbItem[];
+ }
+ export function Breadcrumbs({ items }: BreadcrumbsProps) {
++  const trail = [{ label: "Úvod", href: "/" }, ...items];
+   return (
++    <>
++    <JsonLd
++      data={{
++        "@context": "https://schema.org",
++        "@type": "BreadcrumbList",
++        itemListElement: trail.map((item, index) => ({
++          "@type": "ListItem",
++          position: index + 1,
++          name: item.label,
++          ...(item.href && { item: `https://www.awclean.cz${item.href}` }),
++        })),
++      }}
++    />
+     <nav className="breadcrumbs container" aria-label="Drobečková navigace">
+       <ol>
+         <li>
+@@ -28,5 +43,6 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
+         ))}
+       </ol>
+     </nav>
++    </>
+   );
+ }
+diff --git a/src/data/faq.test.ts b/src/data/faq.test.ts
+index 0e89dd1..c75dafc 100644
+--- a/src/data/faq.test.ts
++++ b/src/data/faq.test.ts
+@@ -13,7 +13,7 @@ describe("FAQ DR Fasáda", () => {
+   });
+   it("publikuje totožné otázky a odpovědi do FAQPage", () => {
+     expect(new Set(faqItems.map((item) => item.id)).size).toBe(faqItems.length);
+-    expect(faqSchema.mainEntity.map((item) => [item.name, item.acceptedAnswer.text]))
++    expect(faqSchema(faqItems).mainEntity.map((item) => [item.name, item.acceptedAnswer.text]))
+       .toEqual(faqItems.map((item) => [item.question, item.answer]));
+   });
+ });
+diff --git a/src/data/faq.ts b/src/data/faq.ts
+index e982d0b..e2f3d69 100644
+--- a/src/data/faq.ts
++++ b/src/data/faq.ts
+@@ -71,11 +71,12 @@ export function filterFaq(category: FaqCategory, query: string): FaqItem[] {
+     terms.every((term) => normalize(`${item.question} ${item.answer}`).includes(term)),
+   );
+ }
+-export const faqSchema = {
++/** FAQPage only for the questions actually shown on the page (Google requires visible content). */
++export const faqSchema = (items: FaqItem[]) => ({
+   "@context": "https://schema.org",
+   "@type": "FAQPage",
+-  mainEntity: faqItems.map((item) => ({
++  mainEntity: items.map((item) => ({
+     "@type": "Question", name: item.question,
+     acceptedAnswer: { "@type": "Answer", text: item.answer },
+   })),
+-};
++});
+diff --git a/src/data/seo.ts b/src/data/seo.ts
+index f9b3014..260049a 100644
+--- a/src/data/seo.ts
++++ b/src/data/seo.ts
+@@ -1,65 +1,83 @@
+ import { contacts, emails } from "./contacts";
+-interface LocalBusinessData {
+-  "@context": "https://schema.org";
+-  "@type": "LocalBusiness";
+-  "@id": string;
+-  name: string;
+-  url: string;
+-  logo: string;
+-  image: string;
+-  telephone: string[];
+-  email: string[];
+-  address: {
+-    "@type": "PostalAddress";
+-    streetAddress: string;
+-    addressLocality: string;
+-    postalCode: string;
+-    addressCountry: string;
+-  };
+-  openingHoursSpecification: {
+-    "@type": "OpeningHoursSpecification";
+-    dayOfWeek: string[];
+-    opens: string;
+-    closes: string;
+-  }[];
+-  sameAs: string[];
+-}
+-export const localBusiness: LocalBusinessData = {
++import type { ServicePageData } from "./pages/types";
++const site = "https://www.awclean.cz";
++const areaServed = [
++  { "@type": "Country", name: "Česká republika", identifier: "CZ" },
++  { "@type": "Country", name: "Slovensko", identifier: "SK" },
++];
++/**
++ * Legal entity (registered seat in Slovakia, privacy.ts) and the Czech contact
++ * location shown on /kontakt/ and in the footer. Rendered into <head> by vite.config.ts.
++ */
++export const localBusiness = {
+   "@context": "https://schema.org",
+-  "@type": "LocalBusiness",
+-  "@id": "https://www.awclean.cz/#business",
+-  name: "AWCLEAN s.r.o.",
+-  url: "https://www.awclean.cz/",
+-  logo: "https://www.awclean.cz/images/logo.svg",
+-  image:
+-    "https://www.awclean.cz/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp",
+-  telephone: contacts.map(({ phone }) => phone),
+-  email: emails,
+-  address: {
+-    "@type": "PostalAddress",
+-    streetAddress: "Na Výsluní 298",
+-    addressLocality: "Chotětov",
+-    postalCode: "294 28",
+-    addressCountry: "CZ",
+-  },
+-  openingHoursSpecification: [
++  "@graph": [
+     {
+-      "@type": "OpeningHoursSpecification",
+-      dayOfWeek: [
+-        "Monday",
+-        "Tuesday",
+-        "Wednesday",
+-        "Thursday",
+-        "Friday",
+-        "Saturday",
+-        "Sunday",
+-      ].map((day) => `https://schema.org/${day}`),
+-      opens: "08:00",
+-      closes: "17:00",
++      "@type": "Organization",
++      "@id": `${site}/#organization`,
++      name: "AWCLEAN",
++      legalName: "AWCLEAN s.r.o.",
++      url: `${site}/`,
++      logo: `${site}/images/logo.svg`,
++      identifier: { "@type": "PropertyValue", propertyID: "IČO", value: "50823272" },
++      address: {
++        "@type": "PostalAddress",
++        streetAddress: "Čsl. armády 1457",
++        addressLocality: "Topoľčany",
++        postalCode: "955 01",
++        addressCountry: "SK",
++      },
++      email: emails,
++      sameAs: [
++        "https://www.facebook.com/awclean",
++        "https://www.youtube.com/@AWCLEANs.r.o",
++      ],
++    },
++    {
++      "@type": "HomeAndConstructionBusiness",
++      "@id": `${site}/#business`,
++      name: "AWCLEAN",
++      url: `${site}/`,
++      image: `${site}/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp`,
++      parentOrganization: { "@id": `${site}/#organization` },
++      telephone: contacts[0].phone,
++      email: emails[0],
++      address: {
++        "@type": "PostalAddress",
++        streetAddress: "Na Výsluní 298",
++        addressLocality: "Chotětov",
++        postalCode: "294 28",
++        addressCountry: "CZ",
++      },
++      areaServed,
++      openingHoursSpecification: {
++        "@type": "OpeningHoursSpecification",
++        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
++          .map((day) => `https://schema.org/${day}`),
++        opens: "08:00",
++        closes: "17:00",
++      },
++      contactPoint: contacts.map(({ phone, label }) => ({
++        "@type": "ContactPoint",
++        telephone: phone,
++        contactType: "customer service",
++        areaServed: phone.startsWith("+421") ? "SK" : "CZ",
++        availableLanguage: ["cs", "sk"],
++        ...(label.includes("NON-STOP") && {
++          hoursAvailable: { "@type": "OpeningHoursSpecification", opens: "00:00", closes: "23:59" },
++        }),
++      })),
+     },
+-  ],
+-  sameAs: [
+-    "https://www.facebook.com/awclean",
+-    "https://www.youtube.com/@AWCLEANs.r.o",
+   ],
+ };
++export const serviceSchema = (page: ServicePageData) => ({
++  "@context": "https://schema.org",
++  "@type": "Service",
++  "@id": `${site}${page.path}#service`,
++  name: page.title,
++  description: page.intro,
++  url: `${site}${page.path}`,
++  image: `${site}${page.heroImage}`,
++  provider: { "@id": `${site}/#business` },
++  areaServed,
++});
+diff --git a/src/pages/CleanFacadesPage.tsx b/src/pages/CleanFacadesPage.tsx
+index 7e4e663..db4efe2 100644
+--- a/src/pages/CleanFacadesPage.tsx
++++ b/src/pages/CleanFacadesPage.tsx
+@@ -2,7 +2,8 @@ import { useState } from "react";
+ import { Phone, Plus, Search } from "lucide-react";
+ import { Breadcrumbs } from "../components/layout/Breadcrumbs";
+ import { ServiceCTA } from "../components/services/ServiceCTA";
+-import { faqCategories, filterFaq, type FaqCategory } from "../data/faq";
++import { faqCategories, faqItems, faqSchema, filterFaq, type FaqCategory } from "../data/faq";
++import { JsonLd } from "../components/JsonLd";
+ export function CleanFacadesPage() {
+   const [category, setCategory] = useState<FaqCategory>("vse");
+   const [query, setQuery] = useState("");
+@@ -63,6 +64,8 @@ export function CleanFacadesPage() {
+       </article>
+       <section className="rd-wrap advice-faq" aria-labelledby="advice-faq-title">
+         <h2 id="advice-faq-title">DR Fasáda odpovídá</h2>
++        {/* Server HTML lists all questions; filtering is a client-side view of the same set. */}
++        <JsonLd data={faqSchema(faqItems)} />
+         <label className="advice-search">
+           <Search size={20} aria-hidden="true" />
+           <span className="sr-only">Hledat v otázkách a odpovědích</span>
+diff --git a/src/pages/ServicePage.tsx b/src/pages/ServicePage.tsx
+index 97e1fe1..a315f70 100644
+--- a/src/pages/ServicePage.tsx
++++ b/src/pages/ServicePage.tsx
+@@ -2,7 +2,9 @@ import { ResponsiveImage } from "../components/ResponsiveImage";
+ import { ArrowRight, Check, Phone, Plus } from "lucide-react";
+ import { inquiryAction } from "../data/offers";
+ import { serviceCategoryLabels } from "../data/services";
+-import { faqItems } from "../data/faq";
++import { faqItems, faqSchema } from "../data/faq";
++import { JsonLd } from "../components/JsonLd";
++import { serviceSchema } from "../data/seo";
+ import { photoDetails } from "../data/photos";
+ import { serviceBlockImages, serviceFaqIds } from "../data/serviceVisuals";
+ import type { ServicePageData } from "../data/pages/types";
+@@ -34,6 +36,7 @@ export function ServicePage({ page, related }: ServicePageProps) {
+     .filter((item) => item !== undefined);
+   return (
+     <>
++      <JsonLd data={serviceSchema(page)} />
+       <Breadcrumbs
+         items={[...(category ? [category] : []), { label: page.shortTitle }]}
+       />
+@@ -132,6 +135,7 @@ export function ServicePage({ page, related }: ServicePageProps) {
+       )}
+       {faq.length > 0 && (
+         <section className="svc-faq rd-wrap" aria-labelledby="faq-title">
++          <JsonLd data={faqSchema(faq)} />
+           <div className="svc-faq-head">
+             <h2 id="faq-title">Časté otázky</h2>
+             <a className="rd-link" href="/ciste-fasady/">

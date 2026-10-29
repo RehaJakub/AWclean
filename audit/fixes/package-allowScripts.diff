@@ -1,0 +1,12 @@
+--- a/package.json
++++ b/package.json
+@@ -28,5 +28,9 @@
+     "typescript": "~5.7.3",
+     "vite": "^6.2.0",
+     "vitest": "^5.0.3"
++  },
++  "allowScripts": {
++    "esbuild": false,
++    "fsevents": false
+   }
+ }

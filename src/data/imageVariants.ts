@@ -226,6 +226,11 @@ export const imageVariants: Record<string, ImageVariant> = {
     "height": 1600,
     "srcSet": "/images/responsive/realizace/detail-oranzovych-stresnich-tasek-po-osetreni-480.webp 480w, /images/realizace/detail-oranzovych-stresnich-tasek-po-osetreni.webp 739w"
   },
+  "/images/realizace/detail-oranzovych-stresnich-tasek.webp": {
+    "width": 284,
+    "height": 284,
+    "srcSet": "/images/realizace/detail-oranzovych-stresnich-tasek.webp 284w"
+  },
   "/images/realizace/detail-osetrene-zamkove-dlazby-s-kapkami-vody.webp": {
     "width": 1440,
     "height": 1920,
@@ -290,6 +295,11 @@ export const imageVariants: Record<string, ImageVariant> = {
     "width": 844,
     "height": 1500,
     "srcSet": "/images/responsive/realizace/kamenna-socha-po-odstraneni-povlaku-480.webp 480w, /images/realizace/kamenna-socha-po-odstraneni-povlaku.webp 844w"
+  },
+  "/images/realizace/kamenna-socha-s-povlakem-na-povrchu-pred-cistenim.webp": {
+    "width": 284,
+    "height": 284,
+    "srcSet": "/images/realizace/kamenna-socha-s-povlakem-na-povrchu-pred-cistenim.webp 284w"
   },
   "/images/realizace/kamenna-socha-se-zelenym-povlakem-pred-cistenim.webp": {
     "width": 765,
@@ -405,11 +415,6 @@ export const imageVariants: Record<string, ImageVariant> = {
     "width": 1000,
     "height": 1000,
     "srcSet": "/images/responsive/realizace/porovnani-vzhledu-stresnich-tasek-pri-impregnaci-480.webp 480w, /images/responsive/realizace/porovnani-vzhledu-stresnich-tasek-pri-impregnaci-960.webp 960w, /images/realizace/porovnani-vzhledu-stresnich-tasek-pri-impregnaci.webp 1000w"
-  },
-  "/images/realizace/prace-na-zavesne-plosine-pred-tmavou-fasadou.webp": {
-    "width": 1920,
-    "height": 1440,
-    "srcSet": "/images/responsive/realizace/prace-na-zavesne-plosine-pred-tmavou-fasadou-480.webp 480w, /images/responsive/realizace/prace-na-zavesne-plosine-pred-tmavou-fasadou-960.webp 960w, /images/responsive/realizace/prace-na-zavesne-plosine-pred-tmavou-fasadou-1440.webp 1440w, /images/realizace/prace-na-zavesne-plosine-pred-tmavou-fasadou.webp 1920w"
   },
   "/images/realizace/pracovni-plosina-pred-vysokym-bytovym-domem.webp": {
     "width": 1440,
@@ -631,6 +636,11 @@ export const imageVariants: Record<string, ImageVariant> = {
     "height": 1920,
     "srcSet": "/images/responsive/realizace/svetla-fasada-rodinneho-domu-po-cisteni-480.webp 480w, /images/responsive/realizace/svetla-fasada-rodinneho-domu-po-cisteni-960.webp 960w, /images/realizace/svetla-fasada-rodinneho-domu-po-cisteni.webp 1440w"
   },
+  "/images/realizace/svetla-fasada-rodinneho-domu-s-balkonem.webp": {
+    "width": 284,
+    "height": 284,
+    "srcSet": "/images/realizace/svetla-fasada-rodinneho-domu-s-balkonem.webp 284w"
+  },
   "/images/realizace/svetla-omitka-pod-oknem-po-vycisteni.webp": {
     "width": 1000,
     "height": 1333,
@@ -645,11 +655,6 @@ export const imageVariants: Record<string, ImageVariant> = {
     "width": 1152,
     "height": 864,
     "srcSet": "/images/responsive/realizace/svetle-hlinikove-oplasteni-vicepodlazni-budovy-480.webp 480w, /images/responsive/realizace/svetle-hlinikove-oplasteni-vicepodlazni-budovy-960.webp 960w, /images/realizace/svetle-hlinikove-oplasteni-vicepodlazni-budovy.webp 1152w"
-  },
-  "/images/realizace/svetle-panely-a-okna-hlinikove-fasady.webp": {
-    "width": 1920,
-    "height": 1440,
-    "srcSet": "/images/responsive/realizace/svetle-panely-a-okna-hlinikove-fasady-480.webp 480w, /images/responsive/realizace/svetle-panely-a-okna-hlinikove-fasady-960.webp 960w, /images/responsive/realizace/svetle-panely-a-okna-hlinikove-fasady-1440.webp 1440w, /images/realizace/svetle-panely-a-okna-hlinikove-fasady.webp 1920w"
   },
   "/images/realizace/svetliky-vyrobni-haly.webp": {
     "width": 1432,
@@ -670,6 +675,11 @@ export const imageVariants: Record<string, ImageVariant> = {
     "width": 750,
     "height": 1000,
     "srcSet": "/images/responsive/realizace/taskova-strecha-s-casti-vycisteneho-povrchu-480.webp 480w, /images/realizace/taskova-strecha-s-casti-vycisteneho-povrchu.webp 750w"
+  },
+  "/images/realizace/taskova-strecha-s-rozdilem-mezi-vycistenou-a-znecistenou-casti.webp": {
+    "width": 284,
+    "height": 284,
+    "srcSet": "/images/realizace/taskova-strecha-s-rozdilem-mezi-vycistenou-a-znecistenou-casti.webp 284w"
   },
   "/images/realizace/titulni-strana-reportaze-awclean-o-cisteni-fasad-a-strech.webp": {
     "width": 562,
@@ -776,11 +786,6 @@ export const imageVariants: Record<string, ImageVariant> = {
     "height": 1920,
     "srcSet": "/images/responsive/realizace/vyskova-budova-s-prosklenou-fasadou-480.webp 480w, /images/realizace/vyskova-budova-s-prosklenou-fasadou.webp 886w"
   },
-  "/images/realizace/vyskova-plosina-podel-prosklene-cihlove-haly.webp": {
-    "width": 1920,
-    "height": 1440,
-    "srcSet": "/images/responsive/realizace/vyskova-plosina-podel-prosklene-cihlove-haly-480.webp 480w, /images/responsive/realizace/vyskova-plosina-podel-prosklene-cihlove-haly-960.webp 960w, /images/responsive/realizace/vyskova-plosina-podel-prosklene-cihlove-haly-1440.webp 1440w, /images/realizace/vyskova-plosina-podel-prosklene-cihlove-haly.webp 1920w"
-  },
   "/images/realizace/vyskova-plosina-pri-praci-na-strese.webp": {
     "width": 1440,
     "height": 1920,
@@ -880,11 +885,6 @@ export const imageVariants: Record<string, ImageVariant> = {
     "width": 1440,
     "height": 1920,
     "srcSet": "/images/responsive/realizace/znecistena-zluta-a-seda-dlazba-pred-cistenim-480.webp 480w, /images/responsive/realizace/znecistena-zluta-a-seda-dlazba-pred-cistenim-960.webp 960w, /images/realizace/znecistena-zluta-a-seda-dlazba-pred-cistenim.webp 1440w"
-  },
-  "/images/realizace/znecistene-panely-hlinikove-fasady.webp": {
-    "width": 1920,
-    "height": 1440,
-    "srcSet": "/images/responsive/realizace/znecistene-panely-hlinikove-fasady-480.webp 480w, /images/responsive/realizace/znecistene-panely-hlinikove-fasady-960.webp 960w, /images/responsive/realizace/znecistene-panely-hlinikove-fasady-1440.webp 1440w, /images/realizace/znecistene-panely-hlinikove-fasady.webp 1920w"
   },
   "/images/vozy/dve-dodavky-awclean-spolecny-bocni-pohled.webp": {
     "width": 2048,

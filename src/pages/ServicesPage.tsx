@@ -37,7 +37,7 @@ export function ServicesPage({ otherOnly = false }: ServicesPageProps) {
           <h1 id="page-title">{otherOnly ? "Ostatní služby" : "Přehled služeb"}</h1>
           <p>
             {otherOnly
-              ? "Impregnace, nano impregnace a odstraňování dopravního značení."
+              ? "Impregnace, nanoimpregnace a odstraňování dopravního značení."
               : "Čištění, nátěry a ochrana povrchů po celé ČR a SR."}
           </p>
         </header>
@@ -59,13 +59,14 @@ export function ServicesPage({ otherOnly = false }: ServicesPageProps) {
           Zobrazené služby: {visible.length}
         </p>
         <div className="rd-card-grid">
-          {visible.map((page) => (
+          {visible.map((page, index) => (
             <a href={page.href} key={page.href} className="catalog-card rd-photo-card is-tall">
               <ResponsiveImage
                 src={page.image}
                 alt=""
                 sizes="(max-width: 760px) 100vw, 33vw"
-                loading="lazy"
+                loading={index < 3 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : undefined}
                 width="750"
                 height="560"
               />

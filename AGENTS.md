@@ -16,3 +16,5 @@
 - Zachovej React + TypeScript strict; bez `any` a bez zdrojových `.js` souborů.
 - Obchodní informace čerpej jen z aktuálního obsahu projektu a z awclean.cz. Nevymýšlej reference, lokality, ceny ani garance.
 - Logo, kontakty, skutečné fotografie a existující funkční adresy zachovej, pokud uživatel výslovně nezadá změnu.
+- Volitelné skripty (analytika, marketing, personalizace) spouštěj jen po kontrole `hasConsent(...)` ze `src/lib/consent.ts`; bez platné volby se nesmí načíst nic volitelného. Google Analytics 4 je v `src/lib/analytics.ts` (zapíná `VITE_GA_ID`); nový skript tam přidej i s doménou do CSP v `deploy/htaccess.template` a s textem do `src/data/privacy.ts` a ConsentManageru.
+- Konfiguraci serveru upravuj v `deploy/htaccess.template` (build z ní generuje `dist/.htaccess`), ne v `dist/` ani na FTP.

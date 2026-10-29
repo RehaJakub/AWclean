@@ -88,3 +88,49 @@ describe("Uložení souhlasu", () => {
     ).toThrow("Storage unavailable");
   });
 });
+describe("hasConsent", () => {
+  it("povolí volitelnou kategorii jen s platnou uloženou volbou", async () => {
+    const { hasConsent, saveConsent } = await import("./consent");
+    const data = new Map<string, string>();
+    const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => void data.set(key, value) };
+    expect(hasConsent("analytics", storage)).toBe(false);
+    saveConsent(storage, { personalized: false, analytics: true, marketing: false });
+    expect(hasConsent("analytics", storage)).toBe(true);
+    expect(hasConsent("marketing", storage)).toBe(false);
+    expect(hasConsent("analytics", undefined)).toBe(false);
+  });
+});
+describe("Analytika", () => {
+  it("bez VITE_GA_ID se nic nenačte a lišta se nezobrazí", async () => {
+    const { analyticsEnabled, needsConsentDecision, loadAnalytics } = await import("./analytics");
+    expect(analyticsEnabled).toBe(false);
+    expect(needsConsentDecision({ getItem: () => null })).toBe(false);
+    vi.stubGlobal("window", { localStorage: { getItem: () => null } });
+    vi.stubGlobal("document", { createElement: vi.fn(), head: { append: vi.fn() }, addEventListener: vi.fn() });
+    loadAnalytics();
+    expect(document.createElement).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+  it("s ID se zeptá jen bez platné volby a GA načte jen po souhlasu", async () => {
+    vi.resetModules();
+    vi.stubEnv("VITE_GA_ID", "G-TEST123");
+    const { analyticsEnabled, needsConsentDecision, loadAnalytics } = await import("./analytics");
+    const { saveConsent } = await import("./consent");
+    expect(analyticsEnabled).toBe(true);
+    const data = new Map<string, string>();
+    const storage = { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => void data.set(key, value) };
+    expect(needsConsentDecision(storage)).toBe(true);
+    saveConsent(storage, { personalized: false, analytics: false, marketing: false });
+    expect(needsConsentDecision(storage)).toBe(false);
+    const append = vi.fn();
+    vi.stubGlobal("window", { localStorage: storage, location: { pathname: "/" } });
+    vi.stubGlobal("document", { createElement: () => ({ dataset: {} }), head: { append }, addEventListener: vi.fn() });
+    loadAnalytics();
+    expect(append).not.toHaveBeenCalled();
+    saveConsent(storage, { personalized: false, analytics: true, marketing: false });
+    loadAnalytics();
+    expect(append).toHaveBeenCalledWith(expect.objectContaining({ src: "https://www.googletagmanager.com/gtag/js?id=G-TEST123" }));
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+});

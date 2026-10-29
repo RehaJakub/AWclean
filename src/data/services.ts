@@ -17,11 +17,11 @@ export const serviceCategoryLabels: Record<ServiceCategory, string> = {
   ostatni: "Ostatní služby",
 };
 const summaries: Record<string, string> = {
-  "/cisteni-fasad/": "Odstranění řas a nečistot z rodinných i bytových domů.",
-  "/cisteni-strech/": "Čištění krytiny od mechu, lišejníků a usazenin.",
-  "/cisteni-dlazeb/": "Obnova vzhledu chodníků, teras a příjezdových cest.",
+  "/cisteni-fasad/": "Odstranění řas a nečistot z rodinných i bytových domů.",
+  "/cisteni-strech/": "Čištění krytiny od mechu, lišejníků a usazenin.",
+  "/cisteni-dlazeb/": "Obnova vzhledu chodníků, teras a příjezdových cest.",
   "/cisteni-prumyslovych-objektu/":
-    "Čištění hal, konstrukcí a technického vybavení.",
+    "Čištění hal, konstrukcí a technického vybavení.",
 };
 export const services: Service[] = servicePages.map((page) => ({
   slug: page.path.split("/").filter(Boolean).at(-1) ?? "",
@@ -38,10 +38,6 @@ export const servicesByCategory: Record<ServiceCategory, Service[]> = {
   natery: services.filter((service) => service.category === "natery"),
   ostatni: services.filter((service) => service.category === "ostatni"),
 };
-export const footerServices: Service[] = [
-  ...servicesByCategory.cisteni.slice(0, 4),
-  ...servicesByCategory.natery,
-];
 
 export type ServiceLink = Pick<Service, "title" | "href">;
 export const serviceNavigation: Record<ServiceCategory, ServiceLink[]> = {

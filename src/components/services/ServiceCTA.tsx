@@ -1,3 +1,4 @@
+import { primaryPhone } from "../../data/contacts";
 import { ArrowRight, Phone } from "lucide-react";
 import { inquiryAction } from "../../data/offers";
 interface ServiceCTAProps {
@@ -16,21 +17,21 @@ export function ServiceCTA({ servicePath }: ServiceCTAProps) {
           </h2>
           <p>
             {action.freeSample
-              ? "Výsledek uvidíte na malé ploše předem. Po celé ČR zdarma."
+              ? "Na malé ploše vašeho objektu předvedeme čištění. Výsledek uvidíte předem, bez závazku. Zdarma po celé ČR."
               : "Posoudíme povrch a navrhneme postup."}
           </p>
           <div className="rd-cta-actions">
             <a className="rd-btn rd-btn-light" href={action.href}>
               {action.label} <ArrowRight size={18} aria-hidden="true" />
             </a>
-            <a className="rd-cta-phone" href="tel:+420773196097">
-              <Phone size={18} aria-hidden="true" /> +420 773 196 097
+            <a className="rd-cta-phone" href={primaryPhone.href}>
+              <Phone size={18} aria-hidden="true" /> {primaryPhone.phone}
             </a>
           </div>
         </div>
         <img
           className="rd-cta-mascot"
-          src="/mascot/dr-fasada.png"
+          src="/mascot/dr-fasada-440.webp"
           alt=""
           width="655"
           height="800"

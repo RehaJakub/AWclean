@@ -1,0 +1,1304 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+new file mode 100644
+index 0000000..2c82c8d
+--- /dev/null
++++ b/.github/workflows/ci.yml
+@@ -0,0 +1,33 @@
++name: CI
++
++on:
++  pull_request:
++  push:
++    branches: [main]
++
++permissions:
++  contents: read
++
++concurrency:
++  group: ci-${{ github.ref }}
++  cancel-in-progress: true
++
++jobs:
++  check:
++    runs-on: ubuntu-24.04
++    timeout-minutes: 15
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 24
++          cache: npm
++      - run: npm ci
++      - run: npm run lint --if-present
++      - run: npm test
++      - run: npm run build
++      - run: npm run check:build
++      # Celý strom: Vite, sharp a TypeScript běží při buildu v CI (devDependencies).
++      - run: npm audit --audit-level=high
++      - name: PHP syntaxe endpointu formuláře
++        run: if [ -f public/contact.php ]; then php -l public/contact.php; fi
+diff --git a/.github/workflows/deploy.yml b/.github/workflows/deploy.yml
+new file mode 100644
+index 0000000..dccdc2a
+--- /dev/null
++++ b/.github/workflows/deploy.yml
+@@ -0,0 +1,99 @@
++name: Deploy
++
++# Nasazení: push tagu v* (např. v2026.11.01) nebo ručně. Rollback = ruční spuštění s předchozím tagem.
++on:
++  push:
++    tags: ["v*"]
++  workflow_dispatch:
++    inputs:
++      ref:
++        description: "Tag nebo commit k nasazení (rollback: předchozí tag)"
++        required: true
++        default: main
++      prune_assets:
++        description: "Smazat staré hashované soubory v /assets/ (jednou za čas, ne hned po vydání)"
++        type: boolean
++        default: false
++
++permissions:
++  contents: read
++
++concurrency:
++  group: deploy-production
++  cancel-in-progress: false
++
++jobs:
++  deploy:
++    runs-on: ubuntu-24.04
++    timeout-minutes: 30
++    environment:
++      name: production
++      url: ${{ vars.SITE_URL || 'https://www.awclean.cz' }}
++    env:
++      SITE_URL: ${{ vars.SITE_URL || 'https://www.awclean.cz' }}
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          ref: ${{ inputs.ref || github.ref }}
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 24
++          cache: npm
++      - run: npm ci
++      - run: npm test
++
++      - name: Build
++        env:
++          VITE_CONTACT_ENDPOINT: ${{ vars.VITE_CONTACT_ENDPOINT }}
++        run: |
++          test -n "$VITE_CONTACT_ENDPOINT" || { echo "::error::Chybí proměnná prostředí production VITE_CONTACT_ENDPOINT"; exit 1; }
++          npm run build
++          npm run check:build
++          grep -qF "$VITE_CONTACT_ENDPOINT" dist/assets/index-*.js
++          # Na Apache nepatří: pravidla pro Netlify a interní poznámky k fotkám.
++          rm -f dist/_redirects
++          find dist -name '*.md' -delete
++
++      - uses: actions/upload-artifact@v4
++        with:
++          name: dist-${{ github.sha }}
++          path: dist
++          include-hidden-files: true
++          retention-days: 90
++
++      - name: Install lftp
++        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
++
++      - name: Upload
++        env:
++          DEPLOY_PROTOCOL: ${{ vars.DEPLOY_PROTOCOL }}
++          DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
++          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
++          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
++          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
++          LFTP_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
++          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
++          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
++          PRUNE_ASSETS: ${{ inputs.prune_assets && '1' || '0' }}
++        run: |
++          umask 077
++          mkdir -p ~/.ssh
++          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
++          if [ -n "$SSH_KEY" ]; then
++            printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
++            export DEPLOY_KEY_FILE=~/.ssh/deploy_key
++          fi
++          sh scripts/deploy.sh
++
++      - name: Smoke test
++        run: |
++          set -eu
++          expected=$(grep -o '/assets/index-[A-Za-z0-9_-]*\.js' dist/index.html | head -n1)
++          live=$(curl -fsS "$SITE_URL/" | grep -o '/assets/index-[A-Za-z0-9_-]*\.js' | head -n1)
++          test "$live" = "$expected" || { echo "::error::Živá homepage odkazuje na $live, build na $expected"; exit 1; }
++          curl -fsS -o /dev/null "$SITE_URL$expected"
++          grep -o '<loc>[^<]*' dist/sitemap.xml | sed 's#<loc>https://[^/]*##' | while read -r path; do
++            curl -fsS -o /dev/null "$SITE_URL$path"
++          done
++          test "$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/neexistuje/")" = 404
++          curl -fsSI "$SITE_URL/" | grep -qi '^content-security-policy:'
+diff --git a/deploy/htaccess.template b/deploy/htaccess.template
+new file mode 100644
+index 0000000..1f8773f
+--- /dev/null
++++ b/deploy/htaccess.template
+@@ -0,0 +1,103 @@
++# AWCLEAN – konfigurace pro sdílený Apache (Wedos, svethostingu.cz) / LiteSpeed (Hostinger).
++# Generuje se při buildu z deploy/htaccess.template (vite.config.ts). Neupravovat v dist ani na FTP:
++# každý deploy soubor přepíše. Všechny direktivy patří do kategorií FileInfo/Indexes/Options=Indexes,
++# které povoluje i nejpřísnější sdílený hosting (Wedos zakazuje jiné volby Options, SetEnv, php_value).
++
++AddDefaultCharset utf-8
++AddCharset utf-8 .css .js .json .xml .txt .svg
++AddType font/woff2 .woff2
++AddType image/webp .webp
++DirectoryIndex index.html
++ErrorDocument 404 /404.html
++ErrorDocument 410 /404.html
++# ETag + komprese: mod_deflate přidává k ETag „-gzip“ a revalidace pak vrací 200 místo 304. Stačí Last-Modified.
++FileETag None
++Options -Indexes
++
++<IfModule mod_rewrite.c>
++  RewriteEngine On
++
++  # 1) Skryté a neveřejné soubory → 404 (ne 403, nic neprozrazuje). .well-known zůstává pro ACME.
++  RewriteRule (^|/)\.(?!well-known/) - [R=404,L]
++  RewriteRule (^|/)(composer\.(json|lock)|package(-lock)?\.json|vendor/|private/|config(\.[a-z]+)?$) - [R=404,L,NC]
++  RewriteRule \.(bak|old|orig|save|swp|tmp|dist|map|md|log|sql|sqlite|ini|env|ya?ml|lock|sh|zip|tar|gz|tgz|7z|rar)$ - [R=404,L,NC]
++  RewriteRule ~$ - [R=404,L]
++  RewriteRule ^_redirects$ - [R=404,L]
++
++  # 2) Migrace ze starého webu (Smartweb): PDF osvědčení a obrázky galerií. Absolutní cíl = jeden skok.
++  RewriteRule ^data/awclean\.cz/documents/Osvedcenie--AWCLEAN\.pdf$ @SITE_URL@/documents/osvedceni-awclean.pdf [R=301,L,NC]
++  RewriteCond %{DOCUMENT_ROOT}/images/projects/$1 -f
++  RewriteRule ^data/awclean\.cz/images/tmp/(.+)$ @SITE_URL@/images/projects/$1 [R=301,L]
++  # Mytí oken (stará URL v sitemap): ROZHODNE VLASTNÍK (SEO-5). Bez pravidla vrací 404.
++  # Pokud se služba už nedělá a má rychle zmizet z indexu, odkomentujte 410 Gone:
++  # RewriteRule ^ostatni-sluzby/myti-oken/?$ - [G]
++
++  # 3) Staré adresy (generováno z routeAliases v src/lib/routes.ts), absolutní cíl = jeden skok i z http/bez www.
++# @ALIASES@
++
++  # 4) Adresář bez koncového lomítka → rovnou kanonická adresa (mod_dir by udělal další skok přes původní host).
++  RewriteCond %{REQUEST_FILENAME} -d
++  RewriteRule ^(.+[^/])$ @SITE_URL@/$1/ [R=301,L]
++
++  # 5) Kanonická doména: awclean.cz → https://www.awclean.cz jedním skokem.
++  RewriteCond %{HTTP_HOST} ^awclean\.cz$ [NC]
++  RewriteRule ^ https://www.awclean.cz%{REQUEST_URI} [R=301,L]
++
++  # 6) HTTP → HTTPS. Na Smartwebu (nginx) i na většině hostingů to dělá hosting sám – nechte zakomentované.
++  #    Zapnout jen tam, kde přepínač hostingu zapisuje do www/.htaccess (Wedos), protože deploy ho přepíše.
++  #    Tři podmínky = žádná smyčka ani za TLS proxy/CDN. Ověření: curl -sI http://www.awclean.cz/ → jediný 301.
++  # RewriteCond %{HTTPS} !=on
++  # RewriteCond %{HTTP:X-Forwarded-Proto} !=https
++  # RewriteCond %{ENV:HTTPS} !=on
++  # RewriteRule ^ https://www.awclean.cz%{REQUEST_URI} [R=301,L]
++</IfModule>
++
++# Komprese: brotli tam, kde ho hosting má, jinak gzip. Obrázky/fonty jsou už komprimované.
++# AddOutputFilterByType patří do mod_filter: bez něj by direktiva shodila web chybou 500, proto vnořené IfModule.
++<IfModule mod_filter.c>
++  <IfModule mod_brotli.c>
++    AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml application/xml application/javascript text/javascript application/json image/svg+xml
++  </IfModule>
++  <IfModule mod_deflate.c>
++    AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/javascript text/javascript application/json image/svg+xml
++  </IfModule>
++</IfModule>
++
++<IfModule mod_headers.c>
++  Header unset ETag
++  # Cache: HTML/sitemap/robots vždy revalidovat; hashované soubory Vite (název-XXXXXXXX.js|css|woff2) rok;
++  # obrázky, fonty a PDF 30 dní (nemají hash v názvu).
++  <FilesMatch "\.(html|xml|txt)$">
++    Header set Cache-Control "no-cache"
++  </FilesMatch>
++  <FilesMatch "\.(webp|avif|jpe?g|png|svg|ico|gif|woff2?|pdf)$">
++    Header set Cache-Control "public, max-age=2592000"
++  </FilesMatch>
++  <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|css|woff2)$">
++    Header set Cache-Control "public, max-age=31536000, immutable"
++  </FilesMatch>
++  # Odpověď formuláře (osobní údaje) se nesmí ukládat do žádné cache.
++  <Files "contact.php">
++    Header always set Cache-Control "no-store"
++  </Files>
++
++  # Bezpečnostní hlavičky. connect-src/form-action 'self' pokrývají /contact.php na stejné doméně.
++  # style-src bez 'unsafe-inline': předvykreslené HTML nesmí obsahovat atribut style="" (prohlížeč ho zahodí);
++  # React style={…} po hydrataci je v pořádku. Hlídá to scripts/verify-build.ts.
++  # Varianta s Cloudflare Turnstile ve formuláři (SEC-3): do script-src i frame-src přidat
++  # https://challenges.cloudflare.com (frame-src 'none' → frame-src https://challenges.cloudflare.com).
++  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
++  Header always set X-Content-Type-Options "nosniff"
++  Header always set X-Frame-Options "DENY"
++  Header always set Referrer-Policy "strict-origin-when-cross-origin"
++  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
++  Header always set Cross-Origin-Opener-Policy "same-origin"
++  # CORP jen pro HTML: obrázky a PDF smějí vkládat i jiné weby (awclean.sk, Google Obrázky).
++  <FilesMatch "\.html$">
++    Header always set Cross-Origin-Resource-Policy "same-origin"
++  </FilesMatch>
++  # HSTS jen přes HTTPS. Současný web (Smartweb) už posílá max-age=31536000, prohlížeče návštěvníků ho
++  # mají uložený – snížení by nic nezměnilo, proto rovnou 1 rok. includeSubDomains/preload ne:
++  # mail.awclean.cz a webmail běží u Smartwebu a jejich HTTPS tu neřídíme.
++  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on' || %{HTTP:X-Forwarded-Proto} == 'https'"
++</IfModule>
+diff --git a/public/contact.php b/public/contact.php
+new file mode 100644
+index 0000000..651ce42
+--- /dev/null
++++ b/public/contact.php
+@@ -0,0 +1,219 @@
++<?php
++// Endpoint kontaktního formuláře AWCLEAN (public/contact.php → dist/contact.php → webroot).
++// config.php, PHPMailer a rate-limit soubor leží v private/ o úroveň výš, nebo v private/ ve webrootu
++// chráněném vlastním .htaccess ("Require all denied").
++declare(strict_types=1);
++
++use PHPMailer\PHPMailer\Exception as MailException;
++use PHPMailer\PHPMailer\PHPMailer;
++
++ini_set('display_errors', '0');
++header('X-Content-Type-Options: nosniff');
++header('Cache-Control: no-store');
++
++const PHONE_HINT = 'Zavolejte nám prosím na +420 773 196 097 nebo napište na info@awclean.cz.';
++// Krátké názvy služeb = shortTitle ze src/data/pages/*.ts. Jiné hodnoty se tiše zahodí.
++const SERVICES = [
++    'Čištění fasád', 'Čištění střech', 'Čištění dlažeb', 'Čištění průmyslových objektů',
++    'Čištění světlíků', 'Hliníkové fasády', 'Historické fasády', 'Čištění pomníků',
++    'Nátěry střech a fasád (airless)', 'Impregnace fasád a střech', 'Nano impregnace',
++    'Odstraňování dopravního značení',
++];
++
++$isJson = str_starts_with(strtolower($_SERVER['CONTENT_TYPE'] ?? ''), 'application/json');
++$cfg = null;
++
++/** Ukončí request: JSON pro fetch, jinak 303 na Kontakt nebo jednoduchá HTML stránka. */
++function finish(int $status, array $errors = [], array $headers = []): never
++{
++    global $isJson, $cfg;
++    foreach ($headers as $h) header($h);
++    if ($isJson) {
++        http_response_code($status);
++        header('Content-Type: application/json; charset=utf-8');
++        echo json_encode($status === 200 ? ['ok' => true] : ['ok' => false, 'errors' => $errors], JSON_UNESCAPED_UNICODE);
++        exit;
++    }
++    if ($status === 200) {
++        header('Location: ' . $cfg['success_url'], true, 303);
++        exit;
++    }
++    http_response_code($status);
++    header('Content-Type: text/html; charset=utf-8');
++    $items = implode('', array_map(fn ($e) => '<li>' . htmlspecialchars($e, ENT_QUOTES, 'UTF-8') . '</li>', $errors));
++    echo '<!doctype html><html lang="cs"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
++        . '<meta name="robots" content="noindex"><title>Poptávku se nepodařilo odeslat | AWCLEAN</title>'
++        . '<body><h1>Poptávku se nepodařilo odeslat</h1><ul>' . $items . '</ul>'
++        . '<p><a href="/kontakt/#kontakt">Zpět na formulář</a> nebo nám zavolejte na <a href="tel:+420773196097">+420 773 196 097</a>.</p></body></html>';
++    exit;
++}
++
++/** Otevře rate-limit soubor se zámkem, předá data callbacku a uloží je. */
++function withLimits(callable $fn): mixed
++{
++    global $cfg;
++    $fh = fopen($cfg['ratelimit_file'], 'c+');
++    if ($fh === false || !flock($fh, LOCK_EX)) finish(503, ['form' => 'Formulář je dočasně nedostupný. ' . PHONE_HINT]);
++    $data = json_decode((string) stream_get_contents($fh), true);
++    $data = ['ip' => (array) ($data['ip'] ?? []), 'sent' => (array) ($data['sent'] ?? [])];
++    $result = $fn($data);
++    ftruncate($fh, 0);
++    rewind($fh);
++    fwrite($fh, json_encode($data));
++    flock($fh, LOCK_UN);
++    fclose($fh);
++    return $result;
++}
++
++foreach ([__DIR__ . '/../private/config.php', __DIR__ . '/private/config.php'] as $path) {
++    if (is_file($path)) {
++        $cfg = require $path;
++        break;
++    }
++}
++if (!is_array($cfg)) {
++    error_log('contact.php: config.php not found');
++    finish(503, ['form' => 'Formulář je dočasně nedostupný. ' . PHONE_HINT]);
++}
++require $cfg['phpmailer_dir'] . '/Exception.php';
++require $cfg['phpmailer_dir'] . '/PHPMailer.php';
++require $cfg['phpmailer_dir'] . '/SMTP.php';
++
++if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
++    finish(405, ['form' => 'Použijte prosím formulář na stránce Kontakt.'], ['Allow: POST']);
++}
++
++$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
++if ($origin !== '' && !in_array($origin, $cfg['allowed_origins'], true)) {
++    finish(403, ['form' => 'Požadavek nepochází z webu AWCLEAN.']);
++}
++
++$maxBytes = 16 * 1024;
++if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > $maxBytes) {
++    finish(413, ['form' => 'Zpráva je příliš dlouhá.']);
++}
++
++if ($isJson) {
++    $raw = (string) stream_get_contents(fopen('php://input', 'rb'), $maxBytes + 1);
++    if (strlen($raw) > $maxBytes) finish(413, ['form' => 'Zpráva je příliš dlouhá.']);
++    $input = json_decode($raw, true, 4);
++    if (!is_array($input)) finish(400, ['form' => 'Neplatná data formuláře.']);
++} elseif (str_starts_with(strtolower($_SERVER['CONTENT_TYPE'] ?? ''), 'application/x-www-form-urlencoded')) {
++    $input = $_POST; // klasický POST bez JavaScriptu
++} else {
++    finish(415, ['form' => 'Nepodporovaný formát dat.']);
++}
++
++$field = static fn (string $k): string => is_string($input[$k] ?? null) ? $input[$k] : '';
++$values = [
++    'name' => trim($field('name')),
++    'phone' => trim($field('phone')),
++    'email' => trim($field('email')),
++    'message' => trim($field('message')),
++];
++$service = in_array($field('service'), SERVICES, true) ? $field('service') : '';
++$sample = $field('sample') === '1';
++
++// Honeypot: bot dostane stejnou odpověď jako člověk, e-mail se ale neodešle.
++if ($field('website') !== '') finish(200);
++
++// Doba vyplnění měřená v prohlížeči (fillMs = rozdíl dvou časů klienta) → posunuté hodiny nevadí.
++// Bez JS (klasický POST) údaj chybí, tam chrání honeypot, limit a případně Turnstile.
++$fillMs = $input['fillMs'] ?? null;
++if ($isJson && (!is_int($fillMs) || $fillMs < $cfg['min_fill_seconds'] * 1000 || $fillMs > 86_400_000)) {
++    finish(422, ['form' => 'Formulář byl odeslán příliš rychle. Počkejte prosím chvíli a odešlete ho znovu.']);
++}
++
++// Limit pokusů na IP (IP jen jako HMAC). Denní strop níže počítá jen skutečně odeslané e-maily.
++// ponytail: jeden soubor s globálním zámkem, pro desítky poptávek denně stačí; při vyšším provozu Redis/DB.
++$ip = (string) ($_SERVER[$cfg['client_ip_server_key']] ?? '');
++$ipKey = substr(hash_hmac('sha256', $ip, $cfg['secret']), 0, 32);
++$now = time();
++[$ipLimited, $capReached] = withLimits(static function (array &$data) use ($ipKey, $now, $cfg): array {
++    $data['ip'] = array_filter(array_map(
++        static fn ($list) => array_values(array_filter((array) $list, static fn ($t) => $t > $now - $cfg['rate_window_seconds'])),
++        $data['ip'],
++    ));
++    $data['sent'] = array_values(array_filter($data['sent'], static fn ($t) => $t > $now - 86400));
++    $ipLimited = count($data['ip'][$ipKey] ?? []) >= $cfg['rate_max_per_ip'];
++    if (!$ipLimited) $data['ip'][$ipKey][] = $now;
++    return [$ipLimited, count($data['sent']) >= $cfg['rate_max_per_day']];
++});
++if ($ipLimited) {
++    finish(429, ['form' => 'Odeslali jste příliš mnoho poptávek za krátkou dobu. Zkuste to prosím později nebo nám zavolejte.'], ['Retry-After: ' . $cfg['rate_window_seconds']]);
++}
++
++// Stejná pravidla jako src/lib/contact.ts validateContact + limity délek z formuláře.
++$errors = [];
++$len = static fn (string $s): int => mb_strlen($s, 'UTF-8');
++if ($len($values['name']) < 2 || $len($values['name']) > 200)
++    $errors['name'] = 'Vyplňte prosím jméno (alespoň 2 znaky).';
++if (!preg_match('/^\+?[\d\s()-]+$/u', $values['phone']) || !preg_match('/^[0-9]{9,15}$/', preg_replace('/\D/', '', $values['phone'])) || $len($values['phone']) > 30)
++    $errors['phone'] = 'Zadejte platný telefon, například +420 773 196 097.';
++if (!preg_match('/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/u', $values['email']) || $len($values['email']) > 200 || !PHPMailer::validateAddress($values['email']))
++    $errors['email'] = 'Zadejte platnou e-mailovou adresu.';
++if ($len($values['message']) < 10 || $len($values['message']) > 5000)
++    $errors['message'] = 'Popište prosím svůj požadavek alespoň 10 znaky.';
++foreach (['name', 'phone', 'email'] as $k) {
++    // CR/LF a řídicí znaky v jednořádkových polích = pokus o header injection.
++    if (preg_match('/[\x00-\x1F\x7F]/', $values[$k])) $errors[$k] = 'Pole obsahuje nepovolené znaky.';
++}
++if (!mb_check_encoding(implode('', $values), 'UTF-8')) $errors['form'] = 'Neplatné kódování textu.';
++if ($errors) finish(422, $errors);
++
++if ($capReached) {
++    error_log('contact.php: daily cap reached');
++    finish(503, ['form' => 'Poptávku teď nelze odeslat formulářem. ' . PHONE_HINT]);
++}
++
++if ($cfg['turnstile']['enabled']) {
++    $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
++    curl_setopt_array($ch, [
++        CURLOPT_POST => true,
++        CURLOPT_RETURNTRANSFER => true,
++        CURLOPT_TIMEOUT => 10,
++        CURLOPT_POSTFIELDS => http_build_query([
++            'secret' => $cfg['turnstile']['secret'],
++            'response' => $field('cf-turnstile-response'),
++            'remoteip' => $ip,
++        ]),
++    ]);
++    $verdict = json_decode((string) curl_exec($ch), true);
++    if (($verdict['success'] ?? false) !== true) finish(422, ['form' => 'Ověření, že nejste robot, se nezdařilo. Zkuste to prosím znovu.']);
++}
++
++$context = trim(($service !== '' ? " – $service" : '') . ($sample ? ' (ukázka zdarma)' : ''));
++$mail = new PHPMailer(true);
++try {
++    $mail->isSMTP();
++    $mail->Host = $cfg['smtp']['host'];
++    $mail->Port = $cfg['smtp']['port'];
++    $mail->SMTPSecure = $cfg['smtp']['secure'];
++    $mail->SMTPAutoTLS = $cfg['smtp']['secure'] !== '';
++    $mail->SMTPAuth = $cfg['smtp']['user'] !== '';
++    $mail->Username = $cfg['smtp']['user'];
++    $mail->Password = $cfg['smtp']['pass'];
++    $mail->Timeout = 10;
++    $mail->CharSet = PHPMailer::CHARSET_UTF8;
++    $mail->Encoding = PHPMailer::ENCODING_QUOTED_PRINTABLE;
++    $mail->setFrom($cfg['mail_from'], $cfg['mail_from_name'], false);
++    $mail->addAddress($cfg['mail_to']);
++    $mail->addReplyTo($values['email'], $values['name']);
++    $mail->Subject = 'Poptávka z webu: ' . $values['name'] . ($context !== '' ? ' ' . $context : '');
++    $mail->isHTML(false);
++    $mail->Body = "Nová poptávka z formuláře na www.awclean.cz\n\n"
++        . ($service !== '' ? "Služba: $service\n" : '')
++        . ($sample ? "Ukázka čištění zdarma: ano\n" : '')
++        . "Jméno: {$values['name']}\nTelefon: {$values['phone']}\nE-mail: {$values['email']}\n\n"
++        . "Zpráva:\n{$values['message']}\n\n"
++        . '-- Odpovědí na tento e-mail odpovíte přímo zákazníkovi.';
++    $mail->send();
++} catch (MailException) {
++    // Do logu jen technická chyba, žádné údaje z formuláře.
++    error_log('contact.php: SMTP send failed: ' . $mail->ErrorInfo);
++    finish(502, ['form' => 'Poptávku se nepodařilo odeslat. ' . PHONE_HINT]);
++}
++withLimits(static function (array &$data) use ($now): void {
++    $data['sent'][] = $now;
++});
++finish(200);
+diff --git a/scripts/deploy.sh b/scripts/deploy.sh
+new file mode 100644
+index 0000000..d82c511
+--- /dev/null
++++ b/scripts/deploy.sh
+@@ -0,0 +1,55 @@
++#!/bin/sh
++# Nasazení dist/ na sdílený hosting přes lftp (SFTP, záložně FTPS) ve 4 krocích,
++# aby web během nahrávání nikdy neodkazoval na soubor, který ještě/už neexistuje:
++#   1. assets/  – hashované JS/CSS/fonty, jen přidat (staré zůstávají pro otevřené záložky)
++#   2. ostatní statické soubory (obrázky, maskot, PDF, favicony) – jen přidat
++#   3. HTML, .htaccess, sitemap, robots – vždy všechny (--transfer-all: stejná velikost i čas neznamená
++#      stejný obsah, hash v názvu assetu má pevnou délku), každý do dočasného souboru a přejmenovat
++#   4. smazat zastaralé soubory mimo assets/ a mimo chráněné cesty (private/, vendor/…; contact.php je v dist z public/)
++# Proměnné: DEPLOY_PROTOCOL=sftp|ftps, DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER, LFTP_PASSWORD,
++#   DEPLOY_PATH (např. /www, /public_html, domains/awclean.cz/public_html),
++#   volitelně DEPLOY_KEY_FILE (SFTP klíč), DEPLOY_KNOWN_HOSTS (soubor), PRUNE_ASSETS=1, DIST=dist
++set -eu
++DIST=${DIST:-dist}
++: "${DEPLOY_HOST:?}" "${DEPLOY_USER:?}" "${DEPLOY_PATH:?}"
++PROTO=${DEPLOY_PROTOCOL:-sftp}
++if [ ! -f "$DIST/index.html" ] || [ ! -f "$DIST/.htaccess" ]; then echo "Chybí $DIST/index.html nebo .htaccess" >&2; exit 1; fi
++
++# Soubory na serveru, které deploy nikdy nesmaže ani nepřepíše (backend formuláře, hosting, ACME).
++PROTECT="-x ^contact-config\.php$ -x ^vendor/ -x ^private/ -x ^\.well-known/ -x ^\.user\.ini$ -x ^cgi-bin/ -x ^domains/ -x ^subdom/ -x ^logs?/ -x ^stats/"
++M="mirror --reverse --no-perms --parallel=4 --verbose=1"
++
++if [ "$PROTO" = sftp ]; then
++  SSH="ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${DEPLOY_KNOWN_HOSTS:-$HOME/.ssh/known_hosts}"
++  if [ -n "${DEPLOY_KEY_FILE:-}" ]; then SSH="$SSH -i $DEPLOY_KEY_FILE"; fi
++  SETUP="set sftp:connect-program \"$SSH\"; set net:max-retries 3; set net:timeout 30"
++  URL="sftp://$DEPLOY_HOST:${DEPLOY_PORT:-22}"
++else
++  # FTPS (explicit TLS). Certifikát sdíleného hostingu bývá na jméno serveru, ne domény – DEPLOY_HOST = jméno serveru.
++  SETUP="set ftp:ssl-force true; set ftp:ssl-protect-data true; set ssl:verify-certificate true; set ftp:passive-mode true; set ftp:list-options -a; set net:max-retries 3; set net:timeout 30"
++  URL="ftp://$DEPLOY_HOST:${DEPLOY_PORT:-21}"
++fi
++# Prázdné heslo je u přihlášení klíčem v pořádku; --env-password čte LFTP_PASSWORD, heslo není v argv.
++export LFTP_PASSWORD="${LFTP_PASSWORD:-}"
++
++PRUNE_ASSETS_CMD=""
++if [ "${PRUNE_ASSETS:-0}" = 1 ]; then PRUNE_ASSETS_CMD="$M --delete --ignore-time $DIST/assets assets"; fi
++
++lftp -c "
++$SETUP
++set xfer:use-temp-file yes
++set xfer:temp-file-name .in.*
++open --env-password -u $DEPLOY_USER $URL
++mkdir -pf $DEPLOY_PATH
++cd $DEPLOY_PATH
++echo '== 1/4 assets'
++$M --ignore-time $DIST/assets assets
++echo '== 2/4 statické soubory'
++$M --ignore-time -x ^assets/ -x \.html$ -x ^\.htaccess$ -x ^sitemap\.xml$ -x ^robots\.txt$ $PROTECT $DIST .
++echo '== 3/4 HTML a konfigurace'
++$M --transfer-all -i \.html$ -i ^\.htaccess$ -i ^sitemap\.xml$ -i ^robots\.txt$ -x ^assets/ $PROTECT $DIST .
++echo '== 4/4 úklid'
++$M --delete --ignore-time -x ^assets/ -x '(^|/)\.in\.' $PROTECT $DIST .
++$PRUNE_ASSETS_CMD
++"
++echo "Nasazeno: $DIST → $DEPLOY_HOST:$DEPLOY_PATH"
+diff --git a/scripts/verify-build.ts b/scripts/verify-build.ts
+index b5e1174..eb29041 100644
+--- a/scripts/verify-build.ts
++++ b/scripts/verify-build.ts
+@@ -1,7 +1,15 @@
+ import assert from "node:assert/strict";
+-import { readFileSync, existsSync } from "node:fs";
++import { readFileSync, existsSync, readdirSync } from "node:fs";
+ import { resolve } from "node:path";
++const escapeText = (value: string): string =>
++  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+ const sitemap = readFileSync("dist/sitemap.xml", "utf8");
++const htaccess = readFileSync("dist/.htaccess", "utf8");
++assert.match(htaccess, /Content-Security-Policy/, "Chybí CSP v .htaccess");
++assert.match(htaccess, /RewriteRule \^ochrana-osobnich-udaju/, "Chybí aliasy v .htaccess");
++// CSP style-src 'self' zahodí každý předvykreslený atribut style="".
++for (const file of readdirSync("dist", { recursive: true, encoding: "utf8" }).filter((name) => name.endsWith(".html")))
++  assert.doesNotMatch(readFileSync(resolve("dist", file), "utf8"), /\sstyle="/, `Inline style v ${file} poruší CSP`);
+ const titles = new Set<string>();
+ const descriptions = new Set<string>();
+ const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+@@ -18,8 +26,23 @@ for (const url of urls) {
+   );
+   const structuredData: unknown[] = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+     .map((match) => JSON.parse(match[1]) as unknown);
+-  const faq = structuredData.find((entry) => entry && typeof entry === "object" && "@type" in entry && entry["@type"] === "FAQPage");
+-  assert.ok(faq && typeof faq === "object" && "mainEntity" in faq && Array.isArray(faq.mainEntity) && faq.mainEntity.length === 9, `Chybí FAQPage: ${url.pathname}`);
++  const ofType = (type: string) =>
++    structuredData.filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === "object" && "@type" in entry && entry["@type"] === type);
++  // FAQPage jen tam, kde je FAQ vidět, a jen s viditelnými otázkami.
++  const visibleQuestions = [...html.matchAll(/<summary><span>([^<]+)<\/span>/g)].map((match) => match[1]);
++  const faq = ofType("FAQPage");
++  assert.equal(faq.length, visibleQuestions.length ? 1 : 0, `FAQPage neodpovídá viditelnému FAQ: ${url.pathname}`);
++  if (faq.length)
++    assert.deepEqual(
++      (faq[0].mainEntity as { name: string }[]).map((question) => escapeText(question.name)),
++      visibleQuestions,
++      `FAQPage obsahuje jiné otázky, než stránka zobrazuje: ${url.pathname}`,
++    );
++  const crumbs = html.match(/aria-label="Drobečková navigace"><ol>([\s\S]*?)<\/ol>/)?.[1];
++  const breadcrumbList = ofType("BreadcrumbList");
++  assert.equal(breadcrumbList.length, crumbs ? 1 : 0, `BreadcrumbList neodpovídá drobečkům: ${url.pathname}`);
++  if (crumbs)
++    assert.equal((breadcrumbList[0].itemListElement as unknown[]).length, crumbs.match(/<li>/g)?.length);
+   const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+   const description = html.match(/name="description"\s+content="([^"]+)"/)?.[1];
+   assert.ok(title && description);
+@@ -56,27 +79,14 @@ for (const url of urls) {
+     /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
+   )?.[1];
+   assert.ok(metadata, `Chybí JSON-LD: ${url.pathname}`);
+-  const business: unknown = JSON.parse(metadata);
+-  assert.ok(
+-    typeof business === "object" &&
+-      business !== null &&
+-      "@type" in business &&
+-      business["@type"] === "LocalBusiness",
+-  );
+-  assert.ok(
+-    "address" in business &&
+-      JSON.stringify(business.address).includes("Na Výsluní 298"),
+-  );
+-  assert.ok(
+-    "telephone" in business &&
+-      Array.isArray(business.telephone) &&
+-      business.telephone.length === 3,
+-  );
+-  assert.ok(
+-    "email" in business &&
+-      Array.isArray(business.email) &&
+-      business.email.length === 2,
+-  );
++  const graph: unknown = JSON.parse(metadata);
++  assert.ok(typeof graph === "object" && graph !== null && "@graph" in graph && Array.isArray(graph["@graph"]));
++  const business = (graph["@graph"] as Record<string, unknown>[]).find((node) => node["@type"] === "HomeAndConstructionBusiness");
++  assert.ok(business, `Chybí HomeAndConstructionBusiness: ${url.pathname}`);
++  assert.ok(JSON.stringify(business.address).includes("Na Výsluní 298"));
++  assert.equal(business.telephone, "+420 773 196 097");
++  assert.equal((business.contactPoint as unknown[]).length, 3);
++  assert.equal((business.areaServed as unknown[]).length, 2);
+   assert.match(html, /name="twitter:card" content="summary_large_image"/);
+   for (const field of ["title", "description", "image"]) {
+     const og = html.match(
+@@ -93,7 +103,9 @@ for (const url of urls) {
+       throw new Error(`Chybí asset: ${match[1]}`);
+   }
+ }
+-if (!readFileSync("dist/404.html", "utf8").includes('content="noindex"'))
++const notFound = readFileSync("dist/404.html", "utf8");
++assert.ok(!notFound.includes('"FAQPage"'), "404 nesmí mít FAQPage.");
++if (!notFound.includes('content="noindex"'))
+   throw new Error("404 musí obsahovat noindex.");
+ if (
+   !readFileSync("public/documents/osvedceni-awclean.pdf")
+diff --git a/src/App.tsx b/src/App.tsx
+index 30e15ef..ab55d44 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,5 +1,4 @@
+ import { lazy, Suspense, useEffect, useState } from "react";
+-import { faqSchema } from "./data/faq";
+ const MascotWidget = lazy(() => import("./components/MascotWidget"));
+ import { Navbar } from "./components/Navbar";
+ import { Footer } from "./components/Footer";
+@@ -128,7 +127,6 @@ export default function App({
+       />
+       <main id="main">{content}</main>
+       <Footer currentPath={route.path} />
+-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
+       <Suspense fallback={null}>{clientReady && route.kind !== "advice" && <MascotWidget />}</Suspense>
+     </>
+   );
+diff --git a/src/components/ContactForm.tsx b/src/components/ContactForm.tsx
+index 05cf198..b2bd6ed 100644
+--- a/src/components/ContactForm.tsx
++++ b/src/components/ContactForm.tsx
+@@ -1,4 +1,4 @@
+-import { useRef, useState, type FormEvent, type ReactNode } from "react";
++import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+ import {
+   ArrowRight,
+   Check,
+@@ -10,8 +10,10 @@ import {
+ } from "lucide-react";
+ import { contacts, emails, privacyUrl } from "../data/contacts";
+ import {
++  ContactError,
+   contactMailto,
+   initialValues,
++  inquiryContext,
+   sendContact,
+   validateContact,
+   type ContactErrors,
+@@ -33,6 +35,16 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
+   const [status, setStatus] = useState<SubmitStatus>("idle");
+   const [errorMessage, setErrorMessage] = useState("");
+   const form = useRef<HTMLFormElement>(null);
++  const honeypot = useRef<HTMLInputElement>(null);
++  const startedAt = useRef(0);
++  const [context, setContext] = useState({ service: "", sample: "" });
++  useEffect(() => {
++    startedAt.current = performance.now();
++    setContext(inquiryContext(window.location.search));
++    // Návrat z odeslání bez JavaScriptu (contact.php → 303 /kontakt/?odeslano=1).
++    if (new URLSearchParams(window.location.search).has("odeslano"))
++      setStatus("success");
++  }, []);
+   const update = (field: keyof ContactValues, value: string): void => {
+     setValues((previous) => ({ ...previous, [field]: value }));
+     setErrors((previous) => ({ ...previous, [field]: undefined }));
+@@ -54,13 +66,18 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
+     }
+     setStatus("sending");
+     try {
+-      await sendContact(values, endpoint);
++      await sendContact(values, endpoint, {
++        website: honeypot.current?.value ?? "",
++        // Rozdíl dvou časů téhož prohlížeče: nezávisí na posunu hodin vůči serveru.
++        fillMs: Math.round(performance.now() - startedAt.current),
++        ...context,
++      });
+       setStatus("success");
+       setValues(initialValues);
+     } catch (error: unknown) {
+       setStatus("error");
+       setErrorMessage(
+-        error instanceof Error && error.name !== "AbortError"
++        error instanceof ContactError
+           ? error.message
+           : "Spojení se nezdařilo nebo vypršel časový limit. Zkuste to znovu, případně nám zavolejte.",
+       );
+@@ -122,6 +139,8 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
+         <form
+           ref={form}
+           className="contact-form"
++          method="post"
++          action={endpoint || undefined}
+           noValidate
+           onSubmit={(event) => {
+             void submit(event);
+@@ -130,6 +149,16 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
+         >
+           <h3>S čím vám můžeme pomoci?</h3>
+           <p>Nechte nám na sebe kontakt. Společně najdeme řešení.</p>
++          {(context.service || context.sample) && (
++            <p className="form-context">
++              Poptávka:{" "}
++              {[context.service, context.sample && "ukázka čištění zdarma"]
++                .filter(Boolean)
++                .join(" · ")}
++            </p>
++          )}
++          <input type="hidden" name="service" value={context.service} />
++          <input type="hidden" name="sample" value={context.sample} />
+           <div className="form-grid">
+             {(["name", "phone", "email", "message"] as const).map((field) => {
+               const labels: Record<keyof ContactValues, string> = {
+@@ -201,6 +230,11 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
+               );
+             })}
+           </div>
++          {/* Honeypot: lidé ho nevidí ani nečtou čtečkou, boti ho vyplní. */}
++          <div className="hp-field" aria-hidden="true">
++            <label htmlFor="website">Web (nevyplňujte)</label>
++            <input ref={honeypot} id="website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
++          </div>
+           <p className="privacy-note">
+             Odesláním nás žádáte o zpracování poptávky. Více o{" "}
+             <a href={privacyUrl}>ochraně osobních údajů</a>.
+diff --git a/src/components/Hero.tsx b/src/components/Hero.tsx
+index 8eb8a30..0a0ecea 100644
+--- a/src/components/Hero.tsx
++++ b/src/components/Hero.tsx
+@@ -33,7 +33,8 @@ export function Hero() {
+       ref={section}
+       className="rd-hero"
+       aria-label="Porovnání cihlové fasády před čištěním a po něm"
+-      style={{ "--split": `${split}%` } as CSSProperties}
++      // Výchozí 50 % je v CSS, takže předvykreslené HTML nemá style="" a projde CSP bez 'unsafe-inline'.
++      style={split === 50 ? undefined : ({ "--split": `${split}%` } as CSSProperties)}
+       onPointerDown={start}
+       onPointerMove={(event) => {
+         if (dragging.current) moveTo(event.clientX);
+diff --git a/src/components/JsonLd.tsx b/src/components/JsonLd.tsx
+new file mode 100644
+index 0000000..15fce94
+--- /dev/null
++++ b/src/components/JsonLd.tsx
+@@ -0,0 +1,9 @@
++/** Structured data rendered next to the content it describes; `<` is escaped so text cannot close the script. */
++export function JsonLd({ data }: { data: object }) {
++  return (
++    <script
++      type="application/ld+json"
++      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
++    />
++  );
++}
+diff --git a/src/components/layout/Breadcrumbs.tsx b/src/components/layout/Breadcrumbs.tsx
+index edfaef1..ff36216 100644
+--- a/src/components/layout/Breadcrumbs.tsx
++++ b/src/components/layout/Breadcrumbs.tsx
+@@ -1,4 +1,5 @@
+ import { ChevronRight, House } from "lucide-react";
++import { JsonLd } from "../JsonLd";
+ interface BreadcrumbItem {
+   label: string;
+   href?: string;
+@@ -7,7 +8,21 @@ interface BreadcrumbsProps {
+   items: BreadcrumbItem[];
+ }
+ export function Breadcrumbs({ items }: BreadcrumbsProps) {
++  const trail = [{ label: "Úvod", href: "/" }, ...items];
+   return (
++    <>
++    <JsonLd
++      data={{
++        "@context": "https://schema.org",
++        "@type": "BreadcrumbList",
++        itemListElement: trail.map((item, index) => ({
++          "@type": "ListItem",
++          position: index + 1,
++          name: item.label,
++          ...(item.href && { item: `https://www.awclean.cz${item.href}` }),
++        })),
++      }}
++    />
+     <nav className="breadcrumbs container" aria-label="Drobečková navigace">
+       <ol>
+         <li>
+@@ -28,5 +43,6 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
+         ))}
+       </ol>
+     </nav>
++    </>
+   );
+ }
+diff --git a/src/data/faq.test.ts b/src/data/faq.test.ts
+index 0e89dd1..c75dafc 100644
+--- a/src/data/faq.test.ts
++++ b/src/data/faq.test.ts
+@@ -13,7 +13,7 @@ describe("FAQ DR Fasáda", () => {
+   });
+   it("publikuje totožné otázky a odpovědi do FAQPage", () => {
+     expect(new Set(faqItems.map((item) => item.id)).size).toBe(faqItems.length);
+-    expect(faqSchema.mainEntity.map((item) => [item.name, item.acceptedAnswer.text]))
++    expect(faqSchema(faqItems).mainEntity.map((item) => [item.name, item.acceptedAnswer.text]))
+       .toEqual(faqItems.map((item) => [item.question, item.answer]));
+   });
+ });
+diff --git a/src/data/faq.ts b/src/data/faq.ts
+index e982d0b..e2f3d69 100644
+--- a/src/data/faq.ts
++++ b/src/data/faq.ts
+@@ -71,11 +71,12 @@ export function filterFaq(category: FaqCategory, query: string): FaqItem[] {
+     terms.every((term) => normalize(`${item.question} ${item.answer}`).includes(term)),
+   );
+ }
+-export const faqSchema = {
++/** FAQPage only for the questions actually shown on the page (Google requires visible content). */
++export const faqSchema = (items: FaqItem[]) => ({
+   "@context": "https://schema.org",
+   "@type": "FAQPage",
+-  mainEntity: faqItems.map((item) => ({
++  mainEntity: items.map((item) => ({
+     "@type": "Question", name: item.question,
+     acceptedAnswer: { "@type": "Answer", text: item.answer },
+   })),
+-};
++});
+diff --git a/src/data/seo.ts b/src/data/seo.ts
+index f9b3014..260049a 100644
+--- a/src/data/seo.ts
++++ b/src/data/seo.ts
+@@ -1,65 +1,83 @@
+ import { contacts, emails } from "./contacts";
+-interface LocalBusinessData {
+-  "@context": "https://schema.org";
+-  "@type": "LocalBusiness";
+-  "@id": string;
+-  name: string;
+-  url: string;
+-  logo: string;
+-  image: string;
+-  telephone: string[];
+-  email: string[];
+-  address: {
+-    "@type": "PostalAddress";
+-    streetAddress: string;
+-    addressLocality: string;
+-    postalCode: string;
+-    addressCountry: string;
+-  };
+-  openingHoursSpecification: {
+-    "@type": "OpeningHoursSpecification";
+-    dayOfWeek: string[];
+-    opens: string;
+-    closes: string;
+-  }[];
+-  sameAs: string[];
+-}
+-export const localBusiness: LocalBusinessData = {
++import type { ServicePageData } from "./pages/types";
++const site = "https://www.awclean.cz";
++const areaServed = [
++  { "@type": "Country", name: "Česká republika", identifier: "CZ" },
++  { "@type": "Country", name: "Slovensko", identifier: "SK" },
++];
++/**
++ * Legal entity (registered seat in Slovakia, privacy.ts) and the Czech contact
++ * location shown on /kontakt/ and in the footer. Rendered into <head> by vite.config.ts.
++ */
++export const localBusiness = {
+   "@context": "https://schema.org",
+-  "@type": "LocalBusiness",
+-  "@id": "https://www.awclean.cz/#business",
+-  name: "AWCLEAN s.r.o.",
+-  url: "https://www.awclean.cz/",
+-  logo: "https://www.awclean.cz/images/logo.svg",
+-  image:
+-    "https://www.awclean.cz/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp",
+-  telephone: contacts.map(({ phone }) => phone),
+-  email: emails,
+-  address: {
+-    "@type": "PostalAddress",
+-    streetAddress: "Na Výsluní 298",
+-    addressLocality: "Chotětov",
+-    postalCode: "294 28",
+-    addressCountry: "CZ",
+-  },
+-  openingHoursSpecification: [
++  "@graph": [
+     {
+-      "@type": "OpeningHoursSpecification",
+-      dayOfWeek: [
+-        "Monday",
+-        "Tuesday",
+-        "Wednesday",
+-        "Thursday",
+-        "Friday",
+-        "Saturday",
+-        "Sunday",
+-      ].map((day) => `https://schema.org/${day}`),
+-      opens: "08:00",
+-      closes: "17:00",
++      "@type": "Organization",
++      "@id": `${site}/#organization`,
++      name: "AWCLEAN",
++      legalName: "AWCLEAN s.r.o.",
++      url: `${site}/`,
++      logo: `${site}/images/logo.svg`,
++      identifier: { "@type": "PropertyValue", propertyID: "IČO", value: "50823272" },
++      address: {
++        "@type": "PostalAddress",
++        streetAddress: "Čsl. armády 1457",
++        addressLocality: "Topoľčany",
++        postalCode: "955 01",
++        addressCountry: "SK",
++      },
++      email: emails,
++      sameAs: [
++        "https://www.facebook.com/awclean",
++        "https://www.youtube.com/@AWCLEANs.r.o",
++      ],
++    },
++    {
++      "@type": "HomeAndConstructionBusiness",
++      "@id": `${site}/#business`,
++      name: "AWCLEAN",
++      url: `${site}/`,
++      image: `${site}/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp`,
++      parentOrganization: { "@id": `${site}/#organization` },
++      telephone: contacts[0].phone,
++      email: emails[0],
++      address: {
++        "@type": "PostalAddress",
++        streetAddress: "Na Výsluní 298",
++        addressLocality: "Chotětov",
++        postalCode: "294 28",
++        addressCountry: "CZ",
++      },
++      areaServed,
++      openingHoursSpecification: {
++        "@type": "OpeningHoursSpecification",
++        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
++          .map((day) => `https://schema.org/${day}`),
++        opens: "08:00",
++        closes: "17:00",
++      },
++      contactPoint: contacts.map(({ phone, label }) => ({
++        "@type": "ContactPoint",
++        telephone: phone,
++        contactType: "customer service",
++        areaServed: phone.startsWith("+421") ? "SK" : "CZ",
++        availableLanguage: ["cs", "sk"],
++        ...(label.includes("NON-STOP") && {
++          hoursAvailable: { "@type": "OpeningHoursSpecification", opens: "00:00", closes: "23:59" },
++        }),
++      })),
+     },
+-  ],
+-  sameAs: [
+-    "https://www.facebook.com/awclean",
+-    "https://www.youtube.com/@AWCLEANs.r.o",
+   ],
+ };
++export const serviceSchema = (page: ServicePageData) => ({
++  "@context": "https://schema.org",
++  "@type": "Service",
++  "@id": `${site}${page.path}#service`,
++  name: page.title,
++  description: page.intro,
++  url: `${site}${page.path}`,
++  image: `${site}${page.heroImage}`,
++  provider: { "@id": `${site}/#business` },
++  areaServed,
++});
+diff --git a/src/lib/contact.test.ts b/src/lib/contact.test.ts
+index 69cdc2f..5f0aab4 100644
+--- a/src/lib/contact.test.ts
++++ b/src/lib/contact.test.ts
+@@ -1,6 +1,9 @@
++import { readFileSync } from "node:fs";
+ import { afterEach, describe, expect, it, vi } from "vitest";
++import { servicePages } from "../data/pages";
+ import {
+   contactMailto,
++  inquiryContext,
+   sendContact,
+   validateContact,
+   type ContactValues,
+@@ -11,6 +14,7 @@ const valid: ContactValues = {
+   email: "jan@example.cz",
+   message: "Prosím o čištění fasády domu.",
+ };
++const antispam = { website: "", fillMs: 5000, service: "", sample: "" };
+ afterEach(() => vi.unstubAllGlobals());
+ describe("Validace poptávky", () => {
+   it("přijme český i slovenský telefon", () => {
+@@ -38,26 +42,55 @@ describe("Validace poptávky", () => {
+   it("bez endpointu nikdy nehlásí úspěch a neodesílá data", async () => {
+     const fetch = vi.fn();
+     vi.stubGlobal("fetch", fetch);
+-    await expect(sendContact(valid, "")).rejects.toThrow("není připojeno");
++    await expect(sendContact(valid, "", antispam)).rejects.toThrow("není připojeno");
+     expect(fetch).not.toHaveBeenCalled();
+   });
+   it("odešle JSON a přijme úspěšnou odpověď", async () => {
+     vi.stubGlobal("window", { setTimeout, clearTimeout });
+     const fetch = vi.fn().mockResolvedValue({ ok: true });
+     vi.stubGlobal("fetch", fetch);
+-    await expect(sendContact(valid, "/api/contact")).resolves.toBeUndefined();
++    await expect(sendContact(valid, "/api/contact", antispam)).resolves.toBeUndefined();
+     expect(fetch).toHaveBeenCalledWith(
+       "/api/contact",
+-      expect.objectContaining({ method: "POST", body: JSON.stringify(valid) }),
++      expect.objectContaining({ method: "POST", body: JSON.stringify({ ...valid, ...antispam }) }),
+     );
+   });
+   it("zobrazí chybu při odmítnutí serverem", async () => {
+     vi.stubGlobal("window", { setTimeout, clearTimeout });
+-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+-    await expect(sendContact(valid, "/api/contact")).rejects.toThrow(
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500, json: () => Promise.reject(new Error("no json")) }));
++    await expect(sendContact(valid, "/api/contact", antispam)).rejects.toThrow(
+       "nepodařilo",
+     );
+   });
++  it("při limitu ukáže českou zprávu ze serveru", async () => {
++    vi.stubGlobal("window", { setTimeout, clearTimeout });
++    vi.stubGlobal(
++      "fetch",
++      vi.fn().mockResolvedValue({
++        ok: false,
++        status: 429,
++        json: () => Promise.resolve({ ok: false, errors: { form: "Příliš mnoho poptávek." } }),
++      }),
++    );
++    await expect(sendContact(valid, "/api/contact", antispam)).rejects.toThrow(
++      "Příliš mnoho poptávek.",
++    );
++  });
++  it("převezme jen známou službu a vzorek z odkazu", () => {
++    expect(
++      inquiryContext("?sluzba=%C4%8Ci%C5%A1t%C4%9Bn%C3%AD+fas%C3%A1d&vzorek=1"),
++    ).toEqual({ service: "Čištění fasád", sample: "1" });
++    expect(inquiryContext("?sluzba=<script>&vzorek=ano")).toEqual({
++      service: "",
++      sample: "",
++    });
++  });
++  it("contact.php zná stejné služby jako web", () => {
++    const php = readFileSync("public/contact.php", "utf8");
++    const list = php.slice(php.indexOf("const SERVICES"), php.indexOf("];", php.indexOf("const SERVICES")));
++    const phpServices = [...list.matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
++    expect(phpServices).toEqual(servicePages.map((page) => page.shortTitle).sort());
++  });
+   it("zakóduje zprávu do náhradního e-mailu", () => {
+     const result = contactMailto({
+       ...valid,
+diff --git a/src/lib/contact.ts b/src/lib/contact.ts
+index d8674b3..be0aa61 100644
+--- a/src/lib/contact.ts
++++ b/src/lib/contact.ts
+@@ -1,3 +1,4 @@
++import { servicePages } from "../data/pages";
+ export interface ContactValues {
+   name: string;
+   phone: string;
+@@ -27,12 +28,36 @@ export function validateContact(values: ContactValues): ContactErrors {
+     errors.message = "Popište prosím svůj požadavek alespoň 10 znaky.";
+   return errors;
+ }
++/** Doplňky odesílané s poptávkou: antispam a kontext z odkazu služby. */
++export interface ContactMeta {
++  website: string;
++  fillMs: number;
++  service: string;
++  sample: string;
++}
++/** Kontext z ?sluzba=&vzorek=1 (odkazy z inquiryAction); neznámé hodnoty zahodí. */
++export function inquiryContext(search: string): Pick<ContactMeta, "service" | "sample"> {
++  const params = new URLSearchParams(search);
++  const service = params.get("sluzba") ?? "";
++  return {
++    service: servicePages.some((page) => page.shortTitle === service) ? service : "",
++    sample: params.get("vzorek") === "1" ? "1" : "",
++  };
++}
++/** Chyba s českou zprávou určenou přímo uživateli. */
++export class ContactError extends Error {}
++const statusMessages: Record<number, string> = {
++  413: "Zpráva je příliš dlouhá. Zkraťte ji prosím.",
++  422: "Zkontrolujte prosím vyplněné údaje.",
++  429: "Odeslali jste příliš mnoho poptávek za krátkou dobu. Zkuste to prosím později nebo nám zavolejte.",
++};
+ export async function sendContact(
+   values: ContactValues,
+   endpoint: string,
++  meta: ContactMeta,
+ ): Promise<void> {
+   if (!endpoint)
+-    throw new Error(
++    throw new ContactError(
+       "Odesílání formuláře zatím není připojeno. Zavolejte nám nebo odešlete připravený e-mail níže.",
+     );
+   const controller = new AbortController();
+@@ -41,13 +66,19 @@ export async function sendContact(
+     const response = await fetch(endpoint, {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+-      body: JSON.stringify(values),
++      body: JSON.stringify({ ...values, ...meta }),
+       signal: controller.signal,
+     });
+-    if (!response.ok)
+-      throw new Error(
+-        "Poptávku se nepodařilo odeslat. Zkuste to znovu nebo nám zavolejte.",
++    if (!response.ok) {
++      const body = (await response.json().catch(() => null)) as {
++        errors?: Record<string, string>;
++      } | null;
++      throw new ContactError(
++        body?.errors?.form ??
++          statusMessages[response.status] ??
++          "Poptávku se nepodařilo odeslat. Zkuste to znovu nebo nám zavolejte.",
+       );
++    }
+   } finally {
+     window.clearTimeout(timeout);
+   }
+diff --git a/src/pages/CleanFacadesPage.tsx b/src/pages/CleanFacadesPage.tsx
+index 7e4e663..db4efe2 100644
+--- a/src/pages/CleanFacadesPage.tsx
++++ b/src/pages/CleanFacadesPage.tsx
+@@ -2,7 +2,8 @@ import { useState } from "react";
+ import { Phone, Plus, Search } from "lucide-react";
+ import { Breadcrumbs } from "../components/layout/Breadcrumbs";
+ import { ServiceCTA } from "../components/services/ServiceCTA";
+-import { faqCategories, filterFaq, type FaqCategory } from "../data/faq";
++import { faqCategories, faqItems, faqSchema, filterFaq, type FaqCategory } from "../data/faq";
++import { JsonLd } from "../components/JsonLd";
+ export function CleanFacadesPage() {
+   const [category, setCategory] = useState<FaqCategory>("vse");
+   const [query, setQuery] = useState("");
+@@ -63,6 +64,8 @@ export function CleanFacadesPage() {
+       </article>
+       <section className="rd-wrap advice-faq" aria-labelledby="advice-faq-title">
+         <h2 id="advice-faq-title">DR Fasáda odpovídá</h2>
++        {/* Server HTML lists all questions; filtering is a client-side view of the same set. */}
++        <JsonLd data={faqSchema(faqItems)} />
+         <label className="advice-search">
+           <Search size={20} aria-hidden="true" />
+           <span className="sr-only">Hledat v otázkách a odpovědích</span>
+diff --git a/src/pages/ServicePage.tsx b/src/pages/ServicePage.tsx
+index 97e1fe1..a315f70 100644
+--- a/src/pages/ServicePage.tsx
++++ b/src/pages/ServicePage.tsx
+@@ -2,7 +2,9 @@ import { ResponsiveImage } from "../components/ResponsiveImage";
+ import { ArrowRight, Check, Phone, Plus } from "lucide-react";
+ import { inquiryAction } from "../data/offers";
+ import { serviceCategoryLabels } from "../data/services";
+-import { faqItems } from "../data/faq";
++import { faqItems, faqSchema } from "../data/faq";
++import { JsonLd } from "../components/JsonLd";
++import { serviceSchema } from "../data/seo";
+ import { photoDetails } from "../data/photos";
+ import { serviceBlockImages, serviceFaqIds } from "../data/serviceVisuals";
+ import type { ServicePageData } from "../data/pages/types";
+@@ -34,6 +36,7 @@ export function ServicePage({ page, related }: ServicePageProps) {
+     .filter((item) => item !== undefined);
+   return (
+     <>
++      <JsonLd data={serviceSchema(page)} />
+       <Breadcrumbs
+         items={[...(category ? [category] : []), { label: page.shortTitle }]}
+       />
+@@ -132,6 +135,7 @@ export function ServicePage({ page, related }: ServicePageProps) {
+       )}
+       {faq.length > 0 && (
+         <section className="svc-faq rd-wrap" aria-labelledby="faq-title">
++          <JsonLd data={faqSchema(faq)} />
+           <div className="svc-faq-head">
+             <h2 id="faq-title">Časté otázky</h2>
+             <a className="rd-link" href="/ciste-fasady/">
+diff --git a/src/redesign.css b/src/redesign.css
+index ddeb912..c3543e5 100644
+--- a/src/redesign.css
++++ b/src/redesign.css
+@@ -730,14 +730,14 @@
+ }
+ .rd-hero-image { position: absolute; inset: 0; }
+ .rd-hero-image img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+-.rd-hero-after { clip-path: inset(0 0 0 var(--split)); }
++.rd-hero-after { clip-path: inset(0 0 0 var(--split, 50%)); }
+ .rd-hero-shade {
+   position: absolute;
+   inset: 0;
+   pointer-events: none;
+   background: linear-gradient(0deg, rgba(13, 34, 62, 0.92) 0%, rgba(13, 34, 62, 0.5) 36%, rgba(13, 34, 62, 0) 62%);
+ }
+-.rd-hero-divider { position: absolute; top: 0; bottom: 0; left: var(--split); width: 0; pointer-events: none; }
++.rd-hero-divider { position: absolute; top: 0; bottom: 0; left: var(--split, 50%); width: 0; pointer-events: none; }
+ .rd-hero-divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1.5px; width: 3px; background: #fff; }
+ .rd-hero-divider .rd-badge { top: 24px; left: auto; right: 14px; }
+ .rd-hero-divider .rd-badge.is-after { left: 14px; right: auto; }
+diff --git a/src/styles.css b/src/styles.css
+index 63483e5..2c585c4 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -1335,3 +1335,12 @@ h1 span {
+     grid-column: 1 / -1;
+   }
+ }
++
++/* Honeypot formuláře: mimo obrazovku (ne display:none, ten boti přeskakují). */
++.hp-field {
++  position: absolute;
++  left: -10000px;
++  width: 1px;
++  height: 1px;
++  overflow: hidden;
++}
+diff --git a/vite.config.ts b/vite.config.ts
+index ee38c0c..ee24b76 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -17,6 +17,8 @@ import {
+   normalizePath,
+   type PageMeta,
+ } from "./src/lib/routes";
++const escapeRegex = (value: string): string =>
++  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+ const escapeHtml = (value: string): string =>
+   value
+     .replace(/&/g, "&amp;")
+@@ -56,10 +58,12 @@ function legacyRedirects(): Plugin {
+ }
+ function staticPages(): Plugin {
+   let outputDirectory = "";
++  let rootDirectory = "";
+   return {
+     name: "awclean-static-pages",
+     apply: "build",
+     configResolved(config) {
++      rootDirectory = config.root;
+       outputDirectory = resolve(config.root, config.build.outDir);
+     },
+     async closeBundle() {
+@@ -158,17 +162,25 @@ function staticPages(): Plugin {
+             )
+             .join("\n") + "\n/* /404.html 404\n",
+         );
+-        await writeFile(
+-          resolve(outputDirectory, ".htaccess"),
+-          "DirectoryIndex index.html\nErrorDocument 404 /404.html\n" +
+-            Object.entries(routeAliases)
+-              .map(
+-                ([alias, target]) =>
+-                  `RedirectMatch 301 ^${alias.slice(0, -1)}/?(?:index\\.html)?$ ${target}`,
+-              )
+-              .join("\n") +
+-            "\n",
++        // Apache konfigurace: šablona v deploy/ + 301 aliasy ze stejných dat jako aplikace.
++        const htaccessTemplate = await readFile(
++          resolve(rootDirectory, "deploy/htaccess.template"),
++          "utf8",
++        );
++        if (!htaccessTemplate.includes("# @ALIASES@"))
++          throw new Error("Šablona .htaccess nemá značku # @ALIASES@.");
++        // Cíl přesměrování: produkce, nebo náhledová doména při testu na novém hostingu (SITE_URL).
++        const siteUrl = (process.env.SITE_URL ?? "https://www.awclean.cz").replace(/\/$/, "");
++        const htaccess = htaccessTemplate.replaceAll("@SITE_URL@", siteUrl).replace(
++          "# @ALIASES@",
++          Object.entries(routeAliases)
++            .map(
++              ([alias, target]) =>
++                `  RewriteRule ^${escapeRegex(alias.slice(1, -1))}/?(?:index\\.html)?$ ${siteUrl}${target} [R=301,L]`,
++            )
++            .join("\n"),
+         );
++        await writeFile(resolve(outputDirectory, ".htaccess"), htaccess);
+         await writeFile(
+           resolve(outputDirectory, "404.html"),
+           render(resolveRoute("/404/")).replace(

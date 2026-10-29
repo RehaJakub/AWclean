@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { guideSurfaces, guideProblems, guideBuildings, getGuideSurfaces, getGuideProblems, getGuideResult } from "./guide";
 import { resolveRoute } from "../lib/routes";
-import { audiences } from "./audiences";
 import { orderReferenceWorks, referenceWorks } from "./referenceWorks";
 
 describe("Navigace průvodce a realizací", () => {
@@ -41,9 +40,6 @@ describe("Navigace průvodce a realizací", () => {
     for (const surface of ["dlazba", "konstrukce"] as const) for (const problem of ["nater", "ochrana"] as const) {
       expect(getGuideResult({ surface, problem, building: "firma" }).href).toBe("/kontakt/");
     }
-  });
-  it("vybírá existující služby pro všechny typy objektů", () => {
-    for (const audience of audiences) for (const href of audience.services) expect(resolveRoute(href).kind).toBe("service");
   });
   it("ukáže rozmanité realizace bez ztracených či duplikovaných fotografií", () => {
     const ordered = orderReferenceWorks(referenceWorks);

@@ -1,0 +1,115 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.awclean.cz/#organization",
+      "name": "AWCLEAN",
+      "legalName": "AWCLEAN s.r.o.",
+      "url": "https://www.awclean.cz/",
+      "logo": "https://www.awclean.cz/images/logo.svg",
+      "identifier": {
+        "@type": "PropertyValue",
+        "propertyID": "IČO",
+        "value": "50823272"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Čsl. armády 1457",
+        "addressLocality": "Topoľčany",
+        "postalCode": "955 01",
+        "addressCountry": "SK"
+      },
+      "email": [
+        "info@awclean.cz",
+        "info@awclean.sk"
+      ],
+      "sameAs": [
+        "https://www.facebook.com/awclean",
+        "https://www.youtube.com/@AWCLEANs.r.o"
+      ]
+    },
+    {
+      "@type": "HomeAndConstructionBusiness",
+      "@id": "https://www.awclean.cz/#business",
+      "name": "AWCLEAN",
+      "url": "https://www.awclean.cz/",
+      "image": "https://www.awclean.cz/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp",
+      "parentOrganization": {
+        "@id": "https://www.awclean.cz/#organization"
+      },
+      "telephone": "+420 773 196 097",
+      "email": "info@awclean.cz",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Na Výsluní 298",
+        "addressLocality": "Chotětov",
+        "postalCode": "294 28",
+        "addressCountry": "CZ"
+      },
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "Česká republika",
+          "identifier": "CZ"
+        },
+        {
+          "@type": "Country",
+          "name": "Slovensko",
+          "identifier": "SK"
+        }
+      ],
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "https://schema.org/Monday",
+          "https://schema.org/Tuesday",
+          "https://schema.org/Wednesday",
+          "https://schema.org/Thursday",
+          "https://schema.org/Friday",
+          "https://schema.org/Saturday",
+          "https://schema.org/Sunday"
+        ],
+        "opens": "08:00",
+        "closes": "17:00"
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "+420 773 196 097",
+          "contactType": "customer service",
+          "areaServed": "CZ",
+          "availableLanguage": [
+            "cs",
+            "sk"
+          ],
+          "hoursAvailable": {
+            "@type": "OpeningHoursSpecification",
+            "opens": "00:00",
+            "closes": "23:59"
+          }
+        },
+        {
+          "@type": "ContactPoint",
+          "telephone": "+421 907 245 573",
+          "contactType": "customer service",
+          "areaServed": "SK",
+          "availableLanguage": [
+            "cs",
+            "sk"
+          ]
+        },
+        {
+          "@type": "ContactPoint",
+          "telephone": "+421 918 236 688",
+          "contactType": "customer service",
+          "areaServed": "SK",
+          "availableLanguage": [
+            "cs",
+            "sk"
+          ]
+        }
+      ]
+    }
+  ]
+}

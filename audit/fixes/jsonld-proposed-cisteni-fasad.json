@@ -1,0 +1,218 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.awclean.cz/#organization",
+        "name": "AWCLEAN",
+        "legalName": "AWCLEAN s.r.o.",
+        "url": "https://www.awclean.cz/",
+        "logo": "https://www.awclean.cz/images/logo.svg",
+        "identifier": {
+          "@type": "PropertyValue",
+          "propertyID": "IČO",
+          "value": "50823272"
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Čsl. armády 1457",
+          "addressLocality": "Topoľčany",
+          "postalCode": "955 01",
+          "addressCountry": "SK"
+        },
+        "email": [
+          "info@awclean.cz",
+          "info@awclean.sk"
+        ],
+        "sameAs": [
+          "https://www.facebook.com/awclean",
+          "https://www.youtube.com/@AWCLEANs.r.o"
+        ]
+      },
+      {
+        "@type": "HomeAndConstructionBusiness",
+        "@id": "https://www.awclean.cz/#business",
+        "name": "AWCLEAN",
+        "url": "https://www.awclean.cz/",
+        "image": "https://www.awclean.cz/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp",
+        "parentOrganization": {
+          "@id": "https://www.awclean.cz/#organization"
+        },
+        "telephone": "+420 773 196 097",
+        "email": "info@awclean.cz",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Na Výsluní 298",
+          "addressLocality": "Chotětov",
+          "postalCode": "294 28",
+          "addressCountry": "CZ"
+        },
+        "areaServed": [
+          {
+            "@type": "Country",
+            "name": "Česká republika",
+            "identifier": "CZ"
+          },
+          {
+            "@type": "Country",
+            "name": "Slovensko",
+            "identifier": "SK"
+          }
+        ],
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "https://schema.org/Monday",
+            "https://schema.org/Tuesday",
+            "https://schema.org/Wednesday",
+            "https://schema.org/Thursday",
+            "https://schema.org/Friday",
+            "https://schema.org/Saturday",
+            "https://schema.org/Sunday"
+          ],
+          "opens": "08:00",
+          "closes": "17:00"
+        },
+        "contactPoint": [
+          {
+            "@type": "ContactPoint",
+            "telephone": "+420 773 196 097",
+            "contactType": "customer service",
+            "areaServed": "CZ",
+            "availableLanguage": [
+              "cs",
+              "sk"
+            ],
+            "hoursAvailable": {
+              "@type": "OpeningHoursSpecification",
+              "opens": "00:00",
+              "closes": "23:59"
+            }
+          },
+          {
+            "@type": "ContactPoint",
+            "telephone": "+421 907 245 573",
+            "contactType": "customer service",
+            "areaServed": "SK",
+            "availableLanguage": [
+              "cs",
+              "sk"
+            ]
+          },
+          {
+            "@type": "ContactPoint",
+            "telephone": "+421 918 236 688",
+            "contactType": "customer service",
+            "areaServed": "SK",
+            "availableLanguage": [
+              "cs",
+              "sk"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": "https://www.awclean.cz/cisteni-fasad/#service",
+    "name": "Čištění fasád",
+    "description": "Vrátíme vaší fasádě původní barvu. Odstraníme řasy, plísně, prach i usazeniny ze zateplených, břizolitových a natřených fasád.",
+    "url": "https://www.awclean.cz/cisteni-fasad/",
+    "image": "https://www.awclean.cz/images/realizace/cisteni-fasady-bytoveho-domu-na-lane.webp",
+    "provider": {
+      "@id": "https://www.awclean.cz/#business"
+    },
+    "areaServed": [
+      {
+        "@type": "Country",
+        "name": "Česká republika",
+        "identifier": "CZ"
+      },
+      {
+        "@type": "Country",
+        "name": "Slovensko",
+        "identifier": "SK"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Úvod",
+        "item": "https://www.awclean.cz/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Čištění",
+        "item": "https://www.awclean.cz/sluzby/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Čištění fasád"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Potřebuji na čištění fasády lešení?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Doktor radí: Lešení běžně nepotřebujete. AWCLEAN využívá lezeckou techniku a pracovní plošiny. Vhodný přístup k vašemu domu domluvíme při posouzení objektu."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Jak dlouho čištění trvá?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Doktor radí: Záleží na velikosti plochy, znečištění, přístupnosti a počasí. Po prohlídce vám navrhneme postup i předpokládanou dobu práce. Bez znalosti objektu počet dnů neslibujeme."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Nepoškodí chemie fasádu nebo okolní zeleň?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Doktor radí: Čisticí prostředek, tlak i dobu působení volíme podle materiálu a stavu fasády. Předem upozorněte na citlivé povrchy a zeleň u domu. Způsob jejich ochrany domluvíme před zahájením práce; univerzální bezrizikovost každého přípravku neslibujeme."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Jak funguje záruka 5, 10 nebo 20 let?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Doktor radí: Délka záruky závisí na vybraném ošetření a jeho podmínkách. AWCLEAN uvádí varianty 5, 10 a 20 let. Konkrétní rozsah a podmínky si nechte upřesnit v nabídce pro váš objekt."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Je referenční vzorek opravdu zdarma?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Doktor radí: Ano, ukázku čištění fasád, střech a dlažeb nabízíme po celé České republice zdarma. Na malé ploše uvidíte výsledek a pak se rozhodnete. U ostatních služeb si možnost ukázky domluvte individuálně."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Působíte po celé České republice?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Doktor radí: Ano, AWCLEAN působí po celé ČR i na Slovensku. Do poptávky napište místo realizace a typ povrchu, abychom mohli domluvit další postup."
+        }
+      }
+    ]
+  }
+]

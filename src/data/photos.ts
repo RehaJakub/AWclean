@@ -6,19 +6,19 @@ export interface PhotoDetails {
 }
 export const photoDetails: Record<string, PhotoDetails> = {
   "/images/realizace/cervena-fasada-pred-a-po-cisteni.webp": {
-    alt: "Detail červené fasády před čištěním a po něm.",
+    alt: "Detail červené fasády před čištěním a po něm.",
     original: "/images/banner_99c3cbd03c68e084.webp",
   },
   "/images/realizace/bytovy-dum-cisteni-z-plosiny-pred-a-po.webp": {
-    alt: "Bytový dům během čištění z plošiny a po dokončení.",
+    alt: "Bytový dům během čištění z plošiny a po dokončení.",
     original: "/images/banner_ca431824576cdf86.webp",
   },
   "/images/realizace/vycistena-zluta-a-cervena-zamkova-dlazba-u-ziveho-plotu.webp": {
-    alt: "Vyčištěná žlutá a červená zámková dlažba u živého plotu.",
+    alt: "Vyčištěná žlutá a červená zámková dlažba u živého plotu.",
     original: "/images/cisteni_dlazeb_1d9ea3c086d43653@2x.webp",
   },
   "/images/realizace/svetla-fasada-rodinneho-domu-s-balkonem.webp": {
-    alt: "Světlá fasáda rodinného domu s balkonem.",
+    alt: "Světlá fasáda rodinného domu s balkonem.",
     original: "/images/cisteni_fasad_34931c1fd72094d4@2x.webp",
   },
   "/images/realizace/pracovnici-na-plosine-cisti-cihlovou-fasadu-prumyslove-budovy.webp":
@@ -27,7 +27,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
       original: "/images/cisteni_historickych_fasad_37f47d4d757a5604@2x.webp",
     },
   "/images/realizace/kamenna-socha-s-povlakem-na-povrchu-pred-cistenim.webp": {
-    alt: "Kamenná socha s povlakem na povrchu před čištěním.",
+    alt: "Kamenná socha s povlakem na povrchu před čištěním.",
     original: "/images/cisteni_pomniku_1a87af288ffc1e2f@2x.webp",
   },
   "/images/realizace/stresni-svetlik-nad-vyrobni-halou.webp": {
@@ -36,11 +36,11 @@ export const photoDetails: Record<string, PhotoDetails> = {
   },
   "/images/realizace/taskova-strecha-s-rozdilem-mezi-vycistenou-a-znecistenou-casti.webp":
     {
-      alt: "Tašková střecha s rozdílem mezi vyčištěnou a znečištěnou částí.",
+      alt: "Tašková střecha s rozdílem mezi vyčištěnou a znečištěnou částí.",
       original: "/images/cisteni_strech_95bd11d592fe4d06@2x.webp",
     },
   "/images/realizace/titulni-strana-reportaze-awclean-o-cisteni-fasad-a-strech.webp": {
-    alt: "Titulní strana reportáže AWCLEAN o čištění fasád a střech.",
+    alt: "Titulní strana reportáže AWCLEAN o čištění fasád a střech.",
     original: "/images/home_216d6586ec640509@2x.webp",
   },
   "/images/realizace/detail-oranzovych-stresnich-tasek.webp": {
@@ -48,11 +48,11 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/impregnace_fasad_a_strech_6e743f33a9d4dcaa@2x.webp",
   },
   "/images/realizace/detail-zamkove-dlazby-s-kapkami-vody.webp": {
-    alt: "Detail zámkové dlažby s kapkami vody.",
+    alt: "Detail zámkové dlažby s kapkami vody.",
     original: "/images/nano_impregnace_d41632553ced9be0@2x.webp",
   },
   "/images/realizace/cisteni-zlute-a-sede-dlazby-u-vstupu-do-budovy.webp": {
-    alt: "Čištění žluté a šedé dlažby u vstupu do budovy.",
+    alt: "Čištění žluté a šedé dlažby u vstupu do budovy.",
     original: "/images/projects/behem_cisteni_b_61691c8fb0a2d2f3.webp",
   },
   "/images/realizace/cistici-stroj-na-cervene-venkovni-podlaze.webp": {
@@ -64,17 +64,17 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/behem_cisteni_b_bcb33a6f4a87bfb2.webp",
   },
   "/images/realizace/hlinikove-oplasteni-a-prosklena-fasada-budovy.webp": {
-    alt: "Hliníkové opláštění a prosklená fasáda budovy.",
+    alt: "Hliníkové opláštění a prosklená fasáda budovy.",
     original:
       "/images/projects/chemicke_myti_hlinikove_eloxovane_fasady_b_877791d3e9649c60.webp",
   },
   "/images/realizace/porovnani-tmaveho-a-vycisteneho-oplasteni-budovy.webp": {
-    alt: "Porovnání tmavého a vyčištěného opláštění budovy.",
+    alt: "Porovnání tmavého a vyčištěného opláštění budovy.",
     original:
       "/images/projects/chemicke_myti_hlinikovych_eloxovanych_fasad_b_c16df8c44edfdc81.webp",
   },
   "/images/realizace/pracovnici-na-lanech-cisti-prosklenou-a-hlinikovou-fasadu.webp": {
-    alt: "Pracovníci na lanech čistí prosklenou a hliníkovou fasádu.",
+    alt: "Pracovníci na lanech čistí prosklenou a hliníkovou fasádu.",
     original: "/images/projects/cisteni_budov_praha_b_bf4ca28c99f1d82d.webp",
   },
   "/images/realizace/castecne-natrena-fasada-prumysloveho-objektu.webp": {
@@ -83,13 +83,13 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cisteni_fasad_nastrik_fasady_b_546b01eddf0e8070.webp",
   },
   "/images/realizace/priprava-fasady-z-pracovni-plosiny.webp": {
-    alt: "Příprava fasády z pracovní plošiny.",
+    alt: "Příprava fasády z pracovní plošiny.",
     original:
       "/images/projects/cisteni_fasad_nastrik_fasady_b_7e4fdf6da2af25ea.webp",
   },
   "/images/realizace/odstranovani-necistot-z-cihlove-fasady-pomoci-tlakove-vody.webp":
     {
-      alt: "Odstraňování nečistot z cihlové fasády pomocí tlakové vody.",
+      alt: "Odstraňování nečistot z cihlové fasády pomocí tlakové vody.",
       original:
         "/images/projects/cisteni_historickych_fasad_b_094265d52459a02b.webp",
     },
@@ -104,22 +104,22 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cisteni_historickych_fasad_b_4d0bef1f830f2fc9.webp",
   },
   "/images/realizace/pracovni-plosina-u-prosklene-steny-cihlove-haly.webp": {
-    alt: "Pracovní plošina u prosklené stěny cihlové haly.",
+    alt: "Pracovní plošina u prosklené stěny cihlové haly.",
     original:
       "/images/projects/cisteni_historickych_fasad_b_527149828b28ef73.webp",
   },
   "/images/realizace/bocni-pohled-na-cihlovou-halu-a-pracovni-plosiny.webp": {
-    alt: "Boční pohled na cihlovou halu a pracovní plošiny.",
+    alt: "Boční pohled na cihlovou halu a pracovní plošiny.",
     original:
       "/images/projects/cisteni_historickych_fasad_b_8d0793ae833797f2.webp",
   },
   "/images/realizace/cisteni-cihlove-steny-z-vyskove-plosiny.webp": {
-    alt: "Čištění cihlové stěny z výškové plošiny.",
+    alt: "Čištění cihlové stěny z výškové plošiny.",
     original:
       "/images/projects/cisteni_historickych_fasad_b_9d749e80aa0def72.webp",
   },
   "/images/realizace/plosina-u-horni-casti-cihlove-fasady.webp": {
-    alt: "Plošina u horní části cihlové fasády.",
+    alt: "Plošina u horní části cihlové fasády.",
     original:
       "/images/projects/cisteni_historickych_fasad_b_9f00926dd5418179.webp",
   },
@@ -159,12 +159,12 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cisteni_hlinikovych_fasad_praha_9_karlin_b_344852b91a7719f9.webp",
   },
   "/images/realizace/svetle-panely-a-okna-hlinikove-fasady.webp": {
-    alt: "Světlé panely a okna hliníkové fasády.",
+    alt: "Světlé panely a okna hliníkové fasády.",
     original:
       "/images/projects/cisteni_hlinikovych_fasad_praha_9_karlin_b_5069a6f555e7bd0f.webp",
   },
   "/images/realizace/pracovni-plosina-u-hlinikovych-lamel-a-oken.webp": {
-    alt: "Pracovní plošina u hliníkových lamel a oken.",
+    alt: "Pracovní plošina u hliníkových lamel a oken.",
     original:
       "/images/projects/cisteni_hlinikovych_obkladu_b_abed002ec0211a8d.webp",
   },
@@ -182,15 +182,15 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cisteni_prumyslovych_hal_b_b5c591e68c515f43.webp",
   },
   "/images/realizace/strecha-s-vyznacenou-vycistenou-a-neosetrenou-casti.webp": {
-    alt: "Střecha s vyznačenou vyčištěnou a neošetřenou částí.",
+    alt: "Střecha s vyznačenou vyčištěnou a neošetřenou částí.",
     original: "/images/projects/cisteni_strech_b_a625001ada90e6bc.webp",
   },
   "/images/realizace/porovnani-stresni-krytiny-pred-impregnaci-a-po-ni.webp": {
-    alt: "Porovnání střešní krytiny před impregnací a po ní.",
+    alt: "Porovnání střešní krytiny před impregnací a po ní.",
     original: "/images/projects/cisteni_strech_b_b66b19de7183c1ef.webp",
   },
   "/images/realizace/stresni-svetliky-a-stroje-ve-vyrobni-hale.webp": {
-    alt: "Střešní světlíky a stroje ve výrobní hale.",
+    alt: "Střešní světlíky a stroje ve výrobní hale.",
     original: "/images/projects/cisteni_stresnich_oken_b_55a0600ae9028379.webp",
   },
   "/images/realizace/pohled-vzhuru-na-prosvetleny-svetlik-haly.webp": {
@@ -203,7 +203,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cisteni_svetliku_prumyslove_cisteni_b_5c72c6c8f4b9e1cd.webp",
   },
   "/images/realizace/svetliky-vyrobni-haly.webp": {
-    alt: "Světlíky nad výrobní linkou v průmyslové hale.",
+    alt: "Světlíky nad výrobní linkou v průmyslové hale.",
     original:
       "/images/projects/cisteni_svetliku_prumyslove_cisteni_b_78ee5789a016debb.webp",
   },
@@ -213,17 +213,17 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cisteni_svetliku_prumyslove_cisteni_b_ac2f05b64c1e86d6.webp",
   },
   "/images/realizace/proskleny-svetlik-s-ocelovou-konstrukci.webp": {
-    alt: "Prosklený světlík s ocelovou konstrukcí.",
+    alt: "Prosklený světlík s ocelovou konstrukcí.",
     original:
       "/images/projects/cisteni_svetliku_prumyslove_cisteni_b_c40e500554dcca91.webp",
   },
   "/images/realizace/vyskova-budova-s-prosklenou-fasadou.webp": {
-    alt: "Výšková budova s prosklenou fasádou.",
+    alt: "Výšková budova s prosklenou fasádou.",
     original:
       "/images/projects/cisteni_vyskovych_budov_praha_b_ea3fc0f9fd96d3b2.webp",
   },
   "/images/realizace/znecistena-zamkova-dlazba-v-zahrade.webp": {
-    alt: "Znečištěná zámková dlažba v zahradě.",
+    alt: "Znečištěná zámková dlažba v zahradě.",
     original: "/images/projects/cisteni_zamkove_dlazby_b_3d8e68adbdc1a85d.webp",
   },
   "/images/realizace/pracovnik-cisti-cervenou-venkovni-podlahu-tlakovou-vodou.webp": {
@@ -231,19 +231,19 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cisteni_zamkove_dlazby_b_48ca11e5a40cb973.webp",
   },
   "/images/realizace/detail-osetrene-zamkove-dlazby-s-kapkami-vody.webp": {
-    alt: "Detail ošetřené zámkové dlažby s kapkami vody.",
+    alt: "Detail ošetřené zámkové dlažby s kapkami vody.",
     original: "/images/projects/cisteni_zamkove_dlazby_b_515ec05ecf40dff2.webp",
   },
   "/images/realizace/cistici-technika-a-hadice-na-chodniku.webp": {
-    alt: "Čisticí technika a hadice na chodníku.",
+    alt: "Čisticí technika a hadice na chodníku.",
     original: "/images/projects/cisteni_zamkove_dlazby_b_a136eaa22b09e458.webp",
   },
   "/images/realizace/zamkova-dlazba-behem-cisteni-s-viditelnym-rozdilem-povrchu.webp": {
-    alt: "Zámková dlažba během čištění s viditelným rozdílem povrchu.",
+    alt: "Zámková dlažba během čištění s viditelným rozdílem povrchu.",
     original: "/images/projects/cisteni_zamkove_dlazby_b_bb4d03509cb6dc9c.webp",
   },
   "/images/realizace/zamkova-dlazba-u-soklu-domu.webp": {
-    alt: "Zámková dlažba u soklu domu.",
+    alt: "Zámková dlažba u soklu domu.",
     original: "/images/projects/cisteni_zamkove_dlazby_b_be00118fef84fe58.webp",
   },
   "/images/realizace/strojni-cisteni-zamkove-dlazby-horkou-vodou.webp": {
@@ -251,12 +251,12 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cisteni_zamkove_dlazby_b_d83c56a0d75d6ee6.webp",
   },
   "/images/realizace/hlinikova-fasada-pred-cistenim-a-po-vycisteni.webp": {
-    alt: "Hliníková fasáda před čištěním a po vyčištění.",
+    alt: "Hliníková fasáda před čištěním a po vyčištění.",
     original:
       "/images/projects/cistenie_eloxovanych_hlinikovych_panelov_praha_b_2a77d0e1965df929.webp",
   },
   "/images/realizace/pracovni-plosina-u-zlutobile-fasady-bytoveho-domu.webp": {
-    alt: "Pracovní plošina u žlutobílé fasády bytového domu.",
+    alt: "Pracovní plošina u žlutobílé fasády bytového domu.",
     original: "/images/projects/cistenie_fasad_b_267ce9cdba373c4d.webp",
   },
   "/images/realizace/cisteni-horni-casti-zlutobile-fasady.webp": {
@@ -268,12 +268,12 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasad_b_6c98afc61d569433.webp",
   },
   "/images/realizace/vicepodlazni-bytovy-dum-s-bezovou-fasadou.webp": {
-    alt: "Vícepodlažní bytový dům s béžovou fasádou.",
+    alt: "Vícepodlažní bytový dům s béžovou fasádou.",
     original:
       "/images/projects/cistenie_fasad_bytovych_domov_b_0afa42fa3d886ef9.webp",
   },
   "/images/realizace/castecne-vycisteny-sokl-a-fasada-u-okna.webp": {
-    alt: "Částečně vyčištěný sokl a fasáda u okna.",
+    alt: "Částečně vyčištěný sokl a fasáda u okna.",
     original:
       "/images/projects/cistenie_fasad_bytovych_domov_b_134ce902252f8a3b.webp",
   },
@@ -288,7 +288,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cistenie_fasad_bytovych_domov_b_2944428e6884828d.webp",
   },
   "/images/realizace/detail-cervene-fasady-s-vycistenou-plochou.webp": {
-    alt: "Detail červené fasády s vyčištěnou plochou.",
+    alt: "Detail červené fasády s vyčištěnou plochou.",
     original:
       "/images/projects/cistenie_fasad_bytovych_domov_b_3bb19ccc83ca02c9.webp",
   },
@@ -318,7 +318,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cistenie_fasad_bytovych_domov_b_77cbad6a681a81f9.webp",
   },
   "/images/realizace/bytovy-dum-s-balkony-a-parkovistem-pred-domem.webp": {
-    alt: "Bytový dům s balkony a parkovištěm před domem.",
+    alt: "Bytový dům s balkony a parkovištěm před domem.",
     original:
       "/images/projects/cistenie_fasad_bytovych_domov_b_7d4fad19e21ffff2.webp",
   },
@@ -328,17 +328,17 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cistenie_fasad_bytovych_domov_b_a085c37d5b75d976.webp",
   },
   "/images/realizace/oranzova-fasada-s-viditelnym-rozdilem-po-cisteni.webp": {
-    alt: "Oranžová fasáda s viditelným rozdílem po čištění.",
+    alt: "Oranžová fasáda s viditelným rozdílem po čištění.",
     original:
       "/images/projects/cistenie_fasad_bytovych_domov_b_a83bc7c0967b05d6.webp",
   },
   "/images/realizace/pracovni-plosina-u-stitove-steny-domu.webp": {
-    alt: "Pracovní plošina u štítové stěny domu.",
+    alt: "Pracovní plošina u štítové stěny domu.",
     original:
       "/images/projects/cistenie_fasad_bytovych_domov_b_beb4db405d17c680.webp",
   },
   "/images/realizace/svetla-fasada-bytoveho-domu-s-barevnymi-pruhy.webp": {
-    alt: "Světlá fasáda bytového domu s barevnými pruhy.",
+    alt: "Světlá fasáda bytového domu s barevnými pruhy.",
     original:
       "/images/projects/cistenie_fasad_bytovych_domov_b_e1aadcea6c4c63c8.webp",
   },
@@ -356,7 +356,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasad_ostrava_b_7950dad3efba41b0.webp",
   },
   "/images/realizace/pohled-z-vysky-na-fasadu-bytoveho-domu.webp": {
-    alt: "Pohled z výšky na fasádu bytového domu.",
+    alt: "Pohled z výšky na fasádu bytového domu.",
     original: "/images/projects/cistenie_fasady_b_006292c3290e5d43.webp",
   },
   "/images/realizace/svetla-omitka-pod-oknem-po-vycisteni.webp": {
@@ -364,7 +364,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasady_b_00d1a264d1dd0f3a.webp",
   },
   "/images/realizace/bytovy-dum-s-balkony-behem-cisteni-fasady.webp": {
-    alt: "Bytový dům s balkony během čištění fasády.",
+    alt: "Bytový dům s balkony během čištění fasády.",
     original: "/images/projects/cistenie_fasady_b_01e9a30c11c8b091.webp",
   },
   "/images/realizace/vyskova-plosina-podel-prosklene-cihlove-haly.webp": {
@@ -380,19 +380,19 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasady_b_1e306cd2aa14bcc3.webp",
   },
   "/images/realizace/firemni-vuz-u-budovy-s-sedou-fasadou.webp": {
-    alt: "Firemní vůz u budovy s šedou fasádou.",
+    alt: "Firemní vůz u budovy s šedou fasádou.",
     original: "/images/projects/cistenie_fasady_b_21b86085a0d1ab11.webp",
   },
   "/images/realizace/svetla-fasada-po-cisteni.webp": {
-    alt: "Světlá fasáda s červeným svodem po vyčištění.",
+    alt: "Světlá fasáda s červeným svodem po vyčištění.",
     original: "/images/projects/cistenie_fasady_b_4574322283606b81.webp",
   },
   "/images/realizace/svetla-fasada-pred-cistenim.webp": {
-    alt: "Znečištěná světlá fasáda s červeným svodem před čištěním.",
+    alt: "Znečištěná světlá fasáda s červeným svodem před čištěním.",
     original: "/images/projects/cistenie_fasady_b_61a13a2d48257a08.webp",
   },
   "/images/realizace/fasada-bytoveho-domu-behem-prace-a-po-dokonceni.webp": {
-    alt: "Fasáda bytového domu během práce a po dokončení.",
+    alt: "Fasáda bytového domu během práce a po dokončení.",
     original: "/images/projects/cistenie_fasady_b_6c6e777b2c053c41.webp",
   },
   "/images/realizace/cisteni-fasady-administrativni-budovy-ze-zavesne-plosiny.webp": {
@@ -400,7 +400,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasady_b_703459b96b4a2a48.webp",
   },
   "/images/realizace/tlakove-cisteni-svetle-fasady-u-okna.webp": {
-    alt: "Tlakové čištění světlé fasády u okna.",
+    alt: "Tlakové čištění světlé fasády u okna.",
     original: "/images/projects/cistenie_fasady_b_89f2750b4b8150ce.webp",
   },
   "/images/realizace/detail-znecisteneho-cihloveho-zdiva.webp": {
@@ -412,19 +412,19 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasady_b_95b55600073b9c1c.webp",
   },
   "/images/realizace/seda-fasada-s-cervenym-pruhem.webp": {
-    alt: "Šedá fasáda s červeným pruhem.",
+    alt: "Šedá fasáda s červeným pruhem.",
     original: "/images/projects/cistenie_fasady_b_aa25cff2f94cd70a.webp",
   },
   "/images/realizace/svetla-fasada-nad-modrym-soklem-s-ukazkou-cisteni.webp": {
-    alt: "Světlá fasáda nad modrým soklem s ukázkou čištění.",
+    alt: "Světlá fasáda nad modrým soklem s ukázkou čištění.",
     original: "/images/projects/cistenie_fasady_b_b4f19dd862f61682.webp",
   },
   "/images/realizace/bytovy-dum-s-barevnymi-pruhy-fasady-a-parkovistem.webp": {
-    alt: "Bytový dům s barevnými pruhy fasády a parkovištěm.",
+    alt: "Bytový dům s barevnými pruhy fasády a parkovištěm.",
     original: "/images/projects/cistenie_fasady_b_bcf0f4b5ab877cfb.webp",
   },
   "/images/realizace/zkusebni-vycistena-plocha-na-sede-fasade-u-chodniku.webp": {
-    alt: "Zkušební vyčištěná plocha na šedé fasádě u chodníku.",
+    alt: "Zkušební vyčištěná plocha na šedé fasádě u chodníku.",
     original: "/images/projects/cistenie_fasady_b_cbdc8362ec4751fd.webp",
   },
   "/images/realizace/detail-oranzoveho-cihloveho-zdiva-po-cisteni.webp": {
@@ -432,7 +432,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasady_b_cc2e360d106d2ada.webp",
   },
   "/images/realizace/pracovnik-na-plosine-u-zlute-fasady.webp": {
-    alt: "Pracovník na plošině u žluté fasády.",
+    alt: "Pracovník na plošině u žluté fasády.",
     original: "/images/projects/cistenie_fasady_b_cc59e19ec6bba887.webp",
   },
   "/images/realizace/rodinny-dum-se-znecistenou-bezovou-fasadou.webp": {
@@ -448,12 +448,12 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasady_b_f3cc37b47ea3415f.webp",
   },
   "/images/realizace/cisteni-oranzove-fasady-bytoveho-domu-z-plosiny.webp": {
-    alt: "Čištění oranžové fasády bytového domu z plošiny.",
+    alt: "Čištění oranžové fasády bytového domu z plošiny.",
     original:
       "/images/projects/cistenie_fasady_bytovych_domov_b_37ddcfc03339d78a.webp",
   },
   "/images/realizace/pracovni-plosina-u-oken-oranzoveho-bytoveho-domu.webp": {
-    alt: "Pracovní plošina u oken oranžového bytového domu.",
+    alt: "Pracovní plošina u oken oranžového bytového domu.",
     original:
       "/images/projects/cistenie_fasady_bytovych_domov_b_86642cfdd00ec0d7.webp",
   },
@@ -476,7 +476,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_fasady_praha_b_c09e14f495e45daa.webp",
   },
   "/images/realizace/cervena-fasada-pred-cistenim.webp": {
-    alt: "Červená fasáda u okapového svodu před čištěním.",
+    alt: "Červená fasáda u okapového svodu před čištěním.",
     original:
       "/images/projects/cistenie_fasady_rodinneho_domu_b_027d9118608dc93b.webp",
   },
@@ -486,12 +486,12 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/cistenie_fasady_rodinneho_domu_b_c0f3557d0b522aa6.webp",
   },
   "/images/realizace/cervena-fasada-po-cisteni.webp": {
-    alt: "Červená fasáda u okapového svodu po vyčištění.",
+    alt: "Červená fasáda u okapového svodu po vyčištění.",
     original:
       "/images/projects/cistenie_fasady_rodinneho_domu_b_dece6b223ebce40f.webp",
   },
   "/images/realizace/taskova-strecha-s-castecne-vycistenou-krytinou.webp": {
-    alt: "Tašková střecha s částečně vyčištěnou krytinou.",
+    alt: "Tašková střecha s částečně vyčištěnou krytinou.",
     original: "/images/projects/cistenie_strechy_b_01470200e5c036b7.webp",
   },
   "/images/realizace/oranzove-tasky-na-strese-rodinneho-domu.webp": {
@@ -511,15 +511,15 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_striech_b_384c60fdd0b5527a.webp",
   },
   "/images/realizace/rozdil-mezi-cistymi-a-znecistenymi-taskami-u-stresniho-uzlabi.webp": {
-    alt: "Rozdíl mezi čistými a znečištěnými taškami u střešního úžlabí.",
+    alt: "Rozdíl mezi čistými a znečištěnými taškami u střešního úžlabí.",
     original: "/images/projects/cistenie_striech_b_5492486595cdaedc.webp",
   },
   "/images/realizace/cisteni-taskove-strechy.webp": {
-    alt: "Pracovník s hadicí na taškové střeše.",
+    alt: "Pracovník s hadicí na taškové střeše.",
     original: "/images/projects/cistenie_striech_b_7641111a93c74b16.webp",
   },
   "/images/realizace/pohled-pres-cistou-taskovou-strechu-k-ulici.webp": {
-    alt: "Pohled přes čistou taškovou střechu k ulici.",
+    alt: "Pohled přes čistou taškovou střechu k ulici.",
     original: "/images/projects/cistenie_striech_b_8485b70df7d51606.webp",
   },
   "/images/realizace/oranzova-stresni-krytina-kolem-stresniho-okna.webp": {
@@ -527,16 +527,16 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/cistenie_striech_b_86ea344b94ac26c1.webp",
   },
   "/images/realizace/stresni-krytina-behem-cisteni-s-viditelnym-rozdilem-odstinu.webp": {
-    alt: "Střešní krytina během čištění s viditelným rozdílem odstínu.",
+    alt: "Střešní krytina během čištění s viditelným rozdílem odstínu.",
     original: "/images/projects/cistenie_striech_b_8b92256245008373.webp",
   },
   "/images/realizace/vycistena-taskova-strecha-a-komin.webp": {
-    alt: "Vyčištěná tašková střecha a komín.",
+    alt: "Vyčištěná tašková střecha a komín.",
     original: "/images/projects/cistenie_striech_b_8c5cc1ae13ec8f16.webp",
   },
   "/images/realizace/porovnani-strechy-zeleneho-rodinneho-domu-pred-cistenim-a-po-nem.webp":
     {
-      alt: "Porovnání střechy zeleného rodinného domu před čištěním a po něm.",
+      alt: "Porovnání střechy zeleného rodinného domu před čištěním a po něm.",
       original: "/images/projects/cistenie_striech_b_e8d5736e556a00c6.webp",
     },
   "/images/realizace/hadice-na-castecne-vycistene-taskove-strese.webp": {
@@ -589,11 +589,11 @@ export const photoDetails: Record<string, PhotoDetails> = {
       "/images/projects/impregnace_fasad_a_strech_b_d797fc5946379b5b.webp",
   },
   "/images/realizace/moderni-budova-s-hlinikovymi-panely.webp": {
-    alt: "Moderní budova s hliníkovými panely.",
+    alt: "Moderní budova s hliníkovými panely.",
     original: "/images/projects/myti_fasad_praha_b_ae63330df7d50555.webp",
   },
   "/images/realizace/vyskova-administrativni-budova-s-prosklenou-fasadou.webp": {
-    alt: "Výšková administrativní budova s prosklenou fasádou.",
+    alt: "Výšková administrativní budova s prosklenou fasádou.",
     original: "/images/projects/myti_hlinikovych_fasad_b_24ab21fce113e7c3.webp",
   },
   "/images/realizace/svetly-nater-fasady-prumyslove-haly.webp": {
@@ -605,11 +605,11 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/natery_fasad_b_b6434fd8b9b8a896.webp",
   },
   "/images/realizace/prumyslova-hala-se-znecistenou-a-poskozenou-fasadou.webp": {
-    alt: "Průmyslová hala se znečištěnou a poškozenou fasádou.",
+    alt: "Průmyslová hala se znečištěnou a poškozenou fasádou.",
     original: "/images/projects/natery_fasad_b_e376f6a7938f8ea1.webp",
   },
   "/images/realizace/cervene-natrena-strecha-s-kominem.webp": {
-    alt: "Červeně natřená střecha s komínem.",
+    alt: "Červeně natřená střecha s komínem.",
     original: "/images/projects/natery_strech_b_010af1635f2cd0cb.webp",
   },
   "/images/realizace/pracovnik-na-okraji-strechy-pri-nateru.webp": {
@@ -625,23 +625,23 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/natery_strech_b_2d29d1ac1b272a19.webp",
   },
   "/images/realizace/pracovni-plosina-u-strechy-rodinneho-domu.webp": {
-    alt: "Pracovní plošina u střechy rodinného domu.",
+    alt: "Pracovní plošina u střechy rodinného domu.",
     original: "/images/projects/natery_strech_b_7ffc66dae950a808.webp",
   },
   "/images/realizace/pracovnik-na-plosine-u-okraje-strechy.webp": {
-    alt: "Pracovník na plošině u okraje střechy.",
+    alt: "Pracovník na plošině u okraje střechy.",
     original: "/images/projects/natery_strech_b_a31ba24a83a7bd97.webp",
   },
   "/images/realizace/strecha-s-cervenym-naterem-a-pripravenou-casti-podkladu.webp": {
-    alt: "Střecha s červeným nátěrem a připravenou částí podkladu.",
+    alt: "Střecha s červeným nátěrem a připravenou částí podkladu.",
     original: "/images/projects/natery_strech_b_dda7b8d5fe1dc74f.webp",
   },
   "/images/realizace/cervena-venkovni-podlaha-u-zabradli-po-vycisteni.webp": {
-    alt: "Červená venkovní podlaha u zábradlí po vyčištění.",
+    alt: "Červená venkovní podlaha u zábradlí po vyčištění.",
     original: "/images/projects/po_cisteni_b_16c266659e26ff85.webp",
   },
   "/images/realizace/zamkova-dlazba-po-cisteni.webp": {
-    alt: "Žlutá a červená zámková dlažba po vyčištění.",
+    alt: "Žlutá a červená zámková dlažba po vyčištění.",
     original: "/images/projects/po_cisteni_b_1a11dab85787fa3d.webp",
   },
   "/images/realizace/tmava-ctvercova-dlazba-po-vycisteni.webp": {
@@ -653,7 +653,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/po_cisteni_b_633887c922db9248.webp",
   },
   "/images/realizace/zluta-a-seda-dlazba-u-budovy-po-vycisteni.webp": {
-    alt: "Žlutá a šedá dlažba u budovy po vyčištění.",
+    alt: "Žlutá a šedá dlažba u budovy po vyčištění.",
     original: "/images/projects/po_cisteni_b_a76955c166ed0f47.webp",
   },
   "/images/realizace/detail-podstavce-kamenneho-pomniku-po-cisteni.webp": {
@@ -665,7 +665,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/po_cisteni_b_d10e77381801b7b2.webp",
   },
   "/images/realizace/kamenny-kriz-a-jeho-okoli-po-cisteni.webp": {
-    alt: "Kamenný kříž a jeho okolí po čištění.",
+    alt: "Kamenný kříž a jeho okolí po čištění.",
     original: "/images/projects/po_cisteni_b_dac0950214bb583c.webp",
   },
   "/images/realizace/cistici-stroj-na-chodniku-podel-budovy.webp": {
@@ -673,7 +673,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/pred_cistenim_b_4b2d86ac69e31907.webp",
   },
   "/images/realizace/znecistena-zluta-a-seda-dlazba-pred-cistenim.webp": {
-    alt: "Znečištěná žlutá a šedá dlažba před čištěním.",
+    alt: "Znečištěná žlutá a šedá dlažba před čištěním.",
     original: "/images/projects/pred_cistenim_b_533f967a050f508d.webp",
   },
   "/images/realizace/kamenna-socha-se-zelenym-povlakem-pred-cistenim.webp": {
@@ -685,11 +685,11 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/pred_cistenim_b_c7dbe4df1e3c55cb.webp",
   },
   "/images/realizace/kamenny-kriz-a-jeho-okoli-pred-cistenim.webp": {
-    alt: "Kamenný kříž a jeho okolí před čištěním.",
+    alt: "Kamenný kříž a jeho okolí před čištěním.",
     original: "/images/projects/pred_cistenim_b_f479311b4adaf41e.webp",
   },
   "/images/realizace/tmava-ctvercova-dlazba-s-necistotami-pred-cistenim.webp": {
-    alt: "Tmavá čtvercová dlažba s nečistotami před čištěním.",
+    alt: "Tmavá čtvercová dlažba s nečistotami před čištěním.",
     original: "/images/projects/pred_cistenim_b_f8b3fd331b422a1d.webp",
   },
   "/images/realizace/cervena-venkovni-podlaha-se-skvrnami-pred-cistenim.webp": {
@@ -697,15 +697,15 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/pred_cistenim_b_fae77accd4253eef.webp",
   },
   "/images/realizace/stresni-svetlik-a-nosna-konstrukce-prumyslove-haly.webp": {
-    alt: "Střešní světlík a nosná konstrukce průmyslové haly.",
+    alt: "Střešní světlík a nosná konstrukce průmyslové haly.",
     original: "/images/projects/prumyslove_cisteni_b_b0c68f7c41767ad0.webp",
   },
   "/images/realizace/airless-nastrik-fasady.webp": {
-    alt: "Airless nástřik fasády z výškové plošiny.",
+    alt: "Airless nástřik fasády z výškové plošiny.",
     original: "/images/projects/strikani_fasady_b_dc7b34be2c674243.webp",
   },
   "/images/realizace/nastrik-fasady-prumyslove-haly-z-plosiny.webp": {
-    alt: "Nástřik fasády průmyslové haly z plošiny.",
+    alt: "Nástřik fasády průmyslové haly z plošiny.",
     original:
       "/images/projects/strikani_prumyslovych_hal_b_9638c22caf320d76.webp",
   },
@@ -723,7 +723,7 @@ export const photoDetails: Record<string, PhotoDetails> = {
     original: "/images/projects/umyvanie_striech_b_1edadd268fe2239b.webp",
   },
   "/images/realizace/taskova-strecha-s-casti-vycisteneho-povrchu.webp": {
-    alt: "Tašková střecha s částí vyčištěného povrchu.",
+    alt: "Tašková střecha s částí vyčištěného povrchu.",
     original: "/images/projects/umyvanie_striech_b_41e57b3f11ec9908.webp",
   },
   "/images/realizace/oranzova-strecha-zeleneho-rodinneho-domu-po-cisteni.webp": {

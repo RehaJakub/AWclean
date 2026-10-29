@@ -1,3 +1,4 @@
+import { primaryPhone } from "../../data/contacts";
 import { ArrowRight, Phone } from "lucide-react";
 import { ResponsiveImage } from "../ResponsiveImage";
 import { servicesByCategory } from "../../data/services";
@@ -27,12 +28,13 @@ export function HomeServices() {
         </a>
       </div>
       <div className="home-bento">
-        {servicesByCategory.cisteni.map((service) => (
+        {servicesByCategory.cisteni.map((service, index) => (
           <a key={service.href} href={service.href} className="rd-photo-card">
             <ResponsiveImage
               src={service.image}
               alt=""
-              sizes="(max-width: 900px) 50vw, 25vw"
+              // První dvě dlaždice jsou přes dva sloupce (redesign.css .home-bento :nth-child(1), (2)).
+              sizes={index < 2 ? "(max-width: 900px) 100vw, 50vw" : "(max-width: 900px) calc(50vw - 30px), 25vw"}
               loading="lazy"
               width="750"
               height="560"
@@ -100,14 +102,14 @@ export function HomeResults() {
                     <span key={image.src} className="home-result-photo">
                       <ResponsiveImage
                         src={image.src}
-                        alt={image.alt}
+                        alt=""
                         sizes="(max-width: 900px) 50vw, 17vw"
                         loading="lazy"
                         width="600"
                         height="800"
                       />
                       {image.label && (
-                        <span className={`rd-badge${image.label === "Po" ? " is-after" : ""}`}>
+                        <span className={`rd-badge${image.label === "Po" ? " is-after" : ""}`} aria-hidden="true">
                           {image.label}
                         </span>
                       )}
@@ -132,7 +134,7 @@ export function HomeAbout() {
     { value: "2,5 mil. m²", label: "vyčištěných ploch v ČR a SR" },
     { value: "Od roku 2001", label: "čištění fasád a střech" },
     { value: "Bez lešení", label: "z plošin a lezeckou technikou" },
-    { value: "5 / 10 / 20 let", label: "záruka u fasád a střech dle výběru" },
+    { value: "až 20 let", label: "záruka podle zvoleného ošetření, podmínky v nabídce" },
   ];
   return (
     <section className="home-about rd-wrap" id="o-nas" aria-labelledby="o-nas-title">
@@ -147,7 +149,7 @@ export function HomeAbout() {
         />
       </div>
       <div className="home-about-copy">
-        <h2 id="o-nas-title">Čištění fasád od profesionálů již od roku 2001.</h2>
+        <h2 id="o-nas-title">Čistíme fasády od roku 2001.</h2>
         <p>
           Specializujeme se na čisticí práce v průmyslových, veřejných
           i zdravotnických zařízeních a pečujeme o rodinné i bytové domy.
@@ -182,14 +184,14 @@ export function HomeSample() {
             <a className="rd-btn rd-btn-light" href="#kontakt">
               {sampleLabel} <ArrowRight size={18} aria-hidden="true" />
             </a>
-            <a className="rd-cta-phone" href="tel:+420773196097">
-              <Phone size={18} aria-hidden="true" /> +420 773 196 097
+            <a className="rd-cta-phone" href={primaryPhone.href}>
+              <Phone size={18} aria-hidden="true" /> {primaryPhone.phone}
             </a>
           </div>
         </div>
         <img
           className="home-sample-mascot"
-          src="/mascot/dr-fasada.png"
+          src="/mascot/dr-fasada-440.webp"
           alt=""
           width="655"
           height="800"
@@ -212,12 +214,12 @@ export function HomeReferences() {
         </a>
       </div>
       <div className="home-references-grid">
-        {photos.map((photo) => (
+        {photos.map((photo, index) => (
           <a key={photo.src} href="/reference/" className="home-reference-photo">
             <ResponsiveImage
               src={photo.src}
               alt={photo.alt}
-              sizes="(max-width: 900px) 50vw, 25vw"
+              sizes={index === 0 ? "(max-width: 900px) 100vw, 40vw" : "(max-width: 900px) 50vw, 28vw"}
               loading="lazy"
               width="600"
               height="450"

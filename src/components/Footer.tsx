@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { ResponsiveImage } from "./ResponsiveImage";
 import { ArrowUp, MessageSquareText, Facebook, Youtube } from "lucide-react";
 import { ConsentManager } from "./ConsentManager";
-import { privacyUrl } from "../data/contacts";
+import { privacyUrl, primaryPhone, address } from "../data/contacts";
+import { useCurrentYear } from "../hooks/useCurrentYear";
 import { servicesByCategory } from "../data/services";
 import { projects } from "../data/projects";
 interface FooterLink {
@@ -48,13 +49,20 @@ const pagesWithForm = ["/", "/kontakt/"];
 export function Footer({ currentPath }: FooterProps) {
   const formHref = pagesWithForm.includes(currentPath) ? "#kontakt" : "/kontakt/#kontakt";
   const [formVisible, setFormVisible] = useState(false);
+  const year = useCurrentYear();
+  // Plovoucí tlačítko schovat, když je vidět formulář nebo spodní lišta patičky (jinak by ji zakrylo).
   useEffect(() => {
-    const form = document.getElementById("kontakt");
-    if (!form || !("IntersectionObserver" in window)) return;
-    const observer = new IntersectionObserver(([entry]) =>
-      setFormVisible(entry?.isIntersecting ?? false),
-    );
-    observer.observe(form);
+    const targets = document.querySelectorAll("#kontakt, .rd-footer-bottom");
+    if (!targets.length || !("IntersectionObserver" in window)) return;
+    const visible = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
+      }
+      setFormVisible(visible.size > 0);
+    });
+    targets.forEach((target) => observer.observe(target));
     return () => observer.disconnect();
   }, []);
   return (
@@ -71,18 +79,22 @@ export function Footer({ currentPath }: FooterProps) {
                 alt="AWCLEAN"
               />
             </a>
-            {currentPath !== "/" && (
-              <a className="rd-footer-phone" href="tel:+420773196097">
-                +420 773 196 097
-              </a>
-            )}
+            <a className="rd-footer-phone" href={primaryPhone.href}>
+              {primaryPhone.phone}
+            </a>
             <p>
-              Telefonní linka NON-STOP
+              Telefon NON-STOP · provozní doba Po–Ne 8:00–17:00
               <br />
-              Po–Ne 8:00–17:00 · Působíme po celé ČR a SR
+              Působíme po celé ČR a SR
             </p>
             <address>
-              AWCLEAN s.r.o., Na Výsluní 298, 294 28 Chotětov
+              AWCLEAN s.r.o., IČO 50823272
+              <br />
+              {address.street}, {address.postalCode} {address.city}
+              <br />
+              Sídlo: Čsl. armády 1457/2A, 955 01 Topoľčany, SR
+              <br />
+              IČ DPH SK2120488458
               <br />
               <a href="mailto:info@awclean.cz">info@awclean.cz</a>
             </address>
@@ -97,7 +109,7 @@ export function Footer({ currentPath }: FooterProps) {
           </div>
           {footerColumns.map((column) => (
             <nav key={column.title} aria-label={column.title}>
-              <h3>{column.title}</h3>
+              <h2 className="rd-footer-heading">{column.title}</h2>
               {column.links.map((link) => (
                 <a key={link.href} href={link.href}>
                   {link.label.replace(" (airless)", "")}
@@ -108,8 +120,9 @@ export function Footer({ currentPath }: FooterProps) {
         </div>
         <div className="rd-footer-bottom">
           <span>
-            © {new Date().getFullYear()} AWCLEAN s.r.o. · od roku 2001
+            © {year} AWCLEAN s.r.o. · zkušenosti s čištěním od roku 2001
           </span>
+          <a href="/kontakt/#provozovatel">Údaje o společnosti</a>
           <a href={privacyUrl}>Ochrana osobních údajů a cookies</a>
           <ConsentManager />
           <a href="#" className="rd-back-top">

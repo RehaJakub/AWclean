@@ -1,3 +1,4 @@
+import { primaryPhone, address } from "../data/contacts";
 import { MapPin, Clock, Mail } from "lucide-react";
 import { Breadcrumbs } from "../components/layout/Breadcrumbs";
 import { ContactForm } from "../components/ContactForm";
@@ -25,9 +26,11 @@ export function ContactPage() {
           <address>
             <strong>AWCLEAN s.r.o.</strong>
             <br />
-            Na Výsluní 298
+            {address.street}
             <br />
-            294 28 Chotětov, Mladá Boleslav
+            {address.postalCode} {address.city}, {address.region}
+            <br />
+            IČO 50823272
           </address>
         </div>
         <div>
@@ -48,6 +51,31 @@ export function ContactPage() {
             <a href="mailto:info@awclean.sk">info@awclean.sk</a>
           </p>
         </div>
+      </section>
+      <section className="rd-wrap rd-legal-info" id="provozovatel" aria-labelledby="provozovatel-title">
+        <h2 id="provozovatel-title">Provozovatel webu a poskytovatel služeb</h2>
+        <p>
+          <strong>AWCLEAN s.r.o.</strong>, sídlo Čsl. armády 1457/2A, 955 01 Topoľčany, Slovenská republika.
+          IČO 50823272, DIČ 2120488458, IČ DPH SK2120488458.
+          Zapsaná v Obchodnom registri Okresného súdu Nitra, oddiel Sro, vložka č. 43001/N.
+        </p>
+        <p>
+          Kontaktní adresa pro Českou republiku: {address.street}, {address.postalCode} {address.city}.
+          E-mail <a href="mailto:info@awclean.cz">info@awclean.cz</a>, <a href="mailto:info@awclean.sk">info@awclean.sk</a>,
+          telefon <a href={primaryPhone.href}>{primaryPhone.phone}</a>.
+        </p>
+        <h3>Mimosoudní řešení spotřebitelských sporů</h3>
+        <p>
+          Spotřebitel z České republiky se může obrátit na Českou obchodní inspekci, která je věcně příslušným
+          subjektem mimosoudního řešení spotřebitelských sporů: <a href="https://adr.coi.cz">adr.coi.cz</a>.
+        </p>
+        <p lang="sk">
+          Spotrebiteľ zo Slovenskej republiky sa môže obrátiť na Slovenskú obchodnú inšpekciu alebo iný subjekt
+          alternatívneho riešenia spotrebiteľských sporov zapísaný v{"\u00a0"}
+          <a href="https://www.mhsr.sk/obchod/ochrana-spotrebitela/alternativne-riesenie-spotrebitelskych-sporov-1/zoznam-subjektov-alternativneho-riesenia-spotrebitelskych-sporov-1">
+            zozname Ministerstva hospodárstva SR
+          </a>.
+        </p>
       </section>
     </div>
   );

@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npm test
+      - run: npm run build
+      - run: npm run check:build
+      # Celý strom: Vite, sharp a TypeScript běží při buildu v CI (devDependencies).
+      - run: npm audit --audit-level=high
+      - name: PHP syntaxe endpointu formuláře
+        run: if [ -f public/contact.php ]; then php -l public/contact.php; fi

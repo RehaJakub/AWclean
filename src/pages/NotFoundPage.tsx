@@ -4,7 +4,7 @@ export function NotFoundPage() {
   return (
     <section className="rd-404">
       <div className="rd-404-photos" aria-hidden="true">
-        <ResponsiveImage src="/images/realizace/cihlova-fasada-pred-cistenim.webp" alt="" sizes="50vw" />
+        <ResponsiveImage src="/images/realizace/cihlova-fasada-pred-cistenim.webp" alt="" sizes="50vw" fetchPriority="high" />
         <ResponsiveImage src="/images/realizace/cihlova-fasada-po-cisteni.webp" alt="" sizes="50vw" />
       </div>
       <div className="rd-404-content">

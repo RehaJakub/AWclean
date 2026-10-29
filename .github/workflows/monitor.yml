@@ -1,0 +1,41 @@
+name: Monitor
+
+# Doplněk k externímu uptime monitoru (UptimeRobot/Checkmate): denně certifikát, doména, stránky, formulář.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # Zapnout až po spuštění nového webu: v nastavení repozitáře proměnná MONITOR_ENABLED=true.
+    if: github.event_name == 'workflow_dispatch' || vars.MONITOR_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SITE_URL: ${{ vars.SITE_URL || 'https://www.awclean.cz' }}
+    steps:
+      - name: TLS certifikát platí ještě aspoň 21 dní
+        run: |
+          host=${SITE_URL#https://}
+          echo | openssl s_client -connect "$host:443" -servername "$host" 2>/dev/null \
+            | openssl x509 -noout -checkend $((21 * 86400)) \
+            || { echo "::error::Certifikát $host vyprší do 21 dní"; exit 1; }
+
+      - name: Domény platí ještě aspoň 45 dní
+        run: |
+          sudo apt-get install -y -qq whois >/dev/null
+          limit=$(date -d '+45 days' +%s)
+          check() { [ "$(date -d "$2" +%s)" -gt "$limit" ] || { echo "::error::Doména $1 vyprší $2"; exit 1; }; }
+          check awclean.cz "$(whois -h whois.nic.cz awclean.cz | awk -F'[ .]+' '/^expire:/ {print $4"-"$3"-"$2; exit}')"
+          check awclean.sk "$(whois -h whois.sk-nic.sk awclean.sk | awk '/^Valid Until:/ {print $3; exit}')"
+
+      - name: Klíčové stránky
+        run: |
+          for path in / /kontakt/ /sluzby/ /cisteni-fasad/ /reference/; do
+            curl -fsS -o /dev/null "$SITE_URL$path"
+          done
+          test "$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/neexistuje/")" = 404

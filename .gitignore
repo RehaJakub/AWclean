@@ -19,3 +19,9 @@ dist/
 coverage/
 *.log
 *.tsbuildinfo
+
+# Cache a výstupy nástrojů
+.eslintcache
+playwright-report/
+test-results/
+.lighthouseci/

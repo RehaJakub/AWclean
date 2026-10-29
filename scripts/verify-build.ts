@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
+const escapeText = (value: string): string =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const sitemap = readFileSync("dist/sitemap.xml", "utf8");
+const htaccess = readFileSync("dist/.htaccess", "utf8");
+assert.match(htaccess, /Content-Security-Policy/, "Chybí CSP v .htaccess");
+assert.match(htaccess, /RewriteRule \^ochrana-osobnich-udaju/, "Chybí aliasy v .htaccess");
+// CSP style-src 'self' zahodí každý předvykreslený atribut style="".
+for (const file of readdirSync("dist", { recursive: true, encoding: "utf8" }).filter((name) => name.endsWith(".html")))
+  assert.doesNotMatch(readFileSync(resolve("dist", file), "utf8"), /\sstyle="/, `Inline style v ${file} poruší CSP`);
 const titles = new Set<string>();
 const descriptions = new Set<string>();
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
@@ -18,8 +26,23 @@ for (const url of urls) {
   );
   const structuredData: unknown[] = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
     .map((match) => JSON.parse(match[1]) as unknown);
-  const faq = structuredData.find((entry) => entry && typeof entry === "object" && "@type" in entry && entry["@type"] === "FAQPage");
-  assert.ok(faq && typeof faq === "object" && "mainEntity" in faq && Array.isArray(faq.mainEntity) && faq.mainEntity.length === 9, `Chybí FAQPage: ${url.pathname}`);
+  const ofType = (type: string) =>
+    structuredData.filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === "object" && "@type" in entry && entry["@type"] === type);
+  // FAQPage jen tam, kde je FAQ vidět, a jen s viditelnými otázkami.
+  const visibleQuestions = [...html.matchAll(/<summary><span>([^<]+)<\/span>/g)].map((match) => match[1]);
+  const faq = ofType("FAQPage");
+  assert.equal(faq.length, visibleQuestions.length ? 1 : 0, `FAQPage neodpovídá viditelnému FAQ: ${url.pathname}`);
+  if (faq.length)
+    assert.deepEqual(
+      (faq[0].mainEntity as { name: string }[]).map((question) => escapeText(question.name)),
+      visibleQuestions,
+      `FAQPage obsahuje jiné otázky, než stránka zobrazuje: ${url.pathname}`,
+    );
+  const crumbs = html.match(/aria-label="Drobečková navigace"><ol>([\s\S]*?)<\/ol>/)?.[1];
+  const breadcrumbList = ofType("BreadcrumbList");
+  assert.equal(breadcrumbList.length, crumbs ? 1 : 0, `BreadcrumbList neodpovídá drobečkům: ${url.pathname}`);
+  if (crumbs)
+    assert.equal((breadcrumbList[0].itemListElement as unknown[]).length, crumbs.match(/<li>/g)?.length);
   const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
   const description = html.match(/name="description"\s+content="([^"]+)"/)?.[1];
   assert.ok(title && description);
@@ -56,27 +79,14 @@ for (const url of urls) {
     /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
   )?.[1];
   assert.ok(metadata, `Chybí JSON-LD: ${url.pathname}`);
-  const business: unknown = JSON.parse(metadata);
-  assert.ok(
-    typeof business === "object" &&
-      business !== null &&
-      "@type" in business &&
-      business["@type"] === "LocalBusiness",
-  );
-  assert.ok(
-    "address" in business &&
-      JSON.stringify(business.address).includes("Na Výsluní 298"),
-  );
-  assert.ok(
-    "telephone" in business &&
-      Array.isArray(business.telephone) &&
-      business.telephone.length === 3,
-  );
-  assert.ok(
-    "email" in business &&
-      Array.isArray(business.email) &&
-      business.email.length === 2,
-  );
+  const graph: unknown = JSON.parse(metadata);
+  assert.ok(typeof graph === "object" && graph !== null && "@graph" in graph && Array.isArray(graph["@graph"]));
+  const business = (graph["@graph"] as Record<string, unknown>[]).find((node) => node["@type"] === "HomeAndConstructionBusiness");
+  assert.ok(business, `Chybí HomeAndConstructionBusiness: ${url.pathname}`);
+  assert.ok(JSON.stringify(business.address).includes("Na Výsluní 298"));
+  assert.equal(business.telephone, "+420 773 196 097");
+  assert.equal((business.contactPoint as unknown[]).length, 3);
+  assert.equal((business.areaServed as unknown[]).length, 2);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
   for (const field of ["title", "description", "image"]) {
     const og = html.match(
@@ -88,12 +98,19 @@ for (const url of urls) {
     assert.ok(og && twitter, `Chybí metadata ${field}: ${url.pathname}`);
     assert.equal(twitter, og, `Nesouhlasí OG/Twitter: ${url.pathname}`);
   }
+  const ogImage = html.match(/property="og:image"\s+content="https:\/\/www\.awclean\.cz([^"]+)"/)?.[1];
+  assert.ok(ogImage && existsSync(resolve("dist", `.${ogImage}`)), `Chybí obrázek pro sdílení: ${url.pathname}`);
+  assert.match(html, /property="og:image:width" content="1200"/);
+  assert.match(html, /property="og:image:alt" content="[^"]+"/);
   for (const match of html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)) {
     if (!existsSync(resolve("dist", `.${match[1]}`)))
       throw new Error(`Chybí asset: ${match[1]}`);
   }
 }
-if (!readFileSync("dist/404.html", "utf8").includes('content="noindex"'))
+const notFound = readFileSync("dist/404.html", "utf8");
+assert.ok(!notFound.includes('rel="canonical"'), "404 nesmí mít canonical.");
+assert.ok(!notFound.includes('"FAQPage"'), "404 nesmí mít FAQPage.");
+if (!notFound.includes('content="noindex"'))
   throw new Error("404 musí obsahovat noindex.");
 if (
   !readFileSync("public/documents/osvedceni-awclean.pdf")

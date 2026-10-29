@@ -33,7 +33,8 @@ export function Hero() {
       ref={section}
       className="rd-hero"
       aria-label="Porovnání cihlové fasády před čištěním a po něm"
-      style={{ "--split": `${split}%` } as CSSProperties}
+      // Výchozí 50 % je v CSS, takže předvykreslené HTML nemá style="" a projde CSP bez 'unsafe-inline'.
+      style={split === 50 ? undefined : ({ "--split": `${split}%` } as CSSProperties)}
       onPointerDown={start}
       onPointerMove={(event) => {
         if (dragging.current) moveTo(event.clientX);

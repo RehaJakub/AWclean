@@ -1,7 +1,7 @@
 # AWCLEAN – kontext projektu
 
 Ověřeno čtením zdrojů 15. 10. 2026, aktualizováno po redesignu 16. 10. 2026. Tento soubor je stručný pracovní přehled;
-aktuální kód má přednost před historickými poznámkami v README/UPGRADE-NOTES.
+aktuální kód má přednost před historickými poznámkami v docs/history/.
 Pravidla práce jsou v `AGENTS.md`.
 
 ## Účel a stack
@@ -43,9 +43,11 @@ Ověřeno s Node 24.18.1; README uvádí Node 22.18+.
   fasady-nove, vozy, press, responsive, logo a favicony.
 - `public/mascot/dr-fasada.png`: hotový maskot; neobnovovat jej generováním.
 - `public/documents/osvedceni-awclean.pdf`: zachovaný historický soubor bez odkazu v UI.
-- `scripts/`: generate-images, generate-favicon, verify-build (vše TypeScript).
+- `scripts/`: generate-images, generate-favicon, verify-build, check-gps, strip-gps, deploy.sh.
+- `deploy/`: šablona .htaccess, config.example.php a composer.json pro contact.php.
+- `docs/`: ARCHITECTURE, DEPLOY, CONTENT, history/.
 - `dist/`: generovaný statický web, ignorovaný Gitem.
-- README, CONTENT-NOTES, ASSETS, UPGRADE-NOTES: návody, podklady a chybějící obsah.
+- README, CONTENT-NOTES, ASSETS: návody, podklady a chybějící obsah; aktuální v README a docs/.
 - `backups/`, SOURCE.md a awclean-redesign.zip jsou historické/ignorované, ne aktuální zdroj.
 
 ## Adresy
@@ -82,61 +84,71 @@ Navigace: mega menu Čištění (8 služeb s náhledy), menší nabídky Nátěr
 a Ostatní služby, na desktopu hover i klik/klávesnice, mobilní menu s rozbalením.
 Šablona služby: úvod s fotkou → bloky s fotkami → Realizace (4 + rozbalení,
 lightbox) → Časté otázky → CTA banner → Související služby.
-Reference mají 3 karty detailů, 156 fotek (25 původních + 131 z galerií služeb
+Reference mají 3 karty detailů, 154 fotek (25 původních + 129 z galerií služeb
 v `referenceExtras.ts`, bez tmavých/duplicitních záběrů), filtry `?typ=...`, lightbox a vyhledávání firem.
 Ochrana údajů má obsah vlevo (sticky) a text vpravo.
 Čisté fasády: původní článek + vyhledávání v FAQ DR Fasády; plovoucí maskot se tam nezobrazuje.
 
 DR Fasáda je pevný průvodce, ne AI: objekt → povrch → problém → služba.
-FAQ má 9 odpovědí, kategorie a vyhledávání bez diakritiky. Maskot je vpravo,
-šipkou se zasouvá a vrací, ale při každém načtení stránky je vždy vidět
-(nic se neukládá, bez automatického schování při scrollu). Dialog má Escape, návrat fokusu a focus trap.
+FAQ má 9 odpovědí, kategorie a vyhledávání bez diakritiky; „Doktor radí:“ přidává jen maskot.
+Výsledek průvodce má kroky „Co bude dál?“, Zavolat a Napsat přes formulář. Maskot je vpravo,
+šipkou se zasouvá a vrací, při načtení je vidět (nic se neukládá). Sám se zasune nad formulářem,
+patičkou, sekcí ukázky zdarma, když je pod ním fokus, a na nízkém viewportu (≤ 560 px výšky)
+přijede zasunutý. Dialog má Escape, návrat fokusu a focus trap.
 Preference souhlasu se ukládají do localStorage `awclean-consent-v1` na 180 dní.
-Žádná analytika ani reklamní skripty nejsou připojené; přepínače je nespouštějí.
+Google Analytics 4 (`src/lib/analytics.ts`) se zapíná proměnnou `VITE_GA_ID`: pak se při první návštěvě
+zobrazí lišta souhlasu (Odmítnout / Nastavení / Povolit) a GA se načte jen po souhlasu s analytikou;
+odvolání smaže cookies `_ga*`. Události: click_phone, click_email, click_inquiry, generate_lead.
+Bez `VITE_GA_ID` se nic neměří ani nezobrazuje. Reklamní skripty nejsou; volitelný skript jen přes `hasConsent()`.
 Primární modrá tlačítek je #0a74b0 (návrhová #0b8fd6 nesplňuje kontrast AA).
 
 ## Formulář a integrace
 
-Jediná aplikační env proměnná: `VITE_CONTACT_ENDPOINT` (viz .env.example).
+Aplikační env proměnné: `VITE_CONTACT_ENDPOINT` a `VITE_GA_ID` (viz .env.example).
 Při auditu nebyl přítomen žádný místní .env kromě .env.example s prázdnou hodnotou.
 Nastavit před buildem; VITE_* jsou veřejné a nesmí obsahovat tajné klíče.
 Formulář má klientskou validaci name/phone/email/message, české chyby,
 odesílání/úspěch/chybu, blokování opakovaného odeslání a 15s timeout.
-POST JSON jde přímo z prohlížeče na endpoint; jakákoli 2xx odpověď znamená úspěch.
+POST JSON jde z prohlížeče na endpoint (s honeypotem `website`, `fillMs`, `service`, `sample`
+z URL ?sluzba=&vzorek=1); jakákoli 2xx odpověď znamená úspěch. Formulář má method=post/action,
+takže ani bez JS nejdou údaje do URL. Po odeslání jde fokus na stavovou zprávu.
 Bez endpointu zobrazí chybu a mailto fallback, ne falešný úspěch.
 Data formuláře jsou pouze ve stavu komponenty, lokálně se trvale neukládají.
-URL parametry sluzba/vzorek se nyní do odesílaného payloadu nepřenášejí.
 
-Backend, e-mailový provider, databáze, Supabase, CMS/admin, účty, autentizace,
-rezervace, platby ani CRM v projektu nejsou. Facebook/YouTube jsou pouze odkazy.
-Backend musí teprve zajistit serverovou validaci, ochranu proti spamu a doručení.
+Backend: `public/contact.php` (PHPMailer, validace, honeypot, limity na IP a den, volitelně Turnstile),
+konfigurace podle `deploy/config.example.php` mimo webroot; postup v docs/DEPLOY.md.
+Endpoint ani SMTP zatím nejsou nasazené. Databáze, CMS/admin, účty, platby ani CRM nejsou.
+Facebook/YouTube jsou pouze odkazy.
 
 ## Příkazy a nasazení
 
 ```sh
 npm ci
 npm run dev             # localhost:5173, pouze 127.0.0.1
-npm test
-npm run build           # tsc --noEmit + Vite + statické HTML
-npm run check:build     # čte již vytvořený dist
+npm test                # jen src/**/*.test.ts(x)
+npm run lint            # ESLint
+npm run build           # tsc --noEmit + Vite + statické HTML + og obrázky
+npm run check:build     # čte již vytvořený dist (+ kontrola GPS v obrázcích)
 npm run preview
-npm run images          # POZOR: zapisuje varianty a src/data/imageVariants.ts
+npm run images          # nové varianty + manifest, maže nepoužívané varianty
+npm run strip:gps       # bezeztrátově odstraní EXIF/GPS z public/
 ```
 
-Build generuje HTML všech tras, aliasy, 404, sitemap, `_redirects` a `.htaccess`.
+Build generuje HTML všech tras, aliasy, 404, sitemap (s fotkami referencí), `_redirects`,
+obrázky pro sdílení 1200×630 a `.htaccess` ze šablony `deploy/htaccess.template` (CSP, cache, 301, 410 mytí oken).
 Nasazuje se celý dist včetně skrytého .htaccess na vhodný statický hosting/Apache.
 Pro jiný server je nutné nastavit odpovídající indexy, 301 a 404.
 SEO doména je pevně https://www.awclean.cz (canonical, OG, Twitter, sitemap, JSON-LD).
-Konfigurace konkrétního hostingu ani CI/CD workflow v repozitáři nejsou.
+CI: `.github/workflows/ci.yml`; nasazení `deploy.yml` + `scripts/deploy.sh` (tag v*, lftp);
+monitoring `monitor.yml` (zapnout proměnnou MONITOR_ENABLED). Hosting zatím není vybraný.
 GitHub remote: https://github.com/RehaJakub/AWclean.git.
 
-## Stav ověření 16. 10. 2026 (po redesignu)
+## Stav ověření 28. 10. 2026 (po opravách z auditu)
 
-- `tsc --noEmit`: bez chyb.
-- Aktuální src: 53 testů v 5 souborech prošlo příkazem
-  `npm test -- --no-cache --configLoader runner --exclude 'backups/**'`.
-- Bez explicitního vyloučení se lokálně spouštějí i testy odmítnuté kopie
-  v backups (106 testů/10 souborů). Doporučení: omezit test discovery na src.
+Audit 27. 10. 2026 je v `audit/` (checklist `audit/audit-tasks.md`, navržené opravy v `audit/fixes/`).
+
+- `tsc --noEmit`, `npm run lint`: bez chyb.
+- `npm test`: 56 testů v 5 souborech (vite.config omezuje testy na src).
 - `npm run build` a `npm run check:build`: všech 23 adres prošlo.
   verify-build kontroluje na homepage existenci `#pred-a-po` a `#sluzby`.
 - Stránky vyfoceny v Brave (1440 a 390 px) skriptem taste skillu; nebyl proveden
@@ -146,19 +158,21 @@ GitHub remote: https://github.com/RehaJakub/AWclean.git.
 
 Před produkcí: připojit a ověřit doručení formuláře; potvrdit obsahové údaje
 a podmínky záruk; ověřit ostrý hosting, HTTPS, redirecty/404 a reálný mobil.
+ODLOŽENO (uživatel 29. 10. 2026: „zatím ne, pak“): Google Analytics 4 je hotové v kódu, ale vypnuté.
+Až uživatel pošle měřicí ID `G-…`: nastavit `VITE_GA_ID` (.env / GitHub prostředí production),
+připomenout uchovávání dat 14 měsíců v GA (uvedeno v privacy.ts), ověřit lištu a načtení po souhlasu.
+ODLOŽENO: napojení CRM (doporučeno EspoCRM na PHP hostingu, data z contact.php). Čeká na výběr CRM a hostingu.
 FAQ TODO: délka čištění, ochrana zeleně/přípravky, podmínky záruk 5/10/20 let, ceník.
+Na homepage je záruka „až 20 let – podmínky v nabídce“, dokud firma nedodá podmínky.
 Chybí vlastní fotky dopravního značení (gallery prázdná, source prázdný,
 ilustrační foto), dokumentace nano impregnace, ověřené detaily zakázek a některé
 originály ve vyšším rozlišení. Viz CONTENT-NOTES.md.
 
-Další dluh: historické README obsahuje zastaralé údaje (2,5 s, 18 fotek,
-47 testů, wave varianta); index.html obsahuje starých 24+ let, produkční metadata
-se při buildu přepisují. Footer a období referencí používají přímo Date,
-takže při hydrataci starého buildu v novém roce hrozí nesoulad.
-CSS má ~7270 řádků v 7 souborech; starší vrstvy obsahují pravidla pro smazané
-komponenty (cinema-hero, trust, process, stats…), která čekají na vyčištění.
-`audiences.ts` používá už jen guide.test.ts. Public má ~198 MiB včetně
-historických assetů. Hlavní JS má ~453 kB bez komprese.
+Další dluh: CSS má ~7270 řádků v 7 souborech; starší vrstvy obsahují pravidla pro smazané
+komponenty, dvě sady tokenů/tlačítek (UX-10) a písmo jen v px (VIS-6). Bez AVIF (PERF-8).
+Public má ~130 MiB; nepoužité originály jsou v `assets-source/` (mimo build).
+Historické README a UPGRADE-NOTES jsou v `docs/history/`. Hlavní JS má ~453 kB bez komprese.
+Texty v src/data používají nezlomitelné mezery (U+00A0) za jednopísmennými předložkami.
 
 ## Konvence a práce s Gitem
 
