@@ -158,6 +158,10 @@ Audit 27. 10. 2026 je v `audit/` (checklist `audit/audit-tasks.md`, navržené o
 
 Před produkcí: připojit a ověřit doručení formuláře; potvrdit obsahové údaje
 a podmínky záruk; ověřit ostrý hosting, HTTPS, redirecty/404 a reálný mobil.
+ODLOŽENO (uživatel 29. 10. 2026: „zatím ne, pak“): Google Analytics 4 je hotové v kódu, ale vypnuté.
+Až uživatel pošle měřicí ID `G-…`: nastavit `VITE_GA_ID` (.env / GitHub prostředí production),
+připomenout uchovávání dat 14 měsíců v GA (uvedeno v privacy.ts), ověřit lištu a načtení po souhlasu.
+ODLOŽENO: napojení CRM (doporučeno EspoCRM na PHP hostingu, data z contact.php). Čeká na výběr CRM a hostingu.
 FAQ TODO: délka čištění, ochrana zeleně/přípravky, podmínky záruk 5/10/20 let, ceník.
 Na homepage je záruka „až 20 let – podmínky v nabídce“, dokud firma nedodá podmínky.
 Chybí vlastní fotky dopravního značení (gallery prázdná, source prázdný,
