@@ -30,6 +30,18 @@ Postup je v auditu (`ops-deploy.html#OPS-4`): předem připravit certifikát, za
 přepnout DNS, ověřit `curl -sI` přesměrování a 404. HSTS je na doméně už rok, web musí běžet na HTTPS
 od první minuty.
 
+## Google Analytics 4 (cookies)
+
+1. V Google Analytics vytvořit službu (property) a datový stream pro web, zkopírovat měřicí ID `G-…`.
+2. V GA: Správce → Nastavení dat → Uchovávání dat → **14 měsíců** (zásady ochrany údajů to uvádějí).
+   Google signály a propojení s reklamou nechat vypnuté.
+3. Build spustit s `VITE_GA_ID=G-…` (lokálně v `.env`, v GitHub prostředí `production` jako proměnná).
+4. Po nasazení se návštěvníkovi zobrazí lišta „Můžeme měřit návštěvnost?“. GA se načte až po „Povolit“;
+   po odvolání souhlasu se cookies `_ga*` smažou. Měří se i události `click_phone`, `click_email`,
+   `click_inquiry` a `generate_lead` (odeslaná poptávka) – v GA je lze označit jako klíčové události.
+
+Bez `VITE_GA_ID` web nic neměří, lišta se nezobrazí a texty o cookies to tak i uvádějí.
+
 ## Monitoring
 
 `.github/workflows/monitor.yml` denně kontroluje certifikát, expiraci domén a klíčové stránky.

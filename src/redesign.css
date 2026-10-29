@@ -1441,3 +1441,37 @@ h1, h2, h3, p, li, dd, a, label { overflow-wrap: break-word; }
 .breadcrumbs li { flex-shrink: 0; }
 .breadcrumbs li:last-child { flex-shrink: 1; min-width: 0; }
 .breadcrumbs [aria-current] { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Lišta souhlasu s analytickými cookies (jen když je nastavené VITE_GA_ID a chybí volba). */
+.consent-banner {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  max-width: 1100px;
+  margin-inline: auto;
+  padding: 18px 20px;
+  border: 1px solid var(--rd-line, #dce6f0);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--rd-text);
+  box-shadow: 0 12px 40px #0f264533;
+}
+.consent-banner-copy { flex: 1 1 420px; min-width: 0; }
+.consent-banner-copy p { margin: 0; font-size: 15px; line-height: 1.5; }
+.consent-banner-copy p + p { margin-top: 4px; }
+.consent-banner-copy strong { color: var(--rd-ink); font-size: 16px; }
+.consent-banner-copy a { color: var(--rd-blue); text-decoration: underline; }
+.consent-banner-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.consent-banner-actions .button { min-height: 44px; padding: 10px 18px; font-size: 15px; }
+@media (max-width: 560px) {
+  .consent-banner-actions { width: 100%; }
+  .consent-banner-actions .button { flex: 1 1 auto; justify-content: center; }
+}
+@media print { .consent-banner { display: none !important; } }

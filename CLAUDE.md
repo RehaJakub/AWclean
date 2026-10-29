@@ -96,12 +96,15 @@ Výsledek průvodce má kroky „Co bude dál?“, Zavolat a Napsat přes formul
 patičkou, sekcí ukázky zdarma, když je pod ním fokus, a na nízkém viewportu (≤ 560 px výšky)
 přijede zasunutý. Dialog má Escape, návrat fokusu a focus trap.
 Preference souhlasu se ukládají do localStorage `awclean-consent-v1` na 180 dní.
-Žádná analytika ani reklamní skripty nejsou připojené; volitelný skript smí jen přes `hasConsent()`.
+Google Analytics 4 (`src/lib/analytics.ts`) se zapíná proměnnou `VITE_GA_ID`: pak se při první návštěvě
+zobrazí lišta souhlasu (Odmítnout / Nastavení / Povolit) a GA se načte jen po souhlasu s analytikou;
+odvolání smaže cookies `_ga*`. Události: click_phone, click_email, click_inquiry, generate_lead.
+Bez `VITE_GA_ID` se nic neměří ani nezobrazuje. Reklamní skripty nejsou; volitelný skript jen přes `hasConsent()`.
 Primární modrá tlačítek je #0a74b0 (návrhová #0b8fd6 nesplňuje kontrast AA).
 
 ## Formulář a integrace
 
-Jediná aplikační env proměnná: `VITE_CONTACT_ENDPOINT` (viz .env.example).
+Aplikační env proměnné: `VITE_CONTACT_ENDPOINT` a `VITE_GA_ID` (viz .env.example).
 Při auditu nebyl přítomen žádný místní .env kromě .env.example s prázdnou hodnotou.
 Nastavit před buildem; VITE_* jsou veřejné a nesmí obsahovat tajné klíče.
 Formulář má klientskou validaci name/phone/email/message, české chyby,

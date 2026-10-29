@@ -45,6 +45,7 @@ jobs:
       - name: Build
         env:
           VITE_CONTACT_ENDPOINT: ${{ vars.VITE_CONTACT_ENDPOINT }}
+          VITE_GA_ID: ${{ vars.VITE_GA_ID }}
         run: |
           test -n "$VITE_CONTACT_ENDPOINT" || { echo "::error::Chybí proměnná prostředí production VITE_CONTACT_ENDPOINT"; exit 1; }
           npm run build

@@ -20,6 +20,7 @@ import {
   type ContactValues,
   type SubmitStatus,
 } from "../lib/contact";
+import { track } from "../lib/analytics";
 import { Section } from "./Section";
 import { ResponsiveImage } from "./ResponsiveImage";
 interface ContactFormProps {
@@ -80,6 +81,7 @@ export function ContactForm({ endpoint = "", showVans = false, lead }: ContactFo
       setStatus("success");
       setValues(initialValues);
       focusStatus();
+      track("generate_lead");
     } catch (error: unknown) {
       setStatus("error");
       setErrorMessage(

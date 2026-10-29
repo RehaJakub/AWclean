@@ -9,6 +9,12 @@ import {
   type ConsentPreferences,
   type SavedConsent,
 } from "../lib/consent";
+import {
+  analyticsEnabled,
+  loadAnalytics,
+  needsConsentDecision,
+  revokeAnalytics,
+} from "../lib/analytics";
 const tabs = ["Souhlas", "Podrobnosti", "O cookies"] as const;
 const categories: {
   key: keyof ConsentPreferences;
@@ -24,8 +30,9 @@ const categories: {
   {
     key: "analytics",
     title: "Analytické",
-    description:
-      "Pomáhají porozumět návštěvnosti a používání webu. Na tomto webu je nyní nepoužíváme.",
+    description: analyticsEnabled
+      ? "Google Analytics 4 měří návštěvnost, používání webu a odeslané poptávky. Ukládá cookies _ga a _ga_* až na 2 roky. Data zpracovává Google Ireland Ltd.; mohou být předána do USA (EU-U.S. Data Privacy Framework). Spustí se jen s vaším souhlasem."
+      : "Pomáhají porozumět návštěvnosti a používání webu. Na tomto webu je nyní nepoužíváme.",
   },
   {
     key: "marketing",
@@ -46,6 +53,12 @@ export function ConsentManager() {
   const [saved, setSaved] = useState<SavedConsent | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [banner, setBanner] = useState(false);
+  // Jen na klientu (žádný rozdíl při hydrataci): spustit měření podle uložené volby, případně se zeptat.
+  useEffect(() => {
+    loadAnalytics();
+    setBanner(needsConsentDecision());
+  }, []);
   useEffect(
     () => () => {
       if (isOpen.current)
@@ -77,8 +90,12 @@ export function ConsentManager() {
   };
   const persist = (next: ConsentPreferences): void => {
     try {
+      const previous = parseConsent(window.localStorage.getItem(consentStorageKey));
       const result = saveConsent(window.localStorage, next);
       setSaved(result);
+      setBanner(false);
+      if (next.analytics) loadAnalytics();
+      else if (previous?.analytics) revokeAnalytics();
       setPreferences(next);
       setNotice("Vaše nastavení souhlasu bylo uloženo.");
       dialog.current?.close();
@@ -117,6 +134,33 @@ export function ConsentManager() {
       <span className="sr-only" role="status">
         {notice}
       </span>
+      {banner && (
+        <div className="consent-banner" role="region" aria-labelledby="consent-banner-title">
+          <div className="consent-banner-copy">
+            <p id="consent-banner-title"><strong>Můžeme měřit návštěvnost?</strong></p>
+            <p>
+              S vaším souhlasem použijeme analytické cookies Google Analytics, abychom
+              věděli, co na webu funguje. Bez souhlasu nic neměříme.{" "}
+              <a href={privacyUrl}>Více o cookies</a>
+            </p>
+          </div>
+          <div className="consent-banner-actions">
+            <button type="button" className="button button-outline" onClick={() => persist(defaultConsent)}>
+              Odmítnout
+            </button>
+            <button type="button" className="button button-outline" onClick={open}>
+              Nastavení
+            </button>
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={() => persist({ personalized: false, analytics: true, marketing: false })}
+            >
+              Povolit
+            </button>
+          </div>
+        </div>
+      )}
       <dialog
         ref={dialog}
         className="consent-dialog"
@@ -185,9 +229,9 @@ export function ConsentManager() {
               <div className="consent-info">
                 <ShieldCheck size={20} aria-hidden="true" />
                 <p>
-                  Aktuálně nepoužíváme analytické, personalizované ani
-                  marketingové cookies. Ukládáme pouze vaše nastavení; povolení
-                  kategorií nyní nespouští žádné sledování.
+                  {analyticsEnabled
+                    ? "Analytické cookies (Google Analytics) použijeme jen s vaším souhlasem. Personalizované ani marketingové cookies nepoužíváme."
+                    : "Aktuálně nepoužíváme analytické, personalizované ani marketingové cookies. Ukládáme pouze vaše nastavení; povolení kategorií nyní nespouští žádné sledování."}
                 </p>
               </div>
               <div className="consent-switches">
@@ -284,10 +328,12 @@ export function ConsentManager() {
                 přímo ve vašem prohlížeči.
               </p>
               <p>
-                Na tomto webu používáme místní úložiště pouze k zapamatování
-                této volby. Pomocník DR Fasáda si nic neukládá a hledané výrazy
-                se neukládají. Žádná z volitelných kategorií teď není využívaná.
-                Odmítnutí proto neomezuje prohlížení webu ani odeslání poptávky.
+                Místní úložiště používáme k zapamatování této volby. Pomocník
+                DR Fasáda si nic neukládá a hledané výrazy se neukládají.{" "}
+                {analyticsEnabled
+                  ? "S vaším souhlasem měříme návštěvnost přes Google Analytics (cookies _ga, _ga_*). "
+                  : "Žádná z volitelných kategorií teď není využívaná. "}
+                Odmítnutí neomezuje prohlížení webu ani odeslání poptávky.
               </p>
               <p>
                 Nastavení můžete změnit v tomto okně. Data webu lze také

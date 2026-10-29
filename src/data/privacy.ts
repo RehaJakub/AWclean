@@ -1,4 +1,7 @@
 import type { ContentSection } from "./pages/types";
+import { analyticsEnabled } from "../lib/analytics";
+// Texty o Google Analytics se zobrazí jen v buildu s nastaveným VITE_GA_ID.
+const ga = <T,>(...items: T[]): T[] => (analyticsEnabled ? items : []);
 export const privacySections: ContentSection[] = [
   {
     title: "Kdo je správce",
@@ -18,6 +21,7 @@ export const privacySections: ContentSection[] = [
       "Vedení účetnictví a daňové povinnosti (údaje na fakturách a účetních dokladech). Právní základ: plnění právní povinnosti, čl. 6 odst. 1 písm. c) GDPR.",
       "Uplatnění a obhajoba právních nároků, zejména z odpovědnosti za vady a ze záruky (údaje o zakázce a komunikace). Právní základ: oprávněný zájem správce na ochraně svých práv, čl. 6 odst. 1 písm. f) GDPR.",
       "Ochrana formuláře před spamem a zneužitím (technické údaje o požadavku, zejména IP adresa uložená jen jako jednosměrný otisk pro omezení počtu odeslání). Právní základ: oprávněný zájem správce na bezpečném provozu webu, čl. 6 odst. 1 písm. f) GDPR.",
+      ...ga("Měření návštěvnosti webu přes Google Analytics 4 (údaje o zařízení a prohlížeči, navštívené stránky, přibližná poloha odvozená z IP adresy, identifikátory v cookies, odeslání poptávky bez jejího obsahu). Právní základ: váš souhlas, čl. 6 odst. 1 písm. a) GDPR. Souhlas můžete kdykoli odvolat tlačítkem Spravovat souhlas v patičce."),
     ],
   },
   {
@@ -41,13 +45,16 @@ export const privacySections: ContentSection[] = [
       "Poskytovatel webhostingu, na kterém běží web a skript formuláře.",
       "Poskytovatel e-mailových schránek a odesílání pošty.",
       "Účetní nebo daňový poradce.",
+      ...ga("Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irsko – služba Google Analytics 4, jen pokud jste povolili analytické cookies."),
       "Orgány veřejné moci, pokud nám to ukládá právní předpis.",
     ],
   },
   {
     title: "Předávání mimo EU",
     paragraphs: [
-      "Osobní údaje nemáme v úmyslu předávat do zemí mimo Evropskou unii ani mezinárodním organizacím.",
+      analyticsEnabled
+        ? "Údaje z formuláře a o zakázkách nepředáváme do zemí mimo Evropskou unii. Při měření návštěvnosti (jen s vaším souhlasem) mohou být údaje předány společnosti Google LLC v USA. Předání se opírá o rozhodnutí Evropské komise o odpovídající ochraně podle rámce EU–USA pro ochranu osobních údajů (EU-U.S. Data Privacy Framework), u něhož je Google certifikován."
+        : "Osobní údaje nemáme v úmyslu předávat do zemí mimo Evropskou unii ani mezinárodním organizacím.",
     ],
   },
   {
@@ -57,6 +64,7 @@ export const privacySections: ContentSection[] = [
       "Údaje ze smlouvy a komunikace k zakázce: po dobu trvání smlouvy a dále po dobu, kdy lze uplatnit práva z vad a ze záruky a související nároky.",
       "Účetní a daňové doklady: po dobu stanovenou právními předpisy, obvykle 10 let.",
       "Technické údaje ochrany formuláře: nejvýše 24 hodin.",
+      ...ga("Údaje Google Analytics: 14 měsíců od pořízení; cookies _ga a _ga_* až 2 roky, pokud je dříve nesmažete nebo souhlas neodvoláte."),
     ],
     paragraphs: [],
   },
@@ -91,7 +99,9 @@ export const privacySections: ContentSection[] = [
   {
     title: "Cookies a místní úložiště",
     paragraphs: [
-      "Web nepoužívá analytické ani reklamní cookies, měřicí kódy ani reklamní pixely. Fotografie a písma se načítají z našeho serveru. Facebook a YouTube jsou pouze odkazy; po kliknutí přecházíte do externí služby s vlastními pravidly.",
+      analyticsEnabled
+        ? "Analytické cookies Google Analytics 4 (_ga, _ga_*) použijeme jen s vaším souhlasem; bez něj se měřicí kód vůbec nenačte. Reklamní cookies ani reklamní pixely nepoužíváme. Fotografie a písma se načítají z našeho serveru. Facebook a YouTube jsou pouze odkazy; po kliknutí přecházíte do externí služby s vlastními pravidly."
+        : "Web nepoužívá analytické ani reklamní cookies, měřicí kódy ani reklamní pixely. Fotografie a písma se načítají z našeho serveru. Facebook a YouTube jsou pouze odkazy; po kliknutí přecházíte do externí služby s vlastními pravidly.",
       "Jediné, co web ukládá do vašeho prohlížeče, je vaše volba v okně Spravovat souhlas: kategorie a datum uložení pod klíčem awclean-consent-v1 v místním úložišti, na 180 dní. Nikam ji neodesíláme.",
       "Údaje rozepsané ve formuláři se do prohlížeče neukládají. Pomocník DR Fasáda si nic neukládá; hledané výrazy se neukládají ani neodesílají.",
       "Svou volbu v okně Spravovat souhlas můžete kdykoli změnit nebo odvolat. Cookies a data webu můžete smazat v nastavení prohlížeče.",
